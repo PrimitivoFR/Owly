@@ -2,6 +2,31 @@ version: "3.8"
 
 services:
 
+  elasticsearch:
+    hostname: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.3
+    environment:
+      - "discovery.type=single-node"
+      - "bootstrap.memory_lock=true"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+       memlock:
+         soft: -1
+         hard: -1
+    ports:
+      - 9200:9200
+    networks:
+      - back-end
+  
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodbdata:/data/db
+    networks:
+      - back-end
+
   keycloak:
     hostname: keycloak
     image: quay.io/keycloak/keycloak:11.0.1
@@ -28,6 +53,9 @@ services:
       - front-end
     ports:
       - 4200:4200
+
+volumes: 
+  mongodbdata:
 
 networks:
   front-end:
