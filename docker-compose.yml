@@ -13,7 +13,13 @@ services:
       - ./keycloak:/tmp
     networks: 
       - back-end
-
+  
+  server:
+    hostname: server
+    restart: on-failure:2
+    networks: 
+      - back-end
+      - front-end
   
   client:
     hostname: client

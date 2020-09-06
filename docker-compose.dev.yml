@@ -7,6 +7,14 @@ services:
   keycloak:
     env_file: ./keycloak/.keycloak-env
   
+  # go dev
+  server:
+    image: golang
+    volumes:
+      - ./server:/go/src/owly-server
+    working_dir: /go/src/owly-server
+    command: go run main.go
+
   # ng dev
   client:
     image: node:alpine
