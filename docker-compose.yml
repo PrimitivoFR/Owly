@@ -14,7 +14,7 @@ services:
     networks: 
       - back-end
 
-  # ng dev
+  
   client:
     hostname: client
     restart: on-failure:2

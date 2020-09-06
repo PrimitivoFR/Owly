@@ -6,7 +6,8 @@ services:
 
   keycloak:
     env_file: ./keycloak/.keycloak-env
-
+  
+  # ng dev
   client:
     image: node:alpine
     volumes:
