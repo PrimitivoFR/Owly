@@ -1,0 +1,26 @@
+# This is a basic workflow to help you get started with Actions
+
+name: DockerBuild
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  docker-owly-client:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repo
+    - name: Checkout
+      uses: actions/checkout@v2
+      
+    - name: GithubPkg-Docker-owly-client
+      uses: matootie/github-docker@v3.0.0
+      with:
+        accessToken:  ${{ secrets.GITHUB_TOKEN }}
+        context: ./owly-client
+        imageName: owly-client
