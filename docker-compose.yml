@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+
+  keycloak:
+    hostname: keycloak
+    image: quay.io/keycloak/keycloak:11.0.1
+    ports:
+      - 8080:8080
+    environment:
+      KEYCLOAK_IMPORT: /tmp/owly-realm.json 
+    volumes: 
+      - ./keycloak:/tmp
+    networks: 
+      - back-end
+
+  # ng dev
+  client:
+    hostname: client
+    restart: on-failure:2
+    networks:
+      - front-end
+    ports:
+      - 4200:4200
+
+networks:
+  front-end:
+  back-end:
+      
+    
