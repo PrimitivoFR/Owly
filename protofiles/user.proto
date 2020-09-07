@@ -1,4 +1,5 @@
 // GO: protoc protofiles/user.proto --go_out=plugins=grpc:./server/user/userpb
+// TS: protoc --ts_out="service=grpc-web:owly-client/src" protofiles/user.proto
 
 syntax = "proto3";
 
