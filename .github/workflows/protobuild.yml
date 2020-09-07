@@ -1,0 +1,21 @@
+
+
+name: ProtoBuild
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  protobuild:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Generates protos from sh file
+        run: |
+          chmod 700 ./generateProtos.sh
+          ./generateProtos.sh
