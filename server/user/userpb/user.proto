@@ -1,0 +1,24 @@
+// protoc user/userpb/user.proto --go_out=plugins=grpc:.
+
+syntax = "proto3";
+
+package user;
+
+option go_package ="user/userpb";
+
+message CreateNewUserRequest {
+    string first_name = 1;
+    string last_name = 2;
+    string username = 3;
+    string email = 4;
+    string password = 5;
+}
+
+message CreateNewUserResponse {
+    bool success = 1;
+}
+
+service UserService {
+
+    rpc CreateNewUser(CreateNewUserRequest) returns(CreateNewUserResponse) {}
+}

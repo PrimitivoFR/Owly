@@ -10,10 +10,13 @@ services:
   # go dev
   server:
     image: golang
+    env_file: ./keycloak/.keycloak-env
     volumes:
       - ./server:/go/src/owly-server
     working_dir: /go/src/owly-server
     command: go run main.go
+    ports:
+      - 50051:50051
 
   # ng dev
   client:
