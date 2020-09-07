@@ -24,3 +24,9 @@ jobs:
         accessToken:  ${{ secrets.GITHUB_TOKEN }}
         context: ./owly-client
         imageName: owly-client
+ 
+    - name: DiscordWebHook-CI-FAILURE
+      uses: sarisia/actions-status-discord@v1
+      if: failure()
+      with:
+        webhook: ${{ secrets.CI_DISCORD_WEBHOOK }}
