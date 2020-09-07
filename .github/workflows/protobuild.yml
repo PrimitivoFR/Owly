@@ -16,8 +16,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install dep
         run: |
-          apt-get update
-          apt-get install protobuf-compiler -y
+          sudo apt-get update
+          sudo apt-get install protobuf-compiler -y
       - name: Generates protos from sh file
         run: |
           chmod 700 ./generateProtos.sh
