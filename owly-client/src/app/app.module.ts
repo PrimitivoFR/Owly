@@ -17,7 +17,7 @@ import {GRPC_USER_SERVICE_CLIENT_SETTINGS} from '../proto/user.pbconf'
   ],
   providers: [
     { provide: GRPC_CLIENT_FACTORY, useClass: GrpcWebClientFactory },
-    { provide: GRPC_USER_SERVICE_CLIENT_SETTINGS, useValue: { host: 'http://0.0.0.0:50051' } },
+    { provide: GRPC_USER_SERVICE_CLIENT_SETTINGS, useValue: { host: 'http://0.0.0.0:8085' } },
   ],
   bootstrap: [AppComponent]
 })
