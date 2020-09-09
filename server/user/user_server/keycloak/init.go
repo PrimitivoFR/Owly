@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Nerzal/gocloak/v7"
+	"github.com/pkg/errors"
 )
 
 var keycloak_admin_user string
@@ -32,17 +33,17 @@ func checkConnection() {
 	}
 }
 
-func InitAdmin() *AdminGuy {
+func InitAdmin() (*AdminGuy, error) {
 
 	checkConnection()
 	client := gocloak.NewClient("http://keycloak:8080/")
 	if client == nil {
-		log.Fatal("Couldn't connect to Keycloak instance")
-		return nil
+		log.Fatal()
+		return nil, errors.Errorf("Couldn't connect to Keycloak instance")
 	}
 	loadEnvVars()
-	adminGuy := NewAdmin(keycloak_admin_user, keycloak_admin_pass, client)
+	adminGuy, err := NewAdmin(keycloak_admin_user, keycloak_admin_pass, client)
 
-	return adminGuy
+	return adminGuy, err
 
 }

@@ -21,7 +21,10 @@ type server struct{}
 
 func (*server) CreateNewUser(ctx context.Context, req *userpb.CreateNewUserRequest) (*userpb.CreateNewUserResponse, error) {
 
-	adminGuy := keycloak.InitAdmin()
+	adminGuy, err := keycloak.InitAdmin()
+	if err != nil {
+		return nil, status.Error(codes.Internal, fmt.Sprintf("Error: %v", err))
+	}
 
 	firstName := req.GetFirstName()
 	lastName := req.GetLastName()
@@ -44,7 +47,7 @@ func (*server) CreateNewUser(ctx context.Context, req *userpb.CreateNewUserReque
 
 	ID, err := adminGuy.CreateUser(user)
 	if err != nil {
-		log.Fatalf("Error while logging: %v", err)
+		return nil, status.Error(codes.Internal, fmt.Sprintf("Error while creating user account: %v", err))
 	}
 
 	err = adminGuy.SetUserPassword(ID, pass, false)
@@ -61,7 +64,10 @@ func (*server) CreateNewUser(ctx context.Context, req *userpb.CreateNewUserReque
 }
 
 func (*server) SearchUserByUsername(ctx context.Context, req *userpb.SearchUserByUsernameRequest) (*userpb.SearchUserByUsernameResponse, error) {
-	adminGuy := keycloak.InitAdmin()
+	adminGuy, err := keycloak.InitAdmin()
+	if err != nil {
+		return nil, status.Error(codes.Internal, fmt.Sprintf("Error: %v", err))
+	}
 
 	ret, _ := adminGuy.SearchUserByUsername(req.GetUsername())
 	var userListRes []*userpb.User
