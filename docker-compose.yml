@@ -19,6 +19,7 @@ services:
       - back-end
   
   mongo:
+    hostname: mongo
     image: mongo
     ports:
       - 27017:27017
@@ -41,6 +42,8 @@ services:
   
   server:
     hostname: server
+    environment:
+      MONGO_HOSTNAME: mongo
     restart: on-failure:2
     networks: 
       - back-end

@@ -17,6 +17,7 @@ services:
     command: go run main.go
     ports:
       - 50051:50051
+      - 50052:50052
 
   # ng dev
   client:
