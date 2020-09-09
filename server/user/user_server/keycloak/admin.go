@@ -35,3 +35,10 @@ func (adminGuy *AdminGuy) CreateUser(user gocloak.User) (string, error) {
 func (adminGuy *AdminGuy) SetUserPassword(userId string, password string, tempo bool) error {
 	return adminGuy.Client.SetPassword(context.Background(), adminGuy.Token, userId, "OWLY", password, tempo)
 }
+
+func (adminGuy *AdminGuy) SearchUserByUsername(username string) ([]*gocloak.User, error) {
+	searchParams := gocloak.GetUsersParams{
+		Search: &username,
+	}
+	return adminGuy.Client.GetUsers(context.Background(), adminGuy.Token, "OWLY", searchParams)
+}

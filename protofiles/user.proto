@@ -1,4 +1,4 @@
-// GO: protoc protofiles/user.proto --go_out=plugins=grpc:./server/user/userpb
+// GO: protoc protofiles/user.proto --go_out=plugins=grpc:./server/
 // TS: protoc --ts_out="service=grpc-web:owly-client/src" protofiles/user.proto
 
 syntax = "proto3";
@@ -6,6 +6,12 @@ syntax = "proto3";
 package user;
 
 option go_package ="user/userpb";
+
+message User {
+    string uuid = 1;
+    string username = 2;
+    string email = 3;
+}
 
 message CreateNewUserRequest {
     string first_name = 1;
@@ -19,7 +25,18 @@ message CreateNewUserResponse {
     bool success = 1;
 }
 
+message SearchUserByUsernameRequest {
+    string username = 1;
+}
+
+message SearchUserByUsernameResponse {
+    repeated User results = 1;
+    int64 count = 2;
+}
+
 service UserService {
 
     rpc CreateNewUser(CreateNewUserRequest) returns(CreateNewUserResponse) {}
+
+    rpc SearchUserByUsername(SearchUserByUsernameRequest) returns (SearchUserByUsernameResponse) {}
 }

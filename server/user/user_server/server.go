@@ -58,7 +58,28 @@ func (*server) CreateNewUser(ctx context.Context, req *userpb.CreateNewUserReque
 	}
 
 	return res, nil
+}
 
+func (*server) SearchUserByUsername(ctx context.Context, req *userpb.SearchUserByUsernameRequest) (*userpb.SearchUserByUsernameResponse, error) {
+	adminGuy := keycloak.InitAdmin()
+
+	ret, _ := adminGuy.SearchUserByUsername(req.GetUsername())
+	var userListRes []*userpb.User
+
+	for _, user := range ret {
+		userRes := &userpb.User{
+			Uuid:     *user.ID,
+			Username: *user.Username,
+			Email:    *user.Email,
+		}
+
+		userListRes = append(userListRes, userRes)
+	}
+
+	return &userpb.SearchUserByUsernameResponse{
+		Results: userListRes,
+		Count:   int64(len(userListRes)),
+	}, nil
 }
 
 //
