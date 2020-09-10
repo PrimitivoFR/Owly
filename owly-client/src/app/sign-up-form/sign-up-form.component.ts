@@ -10,6 +10,7 @@ import { UserService } from '../../_services/user.service';
 export class SignUpFormComponent implements OnInit {
 
   registerForm: FormGroup;
+  submitted: boolean = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -33,7 +34,7 @@ export class SignUpFormComponent implements OnInit {
   get f() { return this.registerForm.controls; }
   
   onSubmit() {
-
+    this.submitted = true;
     // stop here if form is invalid
     if (this.registerForm.invalid) {
         return;
@@ -46,6 +47,7 @@ export class SignUpFormComponent implements OnInit {
       username: this.f.username.value,
       password: this.f.password.value
     });
+    this.submitted = false;
     
   }
 

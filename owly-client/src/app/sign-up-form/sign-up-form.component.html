@@ -13,7 +13,11 @@
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
                         id="first_name" type="text" placeholder="First name"
                         formControlName="firstName"
+                        [ngClass]="{ 'border-red-500': submitted && f.firstName.errors }"
                     >
+                    <div *ngIf="submitted && f.firstName.errors">
+                        <p *ngIf="submitted && f.firstName.errors.required" class="text-red-500 text-xs italic">Please fill out this field.</p>
+                    </div>         
                 </div>
                 <div class="mb-4 w-1/2 ml-2">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="last_name">
@@ -23,7 +27,11 @@
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         id="last_name" type="text" placeholder="Last name"
                         formControlName="lastName"
+                        [ngClass]="{ 'border-red-500': submitted && f.lastName.errors }"
                     >
+                    <div *ngIf="submitted && f.lastName.errors">
+                        <p *ngIf="submitted && f.lastName.errors.required" class="text-red-500 text-xs italic">Please fill out this field.</p>
+                    </div>
                 </div>
             </div>
             <div class="mb-8 w-1/2">
@@ -34,7 +42,12 @@
                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     id="email" type="text" placeholder="Email"
                     formControlName="email"
+                    [ngClass]="{ 'border-red-500': submitted && f.email.errors }"
                 >
+                <div *ngIf="submitted && f.email.errors">
+                    <p *ngIf="submitted && f.email.errors.required" class="text-red-500 text-xs italic">Please fill out this field.</p>
+                    <p *ngIf="submitted && f.email.errors.email" class="text-red-500 text-xs italic">Email must be a valid email address.</p>
+                </div>   
             </div>
             <div class="mb-4 w-1/2 mr-2">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
@@ -44,7 +57,11 @@
                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     id="username" type="text" placeholder="Username"
                     formControlName="username"
+                    [ngClass]="{ 'border-red-500': submitted && f.username.errors }"
                 >
+                <div *ngIf="submitted && f.username.errors">
+                    <p *ngIf="submitted && f.username.errors.required" class="text-red-500 text-xs italic">Please fill out this field.</p>
+                </div>
             </div>
             <div class="flex">
                 <div class="mb-6 w-1/2 mr-2">
@@ -55,7 +72,12 @@
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         id="password" type="password" placeholder="******************"
                         formControlName="password"
+                        [ngClass]="{ 'border-red-500': submitted && f.password.errors }"
                     >
+                    <div *ngIf="submitted && f.password.errors">
+                        <p *ngIf="submitted && f.password.errors.required" class="text-red-500 text-xs italic">Please fill out this field.</p>
+                        <p *ngIf="submitted && f.password.errors.minlength" class="text-red-500 text-xs italic">Password must be at least 6 characters</p>
+                    </div>
                 </div>
                 <div class="mb-6 w-1/2 ml-2">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="confirmPassword">
@@ -65,7 +87,12 @@
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         id="confirmPassword" type="password" placeholder="******************"
                         formControlName="confirmPassword"
+                        [ngClass]="{ 'border-red-500': submitted && f.confirmPassword.errors }"
                     >
+                    <div *ngIf="submitted && f.confirmPassword.errors">
+                        <p *ngIf="submitted && f.confirmPassword.errors.required" class="text-red-500 text-xs italic">Confirm Password is required</p>
+                        <p *ngIf="submitted && f.confirmPassword.errors.mustMatch" class="text-red-500 text-xs italic">Passwords must match</p>
+                    </div>
                 </div>
             </div>
             <div class="flex items-center justify-between">
