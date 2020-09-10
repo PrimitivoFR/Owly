@@ -1,0 +1,78 @@
+<div class="w-full max-w-2xl m-auto mt-10">
+    <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <div class="font-bold text-3xl text-gray-700 mb-6">
+            Registration
+        </div>
+        <div class="ml-6">
+            <div class="flex">
+                <div class="mb-4 w-1/2 mr-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="first_name">
+                        First name
+                    </label>
+                    <input 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                        id="first_name" type="text" placeholder="First name"
+                        formControlName="firstName"
+                    >
+                </div>
+                <div class="mb-4 w-1/2 ml-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="last_name">
+                        Last name
+                    </label>
+                    <input 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        id="last_name" type="text" placeholder="Last name"
+                        formControlName="lastName"
+                    >
+                </div>
+            </div>
+            <div class="mb-8 w-1/2">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+                    Email
+                </label>
+                <input 
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="email" type="text" placeholder="Email"
+                    formControlName="email"
+                >
+            </div>
+            <div class="mb-4 w-1/2 mr-2">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                    Username
+                </label>
+                <input 
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="username" type="text" placeholder="Username"
+                    formControlName="username"
+                >
+            </div>
+            <div class="flex">
+                <div class="mb-6 w-1/2 mr-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                        Password
+                    </label>
+                    <input 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        id="password" type="password" placeholder="******************"
+                        formControlName="password"
+                    >
+                </div>
+                <div class="mb-6 w-1/2 ml-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="confirmPassword">
+                        Confirm password
+                    </label>
+                    <input 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        id="confirmPassword" type="password" placeholder="******************"
+                        formControlName="confirmPassword"
+                    >
+                </div>
+            </div>
+            <div class="flex items-center justify-between">
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Register
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

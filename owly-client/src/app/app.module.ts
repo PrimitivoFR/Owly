@@ -5,19 +5,23 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { GRPC_CLIENT_FACTORY } from '@ngx-grpc/core';
 import { GrpcWebClientFactory } from '@ngx-grpc/grpc-web-client';
-import {GRPC_USER_SERVICE_CLIENT_SETTINGS} from '../proto/user.pbconf'
+import { GRPC_USER_SERVICE_CLIENT_SETTINGS } from '../proto/user.pbconf'
+import { ReactiveFormsModule } from '@angular/forms';
+import { SignUpFormComponent } from './sign-up-form/sign-up-form.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    SignUpFormComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    ReactiveFormsModule,
   ],
   providers: [
     { provide: GRPC_CLIENT_FACTORY, useClass: GrpcWebClientFactory },
-    { provide: GRPC_USER_SERVICE_CLIENT_SETTINGS, useValue: { host: 'http://0.0.0.0:8085' } },
+    { provide: GRPC_USER_SERVICE_CLIENT_SETTINGS, useValue: { host: 'http://envoy:8085' } },
   ],
   bootstrap: [AppComponent]
 })
