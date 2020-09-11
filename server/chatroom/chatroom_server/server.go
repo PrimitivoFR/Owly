@@ -5,14 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
-	"primitivofr/owly/server/chatroom/chatroom_server/models"
 	"primitivofr/owly/server/chatroom/chatroompb"
-	"time"
+	"primitivofr/owly/server/common/models"
+	common_mongo "primitivofr/owly/server/common/mongo"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
@@ -35,7 +32,7 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 		Users: users,
 	}
 
-	res, err := chatroomCollection.InsertOne(context.Background(), chatroom)
+	res, err := common_mongo.ChatroomCollection.InsertOne(context.Background(), chatroom)
 	if err != nil {
 		log.Fatalf("Error while creating chatroom: %v. Error is: %v", chatroom, err)
 		return nil, status.Errorf(
@@ -59,31 +56,6 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 
 }
 
-//
-// Global vars
-var chatroomCollection *mongo.Collection
-var client *mongo.Client
-
-func setupMongoDB() error {
-	var err error
-	fmt.Println("Connecting to MongoDB...")
-	MONGO_HOSTNAME := "localhost"
-	MONGO_HOSTNAME = os.Getenv("MONGO_HOSTNAME")
-	client, err = mongo.NewClient(options.Client().ApplyURI("mongodb://" + MONGO_HOSTNAME + ":27017"))
-	if err != nil {
-		return err
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-	defer cancel()
-	err = client.Connect(ctx)
-	if err != nil {
-		return err
-	}
-
-	chatroomCollection = client.Database("owly").Collection("chatrooms")
-	return nil
-}
-
 func StartServer() {
 
 	lis, err := net.Listen("tcp", "0.0.0.0:50052")
@@ -94,7 +66,7 @@ func StartServer() {
 
 	// -----MONGO-------
 
-	err = setupMongoDB()
+	err = common_mongo.SetupMongoDB()
 	if err != nil {
 		log.Fatalf("Erreur setting up MongoDB: %v", err)
 		return
