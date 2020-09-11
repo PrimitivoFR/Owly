@@ -21,7 +21,7 @@ import { SignUpFormComponent } from './sign-up-form/sign-up-form.component';
   ],
   providers: [
     { provide: GRPC_CLIENT_FACTORY, useClass: GrpcWebClientFactory },
-    { provide: GRPC_USER_SERVICE_CLIENT_SETTINGS, useValue: { host: 'http://envoy:8085' } },
+    { provide: GRPC_USER_SERVICE_CLIENT_SETTINGS, useValue: { host: 'http://localhost:8085' } },
   ],
   bootstrap: [AppComponent]
 })

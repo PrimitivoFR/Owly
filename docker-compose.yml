@@ -4,7 +4,7 @@ services:
 
   elasticsearch:
     hostname: elasticsearch
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.3
+    image: elasticsearch:7.9.1
     environment:
       - "discovery.type=single-node"
       - "bootstrap.memory_lock=true"
@@ -49,6 +49,7 @@ services:
       - back-end
     
   envoy:
+    hostname: envoy
     image: envoyproxy/envoy-alpine:v1.13.0
     volumes:
       - ./envoy/envoy.yaml:/etc/envoy/envoy.yaml
@@ -59,15 +60,6 @@ services:
     ports:
       - 8085:8085
     
-  
-  client:
-    hostname: client
-    restart: on-failure:2
-    networks:
-      - front-end
-    ports:
-      - 4200:4200
-
 volumes: 
   mongodbdata:
 

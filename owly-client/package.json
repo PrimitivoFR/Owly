@@ -5,7 +5,7 @@
     "proto:generate": "protoc --plugin=protoc-gen-ng=./node_modules/.bin/protoc-gen-ng --ng_out=./src/proto/ -I ../protofiles/ user.proto",
     "ng": "ng",
     "start": "ng serve",
-    "startdev": "ng serve --host 0.0.0.0",
+    "start:dev": "ng serve --host 0.0.0.0 --poll",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",

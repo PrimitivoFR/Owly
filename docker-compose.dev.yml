@@ -3,7 +3,6 @@ version: "3.8"
 
 services:
 
-
   keycloak:
     env_file: ./keycloak/.keycloak-env
   
@@ -19,10 +18,3 @@ services:
       - 50051:50051
       - 50052:50052
 
-  # ng dev
-  client:
-    image: node:alpine
-    volumes:
-      - ./owly-client:/ng/owly-client
-    working_dir: /ng/owly-client
-    command: sh -c "npm i && npm run startdev"
