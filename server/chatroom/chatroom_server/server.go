@@ -59,9 +59,22 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 
 }
 
+// TODO
+func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatroomsByUserRequest) (*chatroompb.GetChatroomsByUserResponse, error) {
+	user_name := req.GetUser()
+
+	fmt.Println("DEBUG: got user: ", user_name)
+
+	return &chatroompb.GetChatroomsByUserResponse {
+		Chatrooms: nil,
+		Success: false, // TODO : STUB
+	}, nil
+}
+
 //
 // Global vars
 var chatroomCollection *mongo.Collection
+var userCollection *mongo.Collection
 var client *mongo.Client
 
 func setupMongoDB() error {
@@ -81,6 +94,7 @@ func setupMongoDB() error {
 	}
 
 	chatroomCollection = client.Database("owly").Collection("chatrooms")
+	userCollection = client.Database("owly").Collection("users")
 	return nil
 }
 

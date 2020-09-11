@@ -20,10 +20,18 @@ message CreateChatroomRequest {
 message CreateChatroomResponse {
     bool success = 1;
     string ID = 2;
+}
 
+message GetChatroomsByUserRequest {
+    string user = 1;
+}
+
+message GetChatroomsByUserResponse {
+    bool success = 1;
+    repeated Chatroom chatrooms = 2;
 }
 
 service ChatroomService {
-
     rpc CreateChatroom(CreateChatroomRequest) returns(CreateChatroomResponse) {}
+    rpc GetChatroomsByUser(GetChatroomsByUserRequest) returns (GetChatroomsByUserResponse) {}
 }
