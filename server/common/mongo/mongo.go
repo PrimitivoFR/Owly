@@ -11,8 +11,11 @@ import (
 )
 
 var client *mongo.Client
+
+// Collections: Add your collection global var here
 var ChatroomCollection *mongo.Collection
 
+//
 func SetupMongoDB() error {
 	var err error
 	fmt.Println("Connecting to MongoDB...")
@@ -30,7 +33,7 @@ func SetupMongoDB() error {
 		return err
 	}
 
-	//Collections
+	//Collections: Fill you collection global var here
 	ChatroomCollection = client.Database("owly").Collection("chatrooms")
 	//
 
