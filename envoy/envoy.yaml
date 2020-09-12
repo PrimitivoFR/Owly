@@ -15,9 +15,13 @@ static_resources:
                     - name: local_service
                       domains: ["*"]
                       routes:
-                        - match: { prefix: "/" }
+                        - match: { prefix: "/user" }
                           route:
                             cluster: user_service
+                            max_grpc_timeout: 0s
+                        - match: { prefix: "/chatroom" }
+                          route:
+                            cluster: chatroom_service
                             max_grpc_timeout: 0s
                       cors:
                         allow_origin_string_match:
@@ -37,3 +41,9 @@ static_resources:
       http2_protocol_options: {}
       lb_policy: round_robin
       hosts: [{ socket_address: { address: server, port_value: 50051 } }]
+    - name: chatroom_service
+      connect_timeout: 0.25s
+      type: logical_dns
+      http2_protocol_options: {}
+      lb_policy: round_robin
+      hosts: [{ socket_address: { address: server, port_value: 50052 } }]

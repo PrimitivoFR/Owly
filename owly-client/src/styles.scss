@@ -1,1 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
+@font-face {
+    font-family: 'entypo';
+    src: url('https://cdn.jsdelivr.net/gh/derektbrown/angular-entypo@1.0.0/fonts/entypo.eot');
+    src: url('https://cdn.jsdelivr.net/gh/derektbrown/angular-entypo@1.0.0/fonts/entypo.eot?#iefix') format('embedded-opentype'),
+         url('https://cdn.jsdelivr.net/gh/derektbrown/angular-entypo@1.0.0/fonts/entypo.woff') format('woff'),
+         url('https://cdn.jsdelivr.net/gh/derektbrown/angular-entypo@1.0.0/fonts/entypo.ttf') format('truetype'),
+         url('https://cdn.jsdelivr.net/gh/derektbrown/angular-entypo@1.0.0/fonts/entypo.svg#EntypoRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
