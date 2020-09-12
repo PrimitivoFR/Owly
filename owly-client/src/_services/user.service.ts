@@ -23,7 +23,6 @@ export class UserService {
     
     createUser(data) {
         const request = this.createUserRequest(data);
-        console.log(request);
         this.userClient.createNewUser(request).subscribe(
             (res) => console.log(res),
             (err) => console.log(err)

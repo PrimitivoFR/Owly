@@ -8,11 +8,13 @@ import { GrpcWebClientFactory } from '@ngx-grpc/grpc-web-client';
 import { GRPC_USER_SERVICE_CLIENT_SETTINGS } from '../proto/user.pbconf'
 import { ReactiveFormsModule } from '@angular/forms';
 import { SignUpFormComponent } from './sign-up-form/sign-up-form.component';
+import { NavigationComponent } from './navigation/navigation.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    SignUpFormComponent
+    SignUpFormComponent,
+    NavigationComponent
   ],
   imports: [
     BrowserModule,
