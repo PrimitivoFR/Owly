@@ -3,7 +3,7 @@ import { GRPC_CLIENT_FACTORY } from '@ngx-grpc/core';
 import { GrpcWebClientBase } from 'grpc-web';
 import { GrpcClientSettings, GrpcStatusEvent } from '@ngx-grpc/common';
 import { GRPC_USER_SERVICE_CLIENT_SETTINGS } from 'src/proto/user.pbconf';
-import { CreateNewUserRequest, CreateNewUserResponse } from 'src/proto/user.pb';
+import { CreateNewUserRequest, CreateNewUserResponse, SearchUserByUsernameRequest, User } from 'src/proto/user.pb';
 import { UserServiceClient } from 'src/proto/user.pbsc';
 
 interface CreateNewUserEvent {
@@ -38,4 +38,10 @@ export class UserService {
             password: data.password 
         })
       }
+
+    async searchUserByUsername(req: SearchUserByUsernameRequest): Promise<User[]> {
+        const res = await this.userClient.searchUserByUsername(req).toPromise();
+        return res.results;
+
+    }
 }

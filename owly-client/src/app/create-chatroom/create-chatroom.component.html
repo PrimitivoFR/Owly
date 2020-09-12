@@ -1,0 +1,51 @@
+<div class="w-full h-24 bg-gray-400">
+    <div class="font-bold text-4xl text-gray-800 pl-6 pt-6">
+        Create a chatroom
+    </div>
+</div>
+<div class="w-full max-w-2xl m-auto mt-10">
+    <form class="px-8 pt-6 pb-8 mb-4" autocomplete="off" [formGroup]="chatroomForm"  (ngSubmit)="onSubmit()">
+        <div class="flex-column">
+            <div class="mb-4 w-1/2 mr-2">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="room_name">
+                    Chatroom's name
+                </label>
+                <input 
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                    id="room_name" type="text" placeholder="Chatroom's name"
+                    formControlName="room_name"
+                    [ngClass]="{ 'border-red-500': submitted && f.room_name.errors }"
+                >
+                <div *ngIf="submitted && f.room_name.errors">
+                    <p *ngIf="submitted && f.room_name.errors.required" class="text-red-500 text-xs italic">Please fill out this field.</p>
+                </div>         
+            </div>
+            <div class="mb-4 mr-2">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="room_usersList">
+                    Users
+                </label>
+                <input 
+                    [(ngModel)]="searchUsername" (ngModelChange)="room_usersListChange()"            
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                    id="room_usersList" type="text" placeholder="Start typing user's usernames you'd like to add to your chatroom"
+                    formControlName="room_usersList"
+                    [ngClass]="{ 'border-red-500': submitted && f.room_usersList.errors }"
+                >
+                <div *ngIf="foundUsers.length > 0" class="max-w-sm rounded overflow-hidden shadow-lg p-5">
+                    <div *ngFor="let foundUser of foundUsers" (click)="addUser(foundUser)" class="max-w-sm rounded overflow-hidden p-2">{{foundUser.username}}</div>
+                </div>
+                <div *ngIf="submitted && f.room_usersList.errors">
+                    <p *ngIf="submitted && f.room_usersList.errors.required" class="text-red-500 text-xs italic">Please fill out this field.</p>
+                </div>  
+            </div>
+            <div *ngFor="let addedUser of addedUsers" class="mb-4 ml-5 mr-2">
+                <div class="bg-green-200 text-green-700 px-2 py-1 rounded-r rounded-l">{{addedUser.username}}</div>
+            </div>
+        </div>
+        <div class="flex items-center justify-between">
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Create chatroom
+            </button>
+        </div>
+    </form>
+</div>

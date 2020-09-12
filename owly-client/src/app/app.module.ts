@@ -9,12 +9,14 @@ import { GRPC_USER_SERVICE_CLIENT_SETTINGS } from '../proto/user.pbconf'
 import { ReactiveFormsModule } from '@angular/forms';
 import { SignUpFormComponent } from './sign-up-form/sign-up-form.component';
 import { NavigationComponent } from './navigation/navigation.component';
+import { CreateChatroomComponent } from './create-chatroom/create-chatroom.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     SignUpFormComponent,
-    NavigationComponent
+    NavigationComponent,
+    CreateChatroomComponent
   ],
   imports: [
     BrowserModule,
