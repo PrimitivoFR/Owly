@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { RecursivePartial } from '@ngx-grpc/common';
 import { v4 as uuidv4 } from 'uuid';
 
-class LoginResponse {
+export class LoginResponse {
 
     accessToken: string;
     uuid: string;

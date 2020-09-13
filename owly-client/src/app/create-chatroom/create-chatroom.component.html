@@ -1,9 +1,4 @@
-<div class="w-full h-24 bg-gray-400">
-    <div class="font-bold text-4xl text-gray-800 pl-6 pt-6">
-        Create a chatroom
-    </div>
-</div>
-
+<app-top-bar title="Create a chatroom"></app-top-bar>
 <app-snack-alert></app-snack-alert>
 
 <div class="w-full max-w-2xl m-auto mt-10">
@@ -34,7 +29,8 @@
                     [ngClass]="{ 'border-red-500': submitted && f.room_usersList.errors }">
                 <div *ngIf="foundUsers.length > 0" class="max-w-sm rounded overflow-hidden shadow-lg p-5">
                     <div *ngFor="let foundUser of foundUsers" (click)="addUser(foundUser)"
-                        class="max-w-sm rounded overflow-hidden p-2">{{foundUser.username}}</div>
+                        class="max-w-sm rounded overflow-hidden p-2 cursor-pointer hover:bg-gray-200">{{foundUser.username}}
+                    </div>
                 </div>
                 <div *ngIf="submitted && f.room_usersList.errors">
                     <p *ngIf="submitted && f.room_usersList.errors.required" class="text-red-500 text-xs italic">Please
@@ -55,7 +51,7 @@
         <div class="flex items-center justify-between">
 
             <button
-                class="inline-flex items-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                class="inline-flex items-center bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                 <app-loading-spinner></app-loading-spinner>
                 Create chatroom
             </button>
