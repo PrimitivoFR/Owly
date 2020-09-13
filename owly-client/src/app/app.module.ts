@@ -14,6 +14,9 @@ import { GRPC_CHATROOM_SERVICE_CLIENT_SETTINGS } from 'src/proto/chatroom.pbconf
 import { SnackAlertComponent } from './common/components/snack-alert/snack-alert.component';
 import { LoadingSpinnerComponent } from './common/components/loading-spinner/loading-spinner.component';
 import { AngularEntypoModule, AngularEntypoComponent } from 'angular-entypo';
+import { SignInFormComponent } from './sign-in-form/sign-in-form.component';
+import { TopBarComponent } from './common/components/top-bar/top-bar.component';
+import { HomeComponent } from './home/home.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +25,10 @@ import { AngularEntypoModule, AngularEntypoComponent } from 'angular-entypo';
     NavigationComponent,
     CreateChatroomComponent,
     SnackAlertComponent,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    SignInFormComponent,
+    TopBarComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,
