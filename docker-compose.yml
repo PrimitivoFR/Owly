@@ -2,9 +2,26 @@ version: "3.8"
 
 services:
 
+  # logstash:
+  #   image: logstash:7.9.1
+  #   volumes:
+  #     - ./logstash/pipeline:/usr/share/logstash/pipeline
+  #   environment:
+  #     - "discovery.type=single-node"
+  #     - "bootstrap.memory_lock=true"
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #   links:
+  #     - elasticsearch
+  #   ports:
+  #     - 5044:5044
+  #     - 9600:9600
+  #   networks:
+  #     - back-end
+      
+
   elasticsearch:
     hostname: elasticsearch
-    image: elasticsearch:7.9.1
+    build: ./elasticsearch
     environment:
       - "discovery.type=single-node"
       - "bootstrap.memory_lock=true"
@@ -15,6 +32,7 @@ services:
          hard: -1
     ports:
       - 9200:9200
+      - 9400:9400 #webSocket on ws://localhost:9400/ws/_changes, streams the whole node
     networks:
       - back-end
   
