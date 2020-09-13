@@ -1,0 +1,39 @@
+// GO: protoc protofiles/message.proto --go_out=plugins=grpc:./server/
+// TS: protoc --ts_out="service=grpc-web:owly-client/src" protofiles/message.proto
+
+syntax = "proto3";
+
+package message;
+
+option go_package ="message/messagepb";
+
+message Attachments {
+    string fileName =1;
+    string bucket = 2;
+}
+
+message Message {
+    string authorUUID = 1;
+    string chatroomID = 2;
+    string authorNAME = 3;
+    string content = 4;
+    int64 timestamp = 5;
+    bool hasFileAttached = 6;
+    repeated Attachments attach = 7;
+    bool isAnswer = 8;
+    string answersTo = 9;
+    string id = 10;
+}
+
+message StreamMessagesByChatroomRequest {
+    string chatroomID = 1;
+}
+
+message StreamMessagesByChatroomResponse {
+    Message message = 1;
+}
+
+
+service MessageService {
+    rpc StreamMessagesByChatroom(StreamMessagesByChatroomRequest) returns (stream StreamMessagesByChatroomResponse) {}
+}
