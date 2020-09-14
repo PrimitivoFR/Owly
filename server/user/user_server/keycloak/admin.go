@@ -2,6 +2,8 @@ package keycloak
 
 import (
 	"context"
+	"fmt"
+	"log"
 
 	"github.com/Nerzal/gocloak/v7"
 )
@@ -37,4 +39,34 @@ func (adminGuy *AdminGuy) SearchUserByUsername(username string) ([]*gocloak.User
 		Search: &username,
 	}
 	return adminGuy.Client.GetUsers(context.Background(), adminGuy.Token, "OWLY", searchParams)
+}
+
+func (adminGuy *AdminGuy) GetClientSecret(clientName string) (string, error) {
+
+	var cli_id string
+
+	res1, err := adminGuy.GetAllClients()
+	if err != nil {
+		return "", err
+	}
+
+	for _, cli := range res1 {
+		if clientID := cli.ClientID; *clientID == clientName {
+			cli_id = *cli.ID
+		}
+	}
+
+	fmt.Println(cli_id)
+	res, err := adminGuy.Client.GetClientSecret(context.Background(), adminGuy.Token, "OWLY", cli_id)
+	if err != nil {
+		log.Printf("Error @ GetClientSecret: %v", err)
+	}
+
+	return *res.Value, err
+}
+
+func (adminGuy *AdminGuy) GetAllClients() ([]*gocloak.Client, error) {
+	bill := true
+	return adminGuy.Client.GetClients(context.Background(), adminGuy.Token, "OWLY", gocloak.GetClientsParams{ViewableOnly: &bill})
+
 }

@@ -52,7 +52,7 @@ func (*server) CreateNewUser(ctx context.Context, req *userpb.CreateNewUserReque
 
 	err = adminGuy.SetUserPassword(ID, pass, false)
 	if err != nil {
-		log.Fatalf("Error while setting up password: %v", err)
+		log.Printf("Error while setting up password: %v", err)
 		return nil, status.Error(codes.Internal, fmt.Sprintf("Error while setting up password: %v", err))
 	}
 
@@ -61,6 +61,42 @@ func (*server) CreateNewUser(ctx context.Context, req *userpb.CreateNewUserReque
 	}
 
 	return res, nil
+}
+
+func (*server) LoginUser(ctx context.Context, req *userpb.LoginUserRequest) (*userpb.LoginUserResponse, error) {
+	adminGuy, err := keycloak.InitAdmin()
+	if err != nil {
+		return nil, status.Error(codes.Internal, fmt.Sprintf("Error: %v", err))
+	}
+
+	client_secret, err := adminGuy.GetClientSecret("owlycli")
+	if err != nil {
+		log.Printf("Internal error: %v", err)
+		return nil, status.Error(codes.Internal, fmt.Sprintf("Internal error: %v", err))
+	}
+	username := req.GetUsername()
+	password := req.GetPassword()
+
+	res, err := adminGuy.Client.Login(context.Background(), "owlycli", client_secret, "OWLY", username, password)
+
+	if err != nil {
+		log.Printf("Authentification error: %v", err)
+		return nil, status.Error(codes.PermissionDenied, fmt.Sprintf("Authentification error: %v", err))
+	}
+
+	return &userpb.LoginUserResponse{
+		Result: &userpb.JWT{
+			AccessToken:      res.AccessToken,
+			IDToken:          res.IDToken,
+			ExpiresIn:        int64(res.ExpiresIn),
+			RefreshExpiresIn: int64(res.RefreshExpiresIn),
+			RefreshToken:     res.RefreshToken,
+			TokenType:        res.TokenType,
+			NotBeforePolicy:  int64(res.NotBeforePolicy),
+			SessionState:     res.SessionState,
+			Scope:            res.Scope,
+		},
+	}, nil
 }
 
 func (*server) SearchUserByUsername(ctx context.Context, req *userpb.SearchUserByUsernameRequest) (*userpb.SearchUserByUsernameResponse, error) {
