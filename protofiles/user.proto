@@ -47,7 +47,7 @@ message LoginUserRequest {
 }
 
 message LoginUserResponse {
-    JWT token = 1;
+    JWT result = 1;
 }
 
 message SearchUserByUsernameResponse {

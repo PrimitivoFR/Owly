@@ -59,7 +59,7 @@ func (adminGuy *AdminGuy) GetClientSecret(clientName string) (string, error) {
 	fmt.Println(cli_id)
 	res, err := adminGuy.Client.GetClientSecret(context.Background(), adminGuy.Token, "OWLY", cli_id)
 	if err != nil {
-		log.Fatalf("Error @ GetClientSecret: %v", err)
+		log.Printf("Error @ GetClientSecret: %v", err)
 	}
 
 	return *res.Value, err

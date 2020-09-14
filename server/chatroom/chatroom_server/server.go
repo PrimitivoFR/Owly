@@ -34,7 +34,7 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 
 	res, err := common_mongo.ChatroomCollection.InsertOne(context.Background(), chatroom)
 	if err != nil {
-		log.Fatalf("Error while creating chatroom: %v. Error is: %v", chatroom, err)
+		log.Printf("Error while creating chatroom: %v. Error is: %v", chatroom, err)
 		return nil, status.Errorf(
 			codes.Internal,
 			fmt.Sprintf("Error while creating chatroom: %v. Error is: %v", chatroom, err),
@@ -58,14 +58,14 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 
 // TODO
 func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatroomsByUserRequest) (*chatroompb.GetChatroomsByUserResponse, error) {
-    user_name := req.GetUser()
+	user_name := req.GetUser()
 
-    fmt.Println("DEBUG: got user: ", user_name)
+	fmt.Println("DEBUG: got user: ", user_name)
 
-    return &chatroompb.GetChatroomsByUserResponse {
-        Chatrooms: nil,
-        Success: false, // TODO : STUB
-    }, nil
+	return &chatroompb.GetChatroomsByUserResponse{
+		Chatrooms: nil,
+		Success:   false, // TODO : STUB
+	}, nil
 }
 
 func StartServer() {

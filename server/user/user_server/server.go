@@ -52,7 +52,7 @@ func (*server) CreateNewUser(ctx context.Context, req *userpb.CreateNewUserReque
 
 	err = adminGuy.SetUserPassword(ID, pass, false)
 	if err != nil {
-		log.Fatalf("Error while setting up password: %v", err)
+		log.Printf("Error while setting up password: %v", err)
 		return nil, status.Error(codes.Internal, fmt.Sprintf("Error while setting up password: %v", err))
 	}
 
@@ -69,22 +69,23 @@ func (*server) LoginUser(ctx context.Context, req *userpb.LoginUserRequest) (*us
 		return nil, status.Error(codes.Internal, fmt.Sprintf("Error: %v", err))
 	}
 
-	client_secret, _ := adminGuy.GetClientSecret("owlycli")
+	client_secret, err := adminGuy.GetClientSecret("owlycli")
+	if err != nil {
+		log.Printf("Internal error: %v", err)
+		return nil, status.Error(codes.Internal, fmt.Sprintf("Internal error: %v", err))
+	}
 	username := req.GetUsername()
 	password := req.GetPassword()
 
 	res, err := adminGuy.Client.Login(context.Background(), "owlycli", client_secret, "OWLY", username, password)
 
-	fmt.Println("DEBUG: res: ", res)
-	fmt.Println("DEBUG: err: ", err)
-
 	if err != nil {
-		log.Fatalf("Authentification error: %v", err)
+		log.Printf("Authentification error: %v", err)
 		return nil, status.Error(codes.PermissionDenied, fmt.Sprintf("Authentification error: %v", err))
 	}
 
 	return &userpb.LoginUserResponse{
-		Token: &userpb.JWT{
+		Result: &userpb.JWT{
 			AccessToken:      res.AccessToken,
 			IDToken:          res.IDToken,
 			ExpiresIn:        int64(res.ExpiresIn),
