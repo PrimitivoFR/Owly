@@ -63,6 +63,41 @@ func (*server) CreateNewUser(ctx context.Context, req *userpb.CreateNewUserReque
 	return res, nil
 }
 
+func (*server) LoginUser(ctx context.Context, req *userpb.LoginUserRequest) (*userpb.LoginUserResponse, error) {
+	adminGuy, err := keycloak.InitAdmin()
+	if err != nil {
+		return nil, status.Error(codes.Internal, fmt.Sprintf("Error: %v", err))
+	}
+
+	client_secret, _ := adminGuy.GetClientSecret("owlycli")
+	username := req.GetUsername()
+	password := req.GetPassword()
+
+	res, err := adminGuy.Client.Login(context.Background(), "owlycli", client_secret, "OWLY", username, password)
+
+	fmt.Println("DEBUG: res: ", res)
+	fmt.Println("DEBUG: err: ", err)
+
+	if err != nil {
+		log.Fatalf("Authentification error: %v", err)
+		return nil, status.Error(codes.PermissionDenied, fmt.Sprintf("Authentification error: %v", err))
+	}
+
+	return &userpb.LoginUserResponse{
+		Token: &userpb.JWT{
+			AccessToken:      res.AccessToken,
+			IDToken:          res.IDToken,
+			ExpiresIn:        int64(res.ExpiresIn),
+			RefreshExpiresIn: int64(res.RefreshExpiresIn),
+			RefreshToken:     res.RefreshToken,
+			TokenType:        res.TokenType,
+			NotBeforePolicy:  int64(res.NotBeforePolicy),
+			SessionState:     res.SessionState,
+			Scope:            res.Scope,
+		},
+	}, nil
+}
+
 func (*server) SearchUserByUsername(ctx context.Context, req *userpb.SearchUserByUsernameRequest) (*userpb.SearchUserByUsernameResponse, error) {
 	adminGuy, err := keycloak.InitAdmin()
 	if err != nil {
