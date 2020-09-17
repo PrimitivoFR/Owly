@@ -9,6 +9,7 @@ import (
 	"primitivofr/owly/server/common/models"
 	common_mongo "primitivofr/owly/server/common/mongo"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -49,6 +50,25 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 		)
 	}
 
+	// add chatroom to users
+	// _, err_update := common_mongo.UserCollection.InsertOne(context.Background(), user_mongo)
+	for _, username := range users {
+
+		//TODO : check if the user exists
+
+		filter := bson.M{"username": bson.M{"$eq": username}}
+		update := bson.M{"$push": bson.M{"chatrooms": oid}}
+		_, err_update := common_mongo.UserCollection.UpdateOne(context.Background(), filter, update)
+
+		if err_update != nil {
+			log.Printf("Error while creating chatroom (adding chatroom to user): %v. Error is: %v", chatroom, err_update)
+			return nil, status.Errorf(
+				codes.Internal,
+				fmt.Sprintf("Error while creating chatroom (adding chatroom to user): %v. Error is: %v", chatroom, err_update),
+			)
+		}
+	}
+
 	return &chatroompb.CreateChatroomResponse{
 		ID:      oid.Hex(),
 		Success: true,
@@ -56,14 +76,27 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 
 }
 
-// TODO
 func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatroomsByUserRequest) (*chatroompb.GetChatroomsByUserResponse, error) {
-	user_name := req.GetUser()
+	username := req.GetUser()
+	filter := bson.M{"username": bson.M{"$eq": username}}
+	var result models.User
 
-	fmt.Println("DEBUG: got user: ", user_name)
+	// err := common_mongo.UserCollection.FindOne(context.Background(), bson.D{}).Decode(&result)
+	err := common_mongo.UserCollection.FindOne(context.Background(), filter).Decode(&result)
+
+	if err != nil { //err typically is "no documents in result"
+		log.Printf("Error while getting chatrooms for user %v. Error is: %v", username, err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Error while getting chatrooms for user %v. Error is: %v", username, err),
+		)
+	}
+
+	//TODO return chatroom[] object
+	log.Printf("%v's chatrooms : %v", username, result.Chatrooms) // todo delete
 
 	return &chatroompb.GetChatroomsByUserResponse{
-		Chatrooms: nil,
+		Chatrooms: nil,   // TODO : STUB
 		Success:   false, // TODO : STUB
 	}, nil
 }
