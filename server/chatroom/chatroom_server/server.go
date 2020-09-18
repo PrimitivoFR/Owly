@@ -51,11 +51,10 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 	}
 
 	// add chatroom to users
-	// _, err_update := common_mongo.UserCollection.InsertOne(context.Background(), user_mongo)
 	for _, username := range users {
 
 		// check if the user exists and find its id
-		user_filter := bson.M{"username": bson.M{"$eq": username}}
+		user_filter := bson.M{"username": username}
 		var user_result models.User
 		err_user := common_mongo.UserCollection.FindOne(context.Background(), user_filter).Decode(&user_result)
 
