@@ -12,7 +12,6 @@ import (
 	common_mongo "primitivofr/owly/server/common/mongo"
 
 	"github.com/Nerzal/gocloak/v7"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
@@ -62,9 +61,9 @@ func (*server) CreateNewUser(ctx context.Context, req *userpb.CreateNewUserReque
 
 	// insert user object in mongodb
 	user_mongo := models.User{
-		ID:       primitive.NewObjectID(),
-		Username: username,
-		// Chatrooms: nil,
+		// ID:       primitive.NewObjectID(),
+		ID:        ID,
+		Username:  username,
 		Chatrooms: []string{}, //empty string array
 	}
 

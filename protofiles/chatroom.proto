@@ -23,7 +23,7 @@ message CreateChatroomResponse {
 }
 
 message GetChatroomsByUserRequest {
-    string user = 1;
+    string userID = 1;
 }
 
 message GetChatroomsByUserResponse {
