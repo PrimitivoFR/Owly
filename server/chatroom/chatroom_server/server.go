@@ -103,12 +103,45 @@ func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatro
 		)
 	}
 
-	//TODO return chatroom[] object
-	log.Printf("%v's chatrooms : %v", user_result.Username, user_result.Chatrooms) // todo delete
+	// build the list of chatroom objects
+	users_chatrooms := []*chatroompb.Chatroom{}
+
+	for _, chatroom_oid := range user_result.Chatrooms {
+
+		oid, err_oid := primitive.ObjectIDFromHex(chatroom_oid)
+
+		if err_oid != nil {
+			log.Printf("Error while gathering chatrooms (oid). Chatroom: %v. Error: %v", chatroom_oid, err_oid)
+			return nil, status.Errorf(
+				codes.Internal,
+				fmt.Sprintf("Error while gathering chatrooms (oid). Chatroom: %v. Error: %v", chatroom_oid, err_oid),
+			)
+		}
+
+		var chatroom_result models.Chatroom
+		chatroom_err := common_mongo.ChatroomCollection.FindOne(context.Background(), bson.M{"_id": oid}).Decode(&chatroom_result)
+
+		if chatroom_err != nil {
+			log.Printf("Error while gathering chatrooms. Chatroom: %v. Error: %v", chatroom_oid, chatroom_err)
+			return nil, status.Errorf(
+				codes.Internal,
+				fmt.Sprintf("Error while gathering chatrooms. Chatroom: %v. Error: %v", chatroom_oid, chatroom_err),
+			)
+		}
+
+		// TODO : we may also want the chatroom ID ?
+		users_chatrooms = append(
+			users_chatrooms,
+			&chatroompb.Chatroom{
+				Name:  chatroom_result.Name,
+				Users: chatroom_result.Users,
+			},
+		)
+	}
 
 	return &chatroompb.GetChatroomsByUserResponse{
-		Chatrooms: nil,   // TODO : STUB
-		Success:   false, // TODO : STUB
+		Chatrooms: users_chatrooms, // TODO : STUB
+		Success:   false,           // TODO : STUB
 	}, nil
 }
 
