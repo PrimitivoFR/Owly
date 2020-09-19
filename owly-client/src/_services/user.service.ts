@@ -26,13 +26,9 @@ export class UserService {
         private cookieService: CookieService,
         private authService: AuthService
     ) { 
-        const user:LoggedUser = <LoggedUser>this.cookieService.getObject("owly_user_cookies");
-        this.user.next(user)
+        
     }
 
-
-    private user = new BehaviorSubject<LoggedUser>(new LoggedUser());
-    currentUser = this.user.asObservable();
 
     createUser(data) {
         const request = this.createUserRequest(data);
@@ -57,21 +53,4 @@ export class UserService {
         return res.results;
     }
 
-
-    async login(req: LoginUserRequest): Promise<Boolean> {
-        const res = await this.userClient.loginUser(req).toPromise();
-        if (res.result.accessToken == "") {
-            return false;
-        }
-        const { accessToken, refreshToken } = res.result;
-        
-        const loggedUser = this.authService.createLoggedUserFromJWT(accessToken);
-
-        loggedUser.refreshToken = refreshToken;
-
-        this.user.next(loggedUser);
-        
-        this.cookieService.putObject("owly_user_cookies", loggedUser)
-        return true
-    }
 }

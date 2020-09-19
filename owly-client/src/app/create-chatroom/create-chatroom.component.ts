@@ -68,7 +68,7 @@ export class CreateChatroomComponent implements OnInit {
     var usersUUID = this.addedUsers.map((user: User) => user.uuid);
     const req = new CreateChatroomRequest({
       name, users: usersUUID
-    })
+    });
     
     try {
       const res = await this.chatroomService.createChatroom(req);

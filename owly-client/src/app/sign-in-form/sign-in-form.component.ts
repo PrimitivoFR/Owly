@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoginUserRequest } from 'src/proto/user.pb';
+import { AuthService } from 'src/_services/auth.service';
 import { UserService } from 'src/_services/user.service';
 import { SnackAlertService } from '../common/components/snack-alert/snack-alert.service';
-import { FakeLoginService, LoginResponse } from '../common/services/fake-login.service';
 
 @Component({
   selector: 'app-sign-in-form',
@@ -17,10 +17,9 @@ export class SignInFormComponent implements OnInit {
   
   constructor(
     private formBuilder: FormBuilder,
-    private fakeLoginService: FakeLoginService,
     private snackService: SnackAlertService,
     private router: Router,
-    private userService: UserService
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -38,10 +37,10 @@ export class SignInFormComponent implements OnInit {
     if (this.loginForm.invalid) {
         return;
     }
-    // let response = new LoginResponse();
+
     let request = new LoginUserRequest({username: this.f.username.value, password: this.f.password.value })
-    const success = await this.userService.login(request);
-    // response = this.fakeLoginService.login(this.f.username.value, this.f.password.value);
+    const success = await this.authService.login(request);
+
     console.log(success);
     if(success) {
       this.snackService.showSnack('Welcome !');
