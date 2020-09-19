@@ -149,6 +149,250 @@ export module User {
 }
 
 /**
+ * Message implementation for user.JWT
+ */
+export class JWT implements GrpcMessage {
+  /**
+   * Deserialize binary data to message
+   * @param instance message instance
+   */
+  static deserializeBinary(bytes: ByteSource) {
+    const instance = new JWT();
+    JWT.deserializeBinaryFromReader(instance, new BinaryReader(bytes));
+    return instance;
+  }
+
+  /**
+   * Check all the properties and set default protobuf values if necessary
+   * @param _instance message instance
+   */
+  static refineValues(_instance: JWT) {
+    _instance.accessToken = _instance.accessToken || '';
+    _instance.iDToken = _instance.iDToken || '';
+    _instance.expiresIn = _instance.expiresIn || '0';
+    _instance.refreshExpiresIn = _instance.refreshExpiresIn || '0';
+    _instance.refreshToken = _instance.refreshToken || '';
+    _instance.tokenType = _instance.tokenType || '';
+    _instance.notBeforePolicy = _instance.notBeforePolicy || '0';
+    _instance.sessionState = _instance.sessionState || '';
+    _instance.scope = _instance.scope || '';
+  }
+
+  /**
+   * Deserializes / reads binary message into message instance using provided binary reader
+   * @param _instance message instance
+   * @param _reader binary reader instance
+   */
+  static deserializeBinaryFromReader(_instance: JWT, _reader: BinaryReader) {
+    while (_reader.nextField()) {
+      if (_reader.isEndGroup()) break;
+
+      switch (_reader.getFieldNumber()) {
+        case 1:
+          _instance.accessToken = _reader.readString();
+          break;
+        case 2:
+          _instance.iDToken = _reader.readString();
+          break;
+        case 3:
+          _instance.expiresIn = _reader.readInt64String();
+          break;
+        case 4:
+          _instance.refreshExpiresIn = _reader.readInt64String();
+          break;
+        case 5:
+          _instance.refreshToken = _reader.readString();
+          break;
+        case 6:
+          _instance.tokenType = _reader.readString();
+          break;
+        case 7:
+          _instance.notBeforePolicy = _reader.readInt64String();
+          break;
+        case 8:
+          _instance.sessionState = _reader.readString();
+          break;
+        case 9:
+          _instance.scope = _reader.readString();
+          break;
+        default:
+          _reader.skipField();
+      }
+    }
+
+    JWT.refineValues(_instance);
+  }
+
+  /**
+   * Serializes a message to binary format using provided binary reader
+   * @param _instance message instance
+   * @param _writer binary writer instance
+   */
+  static serializeBinaryToWriter(_instance: JWT, _writer: BinaryWriter) {
+    if (_instance.accessToken) {
+      _writer.writeString(1, _instance.accessToken);
+    }
+    if (_instance.iDToken) {
+      _writer.writeString(2, _instance.iDToken);
+    }
+    if (_instance.expiresIn) {
+      _writer.writeInt64String(3, _instance.expiresIn);
+    }
+    if (_instance.refreshExpiresIn) {
+      _writer.writeInt64String(4, _instance.refreshExpiresIn);
+    }
+    if (_instance.refreshToken) {
+      _writer.writeString(5, _instance.refreshToken);
+    }
+    if (_instance.tokenType) {
+      _writer.writeString(6, _instance.tokenType);
+    }
+    if (_instance.notBeforePolicy) {
+      _writer.writeInt64String(7, _instance.notBeforePolicy);
+    }
+    if (_instance.sessionState) {
+      _writer.writeString(8, _instance.sessionState);
+    }
+    if (_instance.scope) {
+      _writer.writeString(9, _instance.scope);
+    }
+  }
+
+  private _accessToken?: string;
+  private _iDToken?: string;
+  private _expiresIn?: string;
+  private _refreshExpiresIn?: string;
+  private _refreshToken?: string;
+  private _tokenType?: string;
+  private _notBeforePolicy?: string;
+  private _sessionState?: string;
+  private _scope?: string;
+
+  /**
+   * Message constructor. Initializes the properties and applies default Protobuf values if necessary
+   * @param _value initial values object or instance of JWT to deeply clone from
+   */
+  constructor(_value?: RecursivePartial<JWT>) {
+    _value = _value || {};
+    this.accessToken = _value.accessToken;
+    this.iDToken = _value.iDToken;
+    this.expiresIn = _value.expiresIn;
+    this.refreshExpiresIn = _value.refreshExpiresIn;
+    this.refreshToken = _value.refreshToken;
+    this.tokenType = _value.tokenType;
+    this.notBeforePolicy = _value.notBeforePolicy;
+    this.sessionState = _value.sessionState;
+    this.scope = _value.scope;
+    JWT.refineValues(this);
+  }
+  get accessToken(): string | undefined {
+    return this._accessToken;
+  }
+  set accessToken(value: string | undefined) {
+    this._accessToken = value;
+  }
+  get iDToken(): string | undefined {
+    return this._iDToken;
+  }
+  set iDToken(value: string | undefined) {
+    this._iDToken = value;
+  }
+  get expiresIn(): string | undefined {
+    return this._expiresIn;
+  }
+  set expiresIn(value: string | undefined) {
+    this._expiresIn = value;
+  }
+  get refreshExpiresIn(): string | undefined {
+    return this._refreshExpiresIn;
+  }
+  set refreshExpiresIn(value: string | undefined) {
+    this._refreshExpiresIn = value;
+  }
+  get refreshToken(): string | undefined {
+    return this._refreshToken;
+  }
+  set refreshToken(value: string | undefined) {
+    this._refreshToken = value;
+  }
+  get tokenType(): string | undefined {
+    return this._tokenType;
+  }
+  set tokenType(value: string | undefined) {
+    this._tokenType = value;
+  }
+  get notBeforePolicy(): string | undefined {
+    return this._notBeforePolicy;
+  }
+  set notBeforePolicy(value: string | undefined) {
+    this._notBeforePolicy = value;
+  }
+  get sessionState(): string | undefined {
+    return this._sessionState;
+  }
+  set sessionState(value: string | undefined) {
+    this._sessionState = value;
+  }
+  get scope(): string | undefined {
+    return this._scope;
+  }
+  set scope(value: string | undefined) {
+    this._scope = value;
+  }
+
+  /**
+   * Serialize message to binary data
+   * @param instance message instance
+   */
+  serializeBinary() {
+    const writer = new BinaryWriter();
+    JWT.serializeBinaryToWriter(this, writer);
+    return writer.getResultBuffer();
+  }
+
+  /**
+   * Cast message to standard JavaScript object (all non-primitive values are deeply cloned)
+   */
+  toObject(): JWT.AsObject {
+    return {
+      accessToken: this.accessToken,
+      iDToken: this.iDToken,
+      expiresIn: this.expiresIn,
+      refreshExpiresIn: this.refreshExpiresIn,
+      refreshToken: this.refreshToken,
+      tokenType: this.tokenType,
+      notBeforePolicy: this.notBeforePolicy,
+      sessionState: this.sessionState,
+      scope: this.scope
+    };
+  }
+
+  /**
+   * JSON serializer
+   * Only intended to be used by `JSON.stringify` function. If you want to cast message to standard JavaScript object, use `toObject()` instead
+   */
+  toJSON() {
+    return this.toObject();
+  }
+}
+export module JWT {
+  /**
+   * Standard JavaScript object representation for JWT
+   */
+  export interface AsObject {
+    accessToken?: string;
+    iDToken?: string;
+    expiresIn?: string;
+    refreshExpiresIn?: string;
+    refreshToken?: string;
+    tokenType?: string;
+    notBeforePolicy?: string;
+    sessionState?: string;
+    scope?: string;
+  }
+}
+
+/**
  * Message implementation for user.CreateNewUserRequest
  */
 export class CreateNewUserRequest implements GrpcMessage {
@@ -564,6 +808,265 @@ export module SearchUserByUsernameRequest {
    */
   export interface AsObject {
     username?: string;
+  }
+}
+
+/**
+ * Message implementation for user.LoginUserRequest
+ */
+export class LoginUserRequest implements GrpcMessage {
+  /**
+   * Deserialize binary data to message
+   * @param instance message instance
+   */
+  static deserializeBinary(bytes: ByteSource) {
+    const instance = new LoginUserRequest();
+    LoginUserRequest.deserializeBinaryFromReader(
+      instance,
+      new BinaryReader(bytes)
+    );
+    return instance;
+  }
+
+  /**
+   * Check all the properties and set default protobuf values if necessary
+   * @param _instance message instance
+   */
+  static refineValues(_instance: LoginUserRequest) {
+    _instance.username = _instance.username || '';
+    _instance.password = _instance.password || '';
+  }
+
+  /**
+   * Deserializes / reads binary message into message instance using provided binary reader
+   * @param _instance message instance
+   * @param _reader binary reader instance
+   */
+  static deserializeBinaryFromReader(
+    _instance: LoginUserRequest,
+    _reader: BinaryReader
+  ) {
+    while (_reader.nextField()) {
+      if (_reader.isEndGroup()) break;
+
+      switch (_reader.getFieldNumber()) {
+        case 1:
+          _instance.username = _reader.readString();
+          break;
+        case 2:
+          _instance.password = _reader.readString();
+          break;
+        default:
+          _reader.skipField();
+      }
+    }
+
+    LoginUserRequest.refineValues(_instance);
+  }
+
+  /**
+   * Serializes a message to binary format using provided binary reader
+   * @param _instance message instance
+   * @param _writer binary writer instance
+   */
+  static serializeBinaryToWriter(
+    _instance: LoginUserRequest,
+    _writer: BinaryWriter
+  ) {
+    if (_instance.username) {
+      _writer.writeString(1, _instance.username);
+    }
+    if (_instance.password) {
+      _writer.writeString(2, _instance.password);
+    }
+  }
+
+  private _username?: string;
+  private _password?: string;
+
+  /**
+   * Message constructor. Initializes the properties and applies default Protobuf values if necessary
+   * @param _value initial values object or instance of LoginUserRequest to deeply clone from
+   */
+  constructor(_value?: RecursivePartial<LoginUserRequest>) {
+    _value = _value || {};
+    this.username = _value.username;
+    this.password = _value.password;
+    LoginUserRequest.refineValues(this);
+  }
+  get username(): string | undefined {
+    return this._username;
+  }
+  set username(value: string | undefined) {
+    this._username = value;
+  }
+  get password(): string | undefined {
+    return this._password;
+  }
+  set password(value: string | undefined) {
+    this._password = value;
+  }
+
+  /**
+   * Serialize message to binary data
+   * @param instance message instance
+   */
+  serializeBinary() {
+    const writer = new BinaryWriter();
+    LoginUserRequest.serializeBinaryToWriter(this, writer);
+    return writer.getResultBuffer();
+  }
+
+  /**
+   * Cast message to standard JavaScript object (all non-primitive values are deeply cloned)
+   */
+  toObject(): LoginUserRequest.AsObject {
+    return {
+      username: this.username,
+      password: this.password
+    };
+  }
+
+  /**
+   * JSON serializer
+   * Only intended to be used by `JSON.stringify` function. If you want to cast message to standard JavaScript object, use `toObject()` instead
+   */
+  toJSON() {
+    return this.toObject();
+  }
+}
+export module LoginUserRequest {
+  /**
+   * Standard JavaScript object representation for LoginUserRequest
+   */
+  export interface AsObject {
+    username?: string;
+    password?: string;
+  }
+}
+
+/**
+ * Message implementation for user.LoginUserResponse
+ */
+export class LoginUserResponse implements GrpcMessage {
+  /**
+   * Deserialize binary data to message
+   * @param instance message instance
+   */
+  static deserializeBinary(bytes: ByteSource) {
+    const instance = new LoginUserResponse();
+    LoginUserResponse.deserializeBinaryFromReader(
+      instance,
+      new BinaryReader(bytes)
+    );
+    return instance;
+  }
+
+  /**
+   * Check all the properties and set default protobuf values if necessary
+   * @param _instance message instance
+   */
+  static refineValues(_instance: LoginUserResponse) {
+    _instance.result = _instance.result || undefined;
+  }
+
+  /**
+   * Deserializes / reads binary message into message instance using provided binary reader
+   * @param _instance message instance
+   * @param _reader binary reader instance
+   */
+  static deserializeBinaryFromReader(
+    _instance: LoginUserResponse,
+    _reader: BinaryReader
+  ) {
+    while (_reader.nextField()) {
+      if (_reader.isEndGroup()) break;
+
+      switch (_reader.getFieldNumber()) {
+        case 1:
+          _instance.result = new JWT();
+          _reader.readMessage(
+            _instance.result,
+            JWT.deserializeBinaryFromReader
+          );
+          break;
+        default:
+          _reader.skipField();
+      }
+    }
+
+    LoginUserResponse.refineValues(_instance);
+  }
+
+  /**
+   * Serializes a message to binary format using provided binary reader
+   * @param _instance message instance
+   * @param _writer binary writer instance
+   */
+  static serializeBinaryToWriter(
+    _instance: LoginUserResponse,
+    _writer: BinaryWriter
+  ) {
+    if (_instance.result) {
+      _writer.writeMessage(
+        1,
+        _instance.result as any,
+        JWT.serializeBinaryToWriter
+      );
+    }
+  }
+
+  private _result?: JWT;
+
+  /**
+   * Message constructor. Initializes the properties and applies default Protobuf values if necessary
+   * @param _value initial values object or instance of LoginUserResponse to deeply clone from
+   */
+  constructor(_value?: RecursivePartial<LoginUserResponse>) {
+    _value = _value || {};
+    this.result = _value.result ? new JWT(_value.result) : undefined;
+    LoginUserResponse.refineValues(this);
+  }
+  get result(): JWT | undefined {
+    return this._result;
+  }
+  set result(value: JWT | undefined) {
+    this._result = value;
+  }
+
+  /**
+   * Serialize message to binary data
+   * @param instance message instance
+   */
+  serializeBinary() {
+    const writer = new BinaryWriter();
+    LoginUserResponse.serializeBinaryToWriter(this, writer);
+    return writer.getResultBuffer();
+  }
+
+  /**
+   * Cast message to standard JavaScript object (all non-primitive values are deeply cloned)
+   */
+  toObject(): LoginUserResponse.AsObject {
+    return {
+      result: this.result ? this.result.toObject() : undefined
+    };
+  }
+
+  /**
+   * JSON serializer
+   * Only intended to be used by `JSON.stringify` function. If you want to cast message to standard JavaScript object, use `toObject()` instead
+   */
+  toJSON() {
+    return this.toObject();
+  }
+}
+export module LoginUserResponse {
+  /**
+   * Standard JavaScript object representation for LoginUserResponse
+   */
+  export interface AsObject {
+    result?: JWT.AsObject;
   }
 }
 

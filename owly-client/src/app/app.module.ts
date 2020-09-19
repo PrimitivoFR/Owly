@@ -18,6 +18,9 @@ import { SignInFormComponent } from './sign-in-form/sign-in-form.component';
 import { TopBarComponent } from './common/components/top-bar/top-bar.component';
 import { HomeComponent } from './home/home.component';
 
+import { JwtModule } from '@auth0/angular-jwt';
+import { CookieModule } from 'ngx-cookie';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -34,7 +37,9 @@ import { HomeComponent } from './home/home.component';
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,
-    AngularEntypoModule
+    AngularEntypoModule,
+    JwtModule.forRoot({}),
+    CookieModule.forRoot()
   ],
   providers: [
     { provide: GRPC_CLIENT_FACTORY, useClass: GrpcWebClientFactory },

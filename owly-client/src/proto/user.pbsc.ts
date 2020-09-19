@@ -80,6 +80,45 @@ export class UserServiceClient {
   }
 
   /**
+   * Unary RPC for /user.UserService/LoginUser
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<thisProto.LoginUserResponse>
+   */
+  loginUser(
+    requestData: thisProto.LoginUserRequest,
+    requestMetadata: Metadata = {}
+  ): Observable<thisProto.LoginUserResponse> {
+    return this.loginUser$eventStream(requestData, requestMetadata).pipe(
+      throwStatusErrors(),
+      takeMessages()
+    );
+  }
+
+  /**
+   * Unary RPC for /user.UserService/LoginUser
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<GrpcEvent<thisProto.LoginUserResponse>>
+   */
+  loginUser$eventStream(
+    requestData: thisProto.LoginUserRequest,
+    requestMetadata: Metadata = {}
+  ): Observable<GrpcEvent<thisProto.LoginUserResponse>> {
+    return this.handler.handle({
+      type: GrpcCallType.unary,
+      client: this.client,
+      path: '/user.UserService/LoginUser',
+      requestData,
+      requestMetadata,
+      requestClass: thisProto.LoginUserRequest,
+      responseClass: thisProto.LoginUserResponse
+    });
+  }
+
+  /**
    * Unary RPC for /user.UserService/SearchUserByUsername
    *
    * @param requestMessage Request message
