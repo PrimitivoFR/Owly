@@ -26,7 +26,7 @@ export class Chatroom implements GrpcMessage {
    */
   static refineValues(_instance: Chatroom) {
     _instance.name = _instance.name || '';
-    _instance.users = _instance.users || [];
+    _instance.id = _instance.id || '';
   }
 
   /**
@@ -46,7 +46,7 @@ export class Chatroom implements GrpcMessage {
           _instance.name = _reader.readString();
           break;
         case 2:
-          (_instance.users = _instance.users || []).push(_reader.readString());
+          _instance.id = _reader.readString();
           break;
         default:
           _reader.skipField();
@@ -65,13 +65,13 @@ export class Chatroom implements GrpcMessage {
     if (_instance.name) {
       _writer.writeString(1, _instance.name);
     }
-    if (_instance.users && _instance.users.length) {
-      _writer.writeRepeatedString(2, _instance.users);
+    if (_instance.id) {
+      _writer.writeString(2, _instance.id);
     }
   }
 
   private _name?: string;
-  private _users?: string[];
+  private _id?: string;
 
   /**
    * Message constructor. Initializes the properties and applies default Protobuf values if necessary
@@ -80,7 +80,7 @@ export class Chatroom implements GrpcMessage {
   constructor(_value?: RecursivePartial<Chatroom>) {
     _value = _value || {};
     this.name = _value.name;
-    this.users = (_value.users || []).slice();
+    this.id = _value.id;
     Chatroom.refineValues(this);
   }
   get name(): string | undefined {
@@ -89,11 +89,11 @@ export class Chatroom implements GrpcMessage {
   set name(value: string | undefined) {
     this._name = value;
   }
-  get users(): string[] | undefined {
-    return this._users;
+  get id(): string | undefined {
+    return this._id;
   }
-  set users(value: string[] | undefined) {
-    this._users = value;
+  set id(value: string | undefined) {
+    this._id = value;
   }
 
   /**
@@ -112,7 +112,7 @@ export class Chatroom implements GrpcMessage {
   toObject(): Chatroom.AsObject {
     return {
       name: this.name,
-      users: (this.users || []).slice()
+      id: this.id
     };
   }
 
@@ -130,7 +130,7 @@ export module Chatroom {
    */
   export interface AsObject {
     name?: string;
-    users?: string[];
+    id?: string;
   }
 }
 
@@ -424,7 +424,7 @@ export class GetChatroomsByUserRequest implements GrpcMessage {
    * @param _instance message instance
    */
   static refineValues(_instance: GetChatroomsByUserRequest) {
-    _instance.user = _instance.user || '';
+    _instance.userID = _instance.userID || '';
   }
 
   /**
@@ -441,7 +441,7 @@ export class GetChatroomsByUserRequest implements GrpcMessage {
 
       switch (_reader.getFieldNumber()) {
         case 1:
-          _instance.user = _reader.readString();
+          _instance.userID = _reader.readString();
           break;
         default:
           _reader.skipField();
@@ -460,12 +460,12 @@ export class GetChatroomsByUserRequest implements GrpcMessage {
     _instance: GetChatroomsByUserRequest,
     _writer: BinaryWriter
   ) {
-    if (_instance.user) {
-      _writer.writeString(1, _instance.user);
+    if (_instance.userID) {
+      _writer.writeString(1, _instance.userID);
     }
   }
 
-  private _user?: string;
+  private _userID?: string;
 
   /**
    * Message constructor. Initializes the properties and applies default Protobuf values if necessary
@@ -473,14 +473,14 @@ export class GetChatroomsByUserRequest implements GrpcMessage {
    */
   constructor(_value?: RecursivePartial<GetChatroomsByUserRequest>) {
     _value = _value || {};
-    this.user = _value.user;
+    this.userID = _value.userID;
     GetChatroomsByUserRequest.refineValues(this);
   }
-  get user(): string | undefined {
-    return this._user;
+  get userID(): string | undefined {
+    return this._userID;
   }
-  set user(value: string | undefined) {
-    this._user = value;
+  set userID(value: string | undefined) {
+    this._userID = value;
   }
 
   /**
@@ -498,7 +498,7 @@ export class GetChatroomsByUserRequest implements GrpcMessage {
    */
   toObject(): GetChatroomsByUserRequest.AsObject {
     return {
-      user: this.user
+      userID: this.userID
     };
   }
 
@@ -515,7 +515,7 @@ export module GetChatroomsByUserRequest {
    * Standard JavaScript object representation for GetChatroomsByUserRequest
    */
   export interface AsObject {
-    user?: string;
+    userID?: string;
   }
 }
 

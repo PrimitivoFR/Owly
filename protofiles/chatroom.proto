@@ -9,7 +9,7 @@ option go_package ="chatroom/chatroompb";
 
 message Chatroom {
     string name = 1;
-    repeated string users = 2;
+    string id = 2;
 }
 
 message CreateChatroomRequest {
@@ -23,7 +23,7 @@ message CreateChatroomResponse {
 }
 
 message GetChatroomsByUserRequest {
-    string user = 1;
+    string userID = 1;
 }
 
 message GetChatroomsByUserResponse {

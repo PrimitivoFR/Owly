@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"primitivofr/owly/server/common/models"
 	"primitivofr/owly/server/user/user_server/keycloak"
 	"primitivofr/owly/server/user/userpb"
+
+	common_mongo "primitivofr/owly/server/common/mongo"
 
 	"github.com/Nerzal/gocloak/v7"
 	"google.golang.org/grpc"
@@ -54,6 +57,24 @@ func (*server) CreateNewUser(ctx context.Context, req *userpb.CreateNewUserReque
 	if err != nil {
 		log.Printf("Error while setting up password: %v", err)
 		return nil, status.Error(codes.Internal, fmt.Sprintf("Error while setting up password: %v", err))
+	}
+
+	// insert user object in mongodb
+	user_mongo := models.UserMongo{
+		// ID:       primitive.NewObjectID(),
+		ID:        ID,
+		Username:  username,
+		Chatrooms: []string{}, //empty string array
+	}
+
+	// TODO : check what to do with the return, instead of making it "_"
+	_, err_insert := common_mongo.UserCollection.InsertOne(context.Background(), user_mongo)
+	if err_insert != nil {
+		log.Printf("Error while creating user: %v. Error is: %v", user_mongo, err_insert)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Error while creating user: %v. Error is: %v", user_mongo, err_insert),
+		)
 	}
 
 	res := &userpb.CreateNewUserResponse{
