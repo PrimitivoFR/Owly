@@ -28,7 +28,8 @@ message GetChatroomsByUserRequest {
 
 message GetChatroomsByUserResponse {
     bool success = 1;
-    repeated Chatroom chatrooms = 2;
+    int64 count = 2;
+    repeated Chatroom chatrooms = 3;
 }
 
 service ChatroomService {

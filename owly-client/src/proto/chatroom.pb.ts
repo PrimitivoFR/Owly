@@ -542,6 +542,7 @@ export class GetChatroomsByUserResponse implements GrpcMessage {
    */
   static refineValues(_instance: GetChatroomsByUserResponse) {
     _instance.success = _instance.success || false;
+    _instance.count = _instance.count || '0';
     _instance.chatrooms = _instance.chatrooms || [];
   }
 
@@ -562,13 +563,16 @@ export class GetChatroomsByUserResponse implements GrpcMessage {
           _instance.success = _reader.readBool();
           break;
         case 2:
-          const messageInitializer2 = new Chatroom();
+          _instance.count = _reader.readInt64String();
+          break;
+        case 3:
+          const messageInitializer3 = new Chatroom();
           _reader.readMessage(
-            messageInitializer2,
+            messageInitializer3,
             Chatroom.deserializeBinaryFromReader
           );
           (_instance.chatrooms = _instance.chatrooms || []).push(
-            messageInitializer2
+            messageInitializer3
           );
           break;
         default:
@@ -591,9 +595,12 @@ export class GetChatroomsByUserResponse implements GrpcMessage {
     if (_instance.success) {
       _writer.writeBool(1, _instance.success);
     }
+    if (_instance.count) {
+      _writer.writeInt64String(2, _instance.count);
+    }
     if (_instance.chatrooms && _instance.chatrooms.length) {
       _writer.writeRepeatedMessage(
-        2,
+        3,
         _instance.chatrooms as any,
         Chatroom.serializeBinaryToWriter
       );
@@ -601,6 +608,7 @@ export class GetChatroomsByUserResponse implements GrpcMessage {
   }
 
   private _success?: boolean;
+  private _count?: string;
   private _chatrooms?: Chatroom[];
 
   /**
@@ -610,6 +618,7 @@ export class GetChatroomsByUserResponse implements GrpcMessage {
   constructor(_value?: RecursivePartial<GetChatroomsByUserResponse>) {
     _value = _value || {};
     this.success = _value.success;
+    this.count = _value.count;
     this.chatrooms = (_value.chatrooms || []).map(m => new Chatroom(m));
     GetChatroomsByUserResponse.refineValues(this);
   }
@@ -618,6 +627,12 @@ export class GetChatroomsByUserResponse implements GrpcMessage {
   }
   set success(value: boolean | undefined) {
     this._success = value;
+  }
+  get count(): string | undefined {
+    return this._count;
+  }
+  set count(value: string | undefined) {
+    this._count = value;
   }
   get chatrooms(): Chatroom[] | undefined {
     return this._chatrooms;
@@ -642,6 +657,7 @@ export class GetChatroomsByUserResponse implements GrpcMessage {
   toObject(): GetChatroomsByUserResponse.AsObject {
     return {
       success: this.success,
+      count: this.count,
       chatrooms: (this.chatrooms || []).map(m => m.toObject())
     };
   }
@@ -660,6 +676,7 @@ export module GetChatroomsByUserResponse {
    */
   export interface AsObject {
     success?: boolean;
+    count?: string;
     chatrooms?: Chatroom.AsObject[];
   }
 }

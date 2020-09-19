@@ -127,6 +127,7 @@ func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatro
 
 	return &chatroompb.GetChatroomsByUserResponse{
 		Chatrooms: users_chatrooms,
+		Count:     int64(len(users_chatrooms)),
 		Success:   true,
 	}, nil
 }
