@@ -76,7 +76,7 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatroomsByUserRequest) (*chatroompb.GetChatroomsByUserResponse, error) {
 	user_id := req.GetUserID()
 	filter := bson.M{"_id": user_id}
-	var user_result models.User
+	var user_result models.UserMongo
 
 	err := common_mongo.UserCollection.FindOne(context.Background(), filter).Decode(&user_result)
 

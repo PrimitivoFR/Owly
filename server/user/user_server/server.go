@@ -60,7 +60,7 @@ func (*server) CreateNewUser(ctx context.Context, req *userpb.CreateNewUserReque
 	}
 
 	// insert user object in mongodb
-	user_mongo := models.User{
+	user_mongo := models.UserMongo{
 		// ID:       primitive.NewObjectID(),
 		ID:        ID,
 		Username:  username,
