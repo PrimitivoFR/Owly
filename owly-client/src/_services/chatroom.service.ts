@@ -11,7 +11,7 @@ export class ChatroomService {
 
 
   async createChatroom(req: CreateChatroomRequest): Promise<CreateChatroomResponse> {
-    const res = await this.chatroomClient.createChatroom(req).toPromise()
+    const res = await this.chatroomClient.createChatroom(req, {"authorization": "ahblibliblou"}).toPromise()
     return res;
   }
 }

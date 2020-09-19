@@ -2,7 +2,6 @@ package keycloak
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/Nerzal/gocloak/v7"
@@ -56,7 +55,6 @@ func (adminGuy *AdminGuy) GetClientSecret(clientName string) (string, error) {
 		}
 	}
 
-	fmt.Println(cli_id)
 	res, err := adminGuy.Client.GetClientSecret(context.Background(), adminGuy.Token, "OWLY", cli_id)
 	if err != nil {
 		log.Printf("Error @ GetClientSecret: %v", err)
@@ -68,5 +66,34 @@ func (adminGuy *AdminGuy) GetClientSecret(clientName string) (string, error) {
 func (adminGuy *AdminGuy) GetAllClients() ([]*gocloak.Client, error) {
 	bill := true
 	return adminGuy.Client.GetClients(context.Background(), adminGuy.Token, "OWLY", gocloak.GetClientsParams{ViewableOnly: &bill})
+}
+func (adminGuy *AdminGuy) GetClientId(clientName string) (string, error) {
+	var cli_id string
 
+	res1, err := adminGuy.GetAllClients()
+	if err != nil {
+		return "", err
+	}
+
+	for _, cli := range res1 {
+		if clientID := cli.ClientID; *clientID == clientName {
+			cli_id = *cli.ID
+		}
+	}
+	return cli_id, nil
+}
+
+func (adminGuy *AdminGuy) VerifyToken(token string) (bool, error) {
+
+	cli_secret, err := adminGuy.GetClientSecret("owlycli")
+	if err != nil {
+		return false, err
+	}
+
+	res, err := adminGuy.Client.RetrospectToken(context.Background(), token, "owlycli", cli_secret, "OWLY")
+	if err != nil {
+		log.Printf("Fails at adminGuy.VerifyToken %v", err)
+		return false, err
+	}
+	return *res.Active, nil
 }

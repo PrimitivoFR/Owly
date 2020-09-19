@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"primitivofr/owly/server/chatroom/chatroompb"
+	"primitivofr/owly/server/common/interceptors"
 	"primitivofr/owly/server/common/models"
 	common_mongo "primitivofr/owly/server/common/mongo"
 
@@ -130,6 +131,8 @@ func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatro
 	}, nil
 }
 
+//
+
 func StartServer() {
 
 	lis, err := net.Listen("tcp", "0.0.0.0:50052")
@@ -148,7 +151,7 @@ func StartServer() {
 
 	// -----MONGO-------
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(grpc.UnaryInterceptor(interceptors.UnaryInterceptor))
 	chatroompb.RegisterChatroomServiceServer(s, &server{})
 	reflection.Register(s) // allows us to expose the gRPC server so the client can see what's available. You can use Evans CLI for that
 
