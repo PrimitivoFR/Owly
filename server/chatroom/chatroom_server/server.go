@@ -118,8 +118,8 @@ func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatro
 		users_chatrooms = append(
 			users_chatrooms,
 			&chatroompb.Chatroom{
-				Name:  chatroom_result.Name,
-				Users: chatroom_result.Users,
+				Name: chatroom_result.Name,
+				Id:   chatroom_result.ID.Hex(),
 			},
 		)
 	}
