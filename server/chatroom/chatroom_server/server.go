@@ -23,14 +23,14 @@ type server struct{}
 func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroomRequest) (*chatroompb.CreateChatroomResponse, error) {
 
 	name := req.GetName()
-	users := req.GetUsers()
+	user_ids := req.GetUsers()
 	if name == "" {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("The chatroom name can't be empty"))
 	}
 	chatroom := models.Chatroom{
 		ID:    primitive.NewObjectID(),
 		Name:  name,
-		Users: users,
+		Users: user_ids,
 	}
 
 	res, err := common_mongo.ChatroomCollection.InsertOne(context.Background(), chatroom)
@@ -51,23 +51,9 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 	}
 
 	// add chatroom to users
-	for _, username := range users {
+	for _, user_id := range user_ids {
 
-		// check if the user exists and find its id
-		user_filter := bson.M{"username": username}
-		var user_result models.User
-		err_user := common_mongo.UserCollection.FindOne(context.Background(), user_filter).Decode(&user_result)
-
-		if err_user != nil {
-			log.Printf("Error while creating chatroom (user not found): %v. User: %v", chatroom, username)
-			return nil, status.Errorf(
-				codes.Internal,
-				fmt.Sprintf("Error while creating chatroom (user not found): %v. User: %v", chatroom, username),
-			)
-		}
-
-		// update the chatroom list of the user
-		filter := bson.M{"_id": bson.M{"$eq": user_result.ID}}
+		filter := bson.M{"_id": user_id}
 		update := bson.M{"$push": bson.M{"chatrooms": oid}}
 		_, err_update := common_mongo.UserCollection.UpdateOne(context.Background(), filter, update)
 
@@ -89,7 +75,7 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 
 func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatroomsByUserRequest) (*chatroompb.GetChatroomsByUserResponse, error) {
 	user_id := req.GetUserID()
-	filter := bson.M{"_id": bson.M{"$eq": user_id}}
+	filter := bson.M{"_id": user_id}
 	var user_result models.User
 
 	err := common_mongo.UserCollection.FindOne(context.Background(), filter).Decode(&user_result)
