@@ -83,7 +83,7 @@ func (*server) SendMessage(ctx context.Context, req *messagepb.SendMessageReques
 	// Declare an Elasticsearch configuration
 	cfg := elasticsearch.Config{
 		Addresses: []string{
-			"http://elasticsearch:9400",
+			"http://elasticsearch:9200",
 		},
 	}
 
