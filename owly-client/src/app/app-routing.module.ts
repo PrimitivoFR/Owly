@@ -7,6 +7,7 @@ import { HomeComponent } from './home/home.component';
 import { AuthGuardGuard as AuthGuard } from './auth-guard.guard';
 import { AuthService } from 'src/_services/auth.service';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { ChatroomComponent } from './chatroom/chatroom.component';
 
 const routes: Routes = [
   { path: 'register', component: SignUpFormComponent }, 
@@ -14,6 +15,7 @@ const routes: Routes = [
 
   { path: 'home', component: HomeComponent,  canActivate: [AuthGuard]},
   { path: 'create-chatroom', component: CreateChatroomComponent, canActivate: [AuthGuard] },
+  { path: 'chatroom/:name/:id', component: ChatroomComponent, canActivate: [AuthGuard] },
 
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   

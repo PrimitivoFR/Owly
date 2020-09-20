@@ -17,9 +17,11 @@ import { AngularEntypoModule, AngularEntypoComponent } from 'angular-entypo';
 import { SignInFormComponent } from './sign-in-form/sign-in-form.component';
 import { TopBarComponent } from './common/components/top-bar/top-bar.component';
 import { HomeComponent } from './home/home.component';
+import { ChatroomComponent } from './chatroom/chatroom.component';
 
 import { JwtModule } from '@auth0/angular-jwt';
 import { CookieModule } from 'ngx-cookie';
+import { TextareaAutosizeModule } from 'ngx-textarea-autosize';
 
 @NgModule({
   declarations: [
@@ -31,7 +33,8 @@ import { CookieModule } from 'ngx-cookie';
     LoadingSpinnerComponent,
     SignInFormComponent,
     TopBarComponent,
-    HomeComponent
+    HomeComponent,
+    ChatroomComponent,
   ],
   imports: [
     BrowserModule,
@@ -39,7 +42,8 @@ import { CookieModule } from 'ngx-cookie';
     ReactiveFormsModule,
     AngularEntypoModule,
     JwtModule.forRoot({}),
-    CookieModule.forRoot()
+    CookieModule.forRoot(),
+    TextareaAutosizeModule
   ],
   providers: [
     { provide: GRPC_CLIENT_FACTORY, useClass: GrpcWebClientFactory },

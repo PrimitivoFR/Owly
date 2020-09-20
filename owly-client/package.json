@@ -30,6 +30,7 @@
     "google-protobuf": "^3.13.0",
     "grpc-web": "^1.2.1",
     "ngx-cookie": "^5.0.0",
+    "ngx-textarea-autosize": "^2.0.3",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
     "uuid": "^8.3.0",
