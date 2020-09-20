@@ -4,6 +4,14 @@
 
 ## Run it
 
+### Dialing with EVANS CLI
+
+You first have to pass the token before making any request !
+
+`header set authorization="BLABLA_TOKEN"`
+
+
+
 ### Dev env
 
 Run everything:
