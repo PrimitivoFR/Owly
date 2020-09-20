@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/Nerzal/gocloak/v7"
+	"github.com/dgrijalva/jwt-go/v4"
 )
 
 type AdminGuy struct {
@@ -96,4 +97,10 @@ func (adminGuy *AdminGuy) VerifyToken(token string) (bool, error) {
 		return false, err
 	}
 	return *res.Active, nil
+}
+
+func (adminGuy *AdminGuy) ExtractUUIDfromToken(token string) string {
+	decoded, _, _ := adminGuy.Client.DecodeAccessToken(context.Background(), token, "OWLY", "")
+	claims := *decoded.Claims.(*jwt.MapClaims)
+	return claims["sub"].(string)
 }

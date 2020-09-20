@@ -7,6 +7,7 @@ import (
 	"net"
 	"primitivofr/owly/server/chatroom/chatroompb"
 	"primitivofr/owly/server/common/interceptors"
+	common_jwt "primitivofr/owly/server/common/jwt"
 	"primitivofr/owly/server/common/models"
 	common_mongo "primitivofr/owly/server/common/mongo"
 
@@ -75,11 +76,16 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 }
 
 func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatroomsByUserRequest) (*chatroompb.GetChatroomsByUserResponse, error) {
-	user_id := req.GetUserID()
+	// user_id := req.GetUserID()
+	user_id, err := common_jwt.ReadUUIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	filter := bson.M{"_id": user_id}
 	var user_result models.UserMongo
 
-	err := common_mongo.UserCollection.FindOne(context.Background(), filter).Decode(&user_result)
+	err = common_mongo.UserCollection.FindOne(context.Background(), filter).Decode(&user_result)
 
 	if err != nil { //err typically is "no documents in result"
 		log.Printf("Error while getting chatrooms for user %v. Error is: %v", user_result.Username, err)

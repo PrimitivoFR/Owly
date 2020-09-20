@@ -423,9 +423,7 @@ export class GetChatroomsByUserRequest implements GrpcMessage {
    * Check all the properties and set default protobuf values if necessary
    * @param _instance message instance
    */
-  static refineValues(_instance: GetChatroomsByUserRequest) {
-    _instance.userID = _instance.userID || '';
-  }
+  static refineValues(_instance: GetChatroomsByUserRequest) {}
 
   /**
    * Deserializes / reads binary message into message instance using provided binary reader
@@ -440,9 +438,6 @@ export class GetChatroomsByUserRequest implements GrpcMessage {
       if (_reader.isEndGroup()) break;
 
       switch (_reader.getFieldNumber()) {
-        case 1:
-          _instance.userID = _reader.readString();
-          break;
         default:
           _reader.skipField();
       }
@@ -459,13 +454,7 @@ export class GetChatroomsByUserRequest implements GrpcMessage {
   static serializeBinaryToWriter(
     _instance: GetChatroomsByUserRequest,
     _writer: BinaryWriter
-  ) {
-    if (_instance.userID) {
-      _writer.writeString(1, _instance.userID);
-    }
-  }
-
-  private _userID?: string;
+  ) {}
 
   /**
    * Message constructor. Initializes the properties and applies default Protobuf values if necessary
@@ -473,14 +462,7 @@ export class GetChatroomsByUserRequest implements GrpcMessage {
    */
   constructor(_value?: RecursivePartial<GetChatroomsByUserRequest>) {
     _value = _value || {};
-    this.userID = _value.userID;
     GetChatroomsByUserRequest.refineValues(this);
-  }
-  get userID(): string | undefined {
-    return this._userID;
-  }
-  set userID(value: string | undefined) {
-    this._userID = value;
   }
 
   /**
@@ -497,9 +479,7 @@ export class GetChatroomsByUserRequest implements GrpcMessage {
    * Cast message to standard JavaScript object (all non-primitive values are deeply cloned)
    */
   toObject(): GetChatroomsByUserRequest.AsObject {
-    return {
-      userID: this.userID
-    };
+    return {};
   }
 
   /**
@@ -514,9 +494,7 @@ export module GetChatroomsByUserRequest {
   /**
    * Standard JavaScript object representation for GetChatroomsByUserRequest
    */
-  export interface AsObject {
-    userID?: string;
-  }
+  export interface AsObject {}
 }
 
 /**
