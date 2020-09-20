@@ -81,4 +81,82 @@ export class MessageServiceClient {
       responseClass: thisProto.StreamMessagesByChatroomResponse
     });
   }
+
+  /**
+   * Unary RPC for /message.MessageService/SendMessage
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<thisProto.SendMessageResponse>
+   */
+  sendMessage(
+    requestData: thisProto.SendMessageRequest,
+    requestMetadata: Metadata = {}
+  ): Observable<thisProto.SendMessageResponse> {
+    return this.sendMessage$eventStream(requestData, requestMetadata).pipe(
+      throwStatusErrors(),
+      takeMessages()
+    );
+  }
+
+  /**
+   * Unary RPC for /message.MessageService/SendMessage
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<GrpcEvent<thisProto.SendMessageResponse>>
+   */
+  sendMessage$eventStream(
+    requestData: thisProto.SendMessageRequest,
+    requestMetadata: Metadata = {}
+  ): Observable<GrpcEvent<thisProto.SendMessageResponse>> {
+    return this.handler.handle({
+      type: GrpcCallType.unary,
+      client: this.client,
+      path: '/message.MessageService/SendMessage',
+      requestData,
+      requestMetadata,
+      requestClass: thisProto.SendMessageRequest,
+      responseClass: thisProto.SendMessageResponse
+    });
+  }
+
+  /**
+   * Unary RPC for /message.MessageService/GetMessagesByChatroom
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<thisProto.GetMessagesByChatroomResponse>
+   */
+  getMessagesByChatroom(
+    requestData: thisProto.GetMessagesByChatroomRequest,
+    requestMetadata: Metadata = {}
+  ): Observable<thisProto.GetMessagesByChatroomResponse> {
+    return this.getMessagesByChatroom$eventStream(
+      requestData,
+      requestMetadata
+    ).pipe(throwStatusErrors(), takeMessages());
+  }
+
+  /**
+   * Unary RPC for /message.MessageService/GetMessagesByChatroom
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<GrpcEvent<thisProto.GetMessagesByChatroomResponse>>
+   */
+  getMessagesByChatroom$eventStream(
+    requestData: thisProto.GetMessagesByChatroomRequest,
+    requestMetadata: Metadata = {}
+  ): Observable<GrpcEvent<thisProto.GetMessagesByChatroomResponse>> {
+    return this.handler.handle({
+      type: GrpcCallType.unary,
+      client: this.client,
+      path: '/message.MessageService/GetMessagesByChatroom',
+      requestData,
+      requestMetadata,
+      requestClass: thisProto.GetMessagesByChatroomRequest,
+      responseClass: thisProto.GetMessagesByChatroomResponse
+    });
+  }
 }

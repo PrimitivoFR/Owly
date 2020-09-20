@@ -651,3 +651,490 @@ export module StreamMessagesByChatroomResponse {
     message?: Message.AsObject;
   }
 }
+
+/**
+ * Message implementation for message.SendMessageRequest
+ */
+export class SendMessageRequest implements GrpcMessage {
+  /**
+   * Deserialize binary data to message
+   * @param instance message instance
+   */
+  static deserializeBinary(bytes: ByteSource) {
+    const instance = new SendMessageRequest();
+    SendMessageRequest.deserializeBinaryFromReader(
+      instance,
+      new BinaryReader(bytes)
+    );
+    return instance;
+  }
+
+  /**
+   * Check all the properties and set default protobuf values if necessary
+   * @param _instance message instance
+   */
+  static refineValues(_instance: SendMessageRequest) {
+    _instance.message = _instance.message || undefined;
+  }
+
+  /**
+   * Deserializes / reads binary message into message instance using provided binary reader
+   * @param _instance message instance
+   * @param _reader binary reader instance
+   */
+  static deserializeBinaryFromReader(
+    _instance: SendMessageRequest,
+    _reader: BinaryReader
+  ) {
+    while (_reader.nextField()) {
+      if (_reader.isEndGroup()) break;
+
+      switch (_reader.getFieldNumber()) {
+        case 1:
+          _instance.message = new Message();
+          _reader.readMessage(
+            _instance.message,
+            Message.deserializeBinaryFromReader
+          );
+          break;
+        default:
+          _reader.skipField();
+      }
+    }
+
+    SendMessageRequest.refineValues(_instance);
+  }
+
+  /**
+   * Serializes a message to binary format using provided binary reader
+   * @param _instance message instance
+   * @param _writer binary writer instance
+   */
+  static serializeBinaryToWriter(
+    _instance: SendMessageRequest,
+    _writer: BinaryWriter
+  ) {
+    if (_instance.message) {
+      _writer.writeMessage(
+        1,
+        _instance.message as any,
+        Message.serializeBinaryToWriter
+      );
+    }
+  }
+
+  private _message?: Message;
+
+  /**
+   * Message constructor. Initializes the properties and applies default Protobuf values if necessary
+   * @param _value initial values object or instance of SendMessageRequest to deeply clone from
+   */
+  constructor(_value?: RecursivePartial<SendMessageRequest>) {
+    _value = _value || {};
+    this.message = _value.message ? new Message(_value.message) : undefined;
+    SendMessageRequest.refineValues(this);
+  }
+  get message(): Message | undefined {
+    return this._message;
+  }
+  set message(value: Message | undefined) {
+    this._message = value;
+  }
+
+  /**
+   * Serialize message to binary data
+   * @param instance message instance
+   */
+  serializeBinary() {
+    const writer = new BinaryWriter();
+    SendMessageRequest.serializeBinaryToWriter(this, writer);
+    return writer.getResultBuffer();
+  }
+
+  /**
+   * Cast message to standard JavaScript object (all non-primitive values are deeply cloned)
+   */
+  toObject(): SendMessageRequest.AsObject {
+    return {
+      message: this.message ? this.message.toObject() : undefined
+    };
+  }
+
+  /**
+   * JSON serializer
+   * Only intended to be used by `JSON.stringify` function. If you want to cast message to standard JavaScript object, use `toObject()` instead
+   */
+  toJSON() {
+    return this.toObject();
+  }
+}
+export module SendMessageRequest {
+  /**
+   * Standard JavaScript object representation for SendMessageRequest
+   */
+  export interface AsObject {
+    message?: Message.AsObject;
+  }
+}
+
+/**
+ * Message implementation for message.SendMessageResponse
+ */
+export class SendMessageResponse implements GrpcMessage {
+  /**
+   * Deserialize binary data to message
+   * @param instance message instance
+   */
+  static deserializeBinary(bytes: ByteSource) {
+    const instance = new SendMessageResponse();
+    SendMessageResponse.deserializeBinaryFromReader(
+      instance,
+      new BinaryReader(bytes)
+    );
+    return instance;
+  }
+
+  /**
+   * Check all the properties and set default protobuf values if necessary
+   * @param _instance message instance
+   */
+  static refineValues(_instance: SendMessageResponse) {
+    _instance.success = _instance.success || false;
+  }
+
+  /**
+   * Deserializes / reads binary message into message instance using provided binary reader
+   * @param _instance message instance
+   * @param _reader binary reader instance
+   */
+  static deserializeBinaryFromReader(
+    _instance: SendMessageResponse,
+    _reader: BinaryReader
+  ) {
+    while (_reader.nextField()) {
+      if (_reader.isEndGroup()) break;
+
+      switch (_reader.getFieldNumber()) {
+        case 1:
+          _instance.success = _reader.readBool();
+          break;
+        default:
+          _reader.skipField();
+      }
+    }
+
+    SendMessageResponse.refineValues(_instance);
+  }
+
+  /**
+   * Serializes a message to binary format using provided binary reader
+   * @param _instance message instance
+   * @param _writer binary writer instance
+   */
+  static serializeBinaryToWriter(
+    _instance: SendMessageResponse,
+    _writer: BinaryWriter
+  ) {
+    if (_instance.success) {
+      _writer.writeBool(1, _instance.success);
+    }
+  }
+
+  private _success?: boolean;
+
+  /**
+   * Message constructor. Initializes the properties and applies default Protobuf values if necessary
+   * @param _value initial values object or instance of SendMessageResponse to deeply clone from
+   */
+  constructor(_value?: RecursivePartial<SendMessageResponse>) {
+    _value = _value || {};
+    this.success = _value.success;
+    SendMessageResponse.refineValues(this);
+  }
+  get success(): boolean | undefined {
+    return this._success;
+  }
+  set success(value: boolean | undefined) {
+    this._success = value;
+  }
+
+  /**
+   * Serialize message to binary data
+   * @param instance message instance
+   */
+  serializeBinary() {
+    const writer = new BinaryWriter();
+    SendMessageResponse.serializeBinaryToWriter(this, writer);
+    return writer.getResultBuffer();
+  }
+
+  /**
+   * Cast message to standard JavaScript object (all non-primitive values are deeply cloned)
+   */
+  toObject(): SendMessageResponse.AsObject {
+    return {
+      success: this.success
+    };
+  }
+
+  /**
+   * JSON serializer
+   * Only intended to be used by `JSON.stringify` function. If you want to cast message to standard JavaScript object, use `toObject()` instead
+   */
+  toJSON() {
+    return this.toObject();
+  }
+}
+export module SendMessageResponse {
+  /**
+   * Standard JavaScript object representation for SendMessageResponse
+   */
+  export interface AsObject {
+    success?: boolean;
+  }
+}
+
+/**
+ * Message implementation for message.GetMessagesByChatroomRequest
+ */
+export class GetMessagesByChatroomRequest implements GrpcMessage {
+  /**
+   * Deserialize binary data to message
+   * @param instance message instance
+   */
+  static deserializeBinary(bytes: ByteSource) {
+    const instance = new GetMessagesByChatroomRequest();
+    GetMessagesByChatroomRequest.deserializeBinaryFromReader(
+      instance,
+      new BinaryReader(bytes)
+    );
+    return instance;
+  }
+
+  /**
+   * Check all the properties and set default protobuf values if necessary
+   * @param _instance message instance
+   */
+  static refineValues(_instance: GetMessagesByChatroomRequest) {
+    _instance.chatroomID = _instance.chatroomID || '';
+  }
+
+  /**
+   * Deserializes / reads binary message into message instance using provided binary reader
+   * @param _instance message instance
+   * @param _reader binary reader instance
+   */
+  static deserializeBinaryFromReader(
+    _instance: GetMessagesByChatroomRequest,
+    _reader: BinaryReader
+  ) {
+    while (_reader.nextField()) {
+      if (_reader.isEndGroup()) break;
+
+      switch (_reader.getFieldNumber()) {
+        case 1:
+          _instance.chatroomID = _reader.readString();
+          break;
+        default:
+          _reader.skipField();
+      }
+    }
+
+    GetMessagesByChatroomRequest.refineValues(_instance);
+  }
+
+  /**
+   * Serializes a message to binary format using provided binary reader
+   * @param _instance message instance
+   * @param _writer binary writer instance
+   */
+  static serializeBinaryToWriter(
+    _instance: GetMessagesByChatroomRequest,
+    _writer: BinaryWriter
+  ) {
+    if (_instance.chatroomID) {
+      _writer.writeString(1, _instance.chatroomID);
+    }
+  }
+
+  private _chatroomID?: string;
+
+  /**
+   * Message constructor. Initializes the properties and applies default Protobuf values if necessary
+   * @param _value initial values object or instance of GetMessagesByChatroomRequest to deeply clone from
+   */
+  constructor(_value?: RecursivePartial<GetMessagesByChatroomRequest>) {
+    _value = _value || {};
+    this.chatroomID = _value.chatroomID;
+    GetMessagesByChatroomRequest.refineValues(this);
+  }
+  get chatroomID(): string | undefined {
+    return this._chatroomID;
+  }
+  set chatroomID(value: string | undefined) {
+    this._chatroomID = value;
+  }
+
+  /**
+   * Serialize message to binary data
+   * @param instance message instance
+   */
+  serializeBinary() {
+    const writer = new BinaryWriter();
+    GetMessagesByChatroomRequest.serializeBinaryToWriter(this, writer);
+    return writer.getResultBuffer();
+  }
+
+  /**
+   * Cast message to standard JavaScript object (all non-primitive values are deeply cloned)
+   */
+  toObject(): GetMessagesByChatroomRequest.AsObject {
+    return {
+      chatroomID: this.chatroomID
+    };
+  }
+
+  /**
+   * JSON serializer
+   * Only intended to be used by `JSON.stringify` function. If you want to cast message to standard JavaScript object, use `toObject()` instead
+   */
+  toJSON() {
+    return this.toObject();
+  }
+}
+export module GetMessagesByChatroomRequest {
+  /**
+   * Standard JavaScript object representation for GetMessagesByChatroomRequest
+   */
+  export interface AsObject {
+    chatroomID?: string;
+  }
+}
+
+/**
+ * Message implementation for message.GetMessagesByChatroomResponse
+ */
+export class GetMessagesByChatroomResponse implements GrpcMessage {
+  /**
+   * Deserialize binary data to message
+   * @param instance message instance
+   */
+  static deserializeBinary(bytes: ByteSource) {
+    const instance = new GetMessagesByChatroomResponse();
+    GetMessagesByChatroomResponse.deserializeBinaryFromReader(
+      instance,
+      new BinaryReader(bytes)
+    );
+    return instance;
+  }
+
+  /**
+   * Check all the properties and set default protobuf values if necessary
+   * @param _instance message instance
+   */
+  static refineValues(_instance: GetMessagesByChatroomResponse) {
+    _instance.messages = _instance.messages || [];
+  }
+
+  /**
+   * Deserializes / reads binary message into message instance using provided binary reader
+   * @param _instance message instance
+   * @param _reader binary reader instance
+   */
+  static deserializeBinaryFromReader(
+    _instance: GetMessagesByChatroomResponse,
+    _reader: BinaryReader
+  ) {
+    while (_reader.nextField()) {
+      if (_reader.isEndGroup()) break;
+
+      switch (_reader.getFieldNumber()) {
+        case 1:
+          const messageInitializer1 = new Message();
+          _reader.readMessage(
+            messageInitializer1,
+            Message.deserializeBinaryFromReader
+          );
+          (_instance.messages = _instance.messages || []).push(
+            messageInitializer1
+          );
+          break;
+        default:
+          _reader.skipField();
+      }
+    }
+
+    GetMessagesByChatroomResponse.refineValues(_instance);
+  }
+
+  /**
+   * Serializes a message to binary format using provided binary reader
+   * @param _instance message instance
+   * @param _writer binary writer instance
+   */
+  static serializeBinaryToWriter(
+    _instance: GetMessagesByChatroomResponse,
+    _writer: BinaryWriter
+  ) {
+    if (_instance.messages && _instance.messages.length) {
+      _writer.writeRepeatedMessage(
+        1,
+        _instance.messages as any,
+        Message.serializeBinaryToWriter
+      );
+    }
+  }
+
+  private _messages?: Message[];
+
+  /**
+   * Message constructor. Initializes the properties and applies default Protobuf values if necessary
+   * @param _value initial values object or instance of GetMessagesByChatroomResponse to deeply clone from
+   */
+  constructor(_value?: RecursivePartial<GetMessagesByChatroomResponse>) {
+    _value = _value || {};
+    this.messages = (_value.messages || []).map(m => new Message(m));
+    GetMessagesByChatroomResponse.refineValues(this);
+  }
+  get messages(): Message[] | undefined {
+    return this._messages;
+  }
+  set messages(value: Message[] | undefined) {
+    this._messages = value;
+  }
+
+  /**
+   * Serialize message to binary data
+   * @param instance message instance
+   */
+  serializeBinary() {
+    const writer = new BinaryWriter();
+    GetMessagesByChatroomResponse.serializeBinaryToWriter(this, writer);
+    return writer.getResultBuffer();
+  }
+
+  /**
+   * Cast message to standard JavaScript object (all non-primitive values are deeply cloned)
+   */
+  toObject(): GetMessagesByChatroomResponse.AsObject {
+    return {
+      messages: (this.messages || []).map(m => m.toObject())
+    };
+  }
+
+  /**
+   * JSON serializer
+   * Only intended to be used by `JSON.stringify` function. If you want to cast message to standard JavaScript object, use `toObject()` instead
+   */
+  toJSON() {
+    return this.toObject();
+  }
+}
+export module GetMessagesByChatroomResponse {
+  /**
+   * Standard JavaScript object representation for GetMessagesByChatroomResponse
+   */
+  export interface AsObject {
+    messages?: Message.AsObject[];
+  }
+}
