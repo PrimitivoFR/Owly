@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoginUserRequest } from 'src/proto/user.pb';
 import { AuthService } from 'src/_services/auth.service';
+import { ChatroomService } from 'src/_services/chatroom.service';
 import { UserService } from 'src/_services/user.service';
 import { SnackAlertService } from '../common/components/snack-alert/snack-alert.service';
 
@@ -19,7 +20,8 @@ export class SignInFormComponent implements OnInit {
     private formBuilder: FormBuilder,
     private snackService: SnackAlertService,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private chatroomService: ChatroomService,
   ) { }
 
   ngOnInit(): void {
@@ -44,6 +46,7 @@ export class SignInFormComponent implements OnInit {
     console.log(success);
     if(success) {
       this.snackService.showSnack('Welcome !');
+      this.chatroomService.getChatroom();
       this.router.navigate(['home'], { queryParams: { login: true }});
     }
     else {

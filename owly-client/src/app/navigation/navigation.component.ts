@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Chatroom, GetChatroomsByUserRequest, GetChatroomsByUserResponse } from 'src/proto/chatroom.pb';
+import { AuthService } from 'src/_services/auth.service';
 import { ChatroomService } from 'src/_services/chatroom.service';
 
 @Component({
@@ -9,28 +10,23 @@ import { ChatroomService } from 'src/_services/chatroom.service';
 })
 export class NavigationComponent implements OnInit {
 
-  chatroomsList: Chatroom[];
+  chatroomsList: GetChatroomsByUserResponse;
 
   constructor(
     private chatroomService: ChatroomService,
+    private authService: AuthService,
   ) { }
 
   ngOnInit(): void {
-    this.load();
-  }
-
-  async load() {
-    await this.getChatrooms();
-  }
-
-  async getChatrooms() {
-    const req = new GetChatroomsByUserRequest() ;
-
-    try {
-      this.chatroomsList = await (await this.chatroomService.getChatroom(req)).chatrooms;
+    this.chatroomService.chatroomsListValue.subscribe((chatrooms) => {
+      this.chatroomsList = chatrooms;
       console.log(this.chatroomsList);
-    } catch (e) {
-      
-    }
+    });
+    if(this.authService.currentUserValue)
+      this.getChatrooms();
+  }
+
+  getChatrooms() {
+    this.chatroomService.getChatroom();
   }
 }
