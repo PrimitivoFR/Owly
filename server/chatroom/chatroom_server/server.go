@@ -23,12 +23,18 @@ type server struct{}
 
 //
 func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroomRequest) (*chatroompb.CreateChatroomResponse, error) {
-
+	currentUserID, err := common_jwt.ReadUUIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	name := req.GetName()
 	user_ids := req.GetUsers()
 	if name == "" {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("The chatroom name can't be empty"))
 	}
+
+	user_ids = append(user_ids, currentUserID)
+
 	chatroom := models.Chatroom{
 		ID:    primitive.NewObjectID(),
 		Name:  name,
