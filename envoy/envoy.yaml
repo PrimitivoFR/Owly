@@ -23,6 +23,10 @@ static_resources:
                           route:
                             cluster: chatroom_service
                             max_grpc_timeout: 0s
+                        - match: { prefix: "/message" }
+                          route:
+                            cluster: message_service
+                            max_grpc_timeout: 0s
                       cors:
                         allow_origin_string_match:
                           - prefix: "*"
@@ -47,3 +51,9 @@ static_resources:
       http2_protocol_options: {}
       lb_policy: round_robin
       hosts: [{ socket_address: { address: server, port_value: 50052 } }]
+    - name: message_service
+      connect_timeout: 0.25s
+      type: logical_dns
+      http2_protocol_options: {}
+      lb_policy: round_robin
+      hosts: [{ socket_address: { address: server, port_value: 50053 } }]
