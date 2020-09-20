@@ -30,6 +30,28 @@ type server struct{}
 func (*server) StreamMessagesByChatroom(req *messagepb.StreamMessagesByChatroomRequest, stream messagepb.MessageService_StreamMessagesByChatroomServer) error {
 	chatroomID := req.GetChatroomID()
 
+	user_id, err := common_jwt.ReadUUIDFromContext(stream.Context())
+	if err != nil {
+		return err
+	}
+
+	if ok, err := interceptors.IsUserInChatroom(chatroomID, user_id); !ok || err != nil {
+		if !ok && err == nil {
+			log.Printf("User %v not found in this chatroom: %v", user_id, chatroomID)
+			return status.Errorf(
+				codes.Unauthenticated,
+				fmt.Sprintf("User %v not found in this chatroom: %v", user_id, chatroomID),
+			)
+		}
+
+		log.Printf("Error while checking if user belong to chatroom: %v", err)
+		return status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Error while checking if user belong to chatroom: %v", err),
+		)
+
+	}
+
 	var wsError error
 
 	c := evtwebsocket.Conn{
@@ -245,7 +267,7 @@ func StartServer() {
 		log.Fatalf("Failed to listen %v \n", err)
 	}
 
-	s := grpc.NewServer(grpc.UnaryInterceptor(interceptors.UnaryInterceptor))
+	s := grpc.NewServer(grpc.UnaryInterceptor(interceptors.UnaryInterceptor), grpc.StreamInterceptor(interceptors.StreamInterceptor))
 	messagepb.RegisterMessageServiceServer(s, &server{})
 	reflection.Register(s) // allows us to expose the gRPC server so the client can see what's available. You can use Evans CLI for that
 
