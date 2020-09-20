@@ -33,7 +33,15 @@ message StreamMessagesByChatroomResponse {
     Message message = 1;
 }
 
+message SendMessageRequest {
+    Message message = 1; 
+}
+
+message SendMessageResponse {
+    bool success = 1;
+}
 
 service MessageService {
     rpc StreamMessagesByChatroom(StreamMessagesByChatroomRequest) returns (stream StreamMessagesByChatroomResponse) {}
+    rpc SendMessage(SendMessageRequest) returns (SendMessageResponse) {}
 }
