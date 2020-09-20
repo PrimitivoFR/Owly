@@ -19,9 +19,6 @@ export class AuthService {
     private user = new BehaviorSubject<LoggedUser>(new LoggedUser());
     currentUser = this.user.asObservable();
 
-    public get currentUserValue() {
-        return this.user.value;
-    }
 
     public isAuthenticated(): boolean {
         var user: LoggedUser = <LoggedUser>this.cookieService.getObject("owly_user_cookies");

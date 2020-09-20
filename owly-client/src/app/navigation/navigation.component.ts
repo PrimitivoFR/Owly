@@ -22,7 +22,7 @@ export class NavigationComponent implements OnInit {
       this.chatroomsList = chatrooms;
       console.log(this.chatroomsList);
     });
-    if(this.authService.currentUserValue)
+    if(this.authService.isAuthenticated())
       this.getChatrooms();
   }
 
