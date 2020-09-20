@@ -2,6 +2,7 @@ package interceptors
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"google.golang.org/grpc"
@@ -16,6 +17,9 @@ func UnaryInterceptor(
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (interface{}, error) {
+
+	fmt.Println(info.FullMethod)
+
 	md, ok := metadata.FromIncomingContext(ctx)
 
 	if !ok {

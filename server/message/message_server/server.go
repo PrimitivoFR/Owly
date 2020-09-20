@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"log"
 	"net"
+	common_elastic "primitivofr/owly/server/common/elastic"
+	"primitivofr/owly/server/common/interceptors"
+	common_jwt "primitivofr/owly/server/common/jwt"
 	message_models "primitivofr/owly/server/message/message_server/models"
 	"primitivofr/owly/server/message/messagepb"
 	"strings"
@@ -13,7 +16,6 @@ import (
 
 	"google.golang.org/grpc/codes"
 
-	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/rgamba/evtwebsocket"
 	"google.golang.org/grpc"
@@ -80,25 +82,37 @@ func (*server) StreamMessagesByChatroom(req *messagepb.StreamMessagesByChatroomR
 }
 func (*server) SendMessage(ctx context.Context, req *messagepb.SendMessageRequest) (*messagepb.SendMessageResponse, error) {
 
+	user_id, err := common_jwt.ReadUUIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if ok, err := interceptors.IsUserInChatroom(req.Message.GetChatroomID(), user_id); !ok || err != nil {
+		if !ok && err == nil {
+			log.Printf("User %v not found in this chatroom: %v", user_id, req.Message.GetChatroomID())
+			return nil, status.Errorf(
+				codes.Unauthenticated,
+				fmt.Sprintf("User %v not found in this chatroom: %v", user_id, req.Message.GetChatroomID()),
+			)
+		}
+
+		log.Printf("Error while checking if user belong to chatroom: %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Error while checking if user belong to chatroom: %v", err),
+		)
+
+	}
+
+	client, err := common_elastic.Init()
+	if err != nil {
+		return nil, err
+	}
+
 	// Create a mapping for the Elasticsearch documents
 	var docMap map[string]interface{}
 
-	// Declare an Elasticsearch configuration
-	cfg := elasticsearch.Config{
-		Addresses: []string{
-			"http://elasticsearch:9200",
-		},
-	}
-
-	// Connect to ElasticSearch
-	client, err := elasticsearch.NewClient(cfg)
-	if err != nil {
-		log.Printf("Elasticsearch connection error %v", err)
-		return nil, status.Errorf(
-			codes.Internal,
-			fmt.Sprintf("Elasticsearch connection error: %v", err),
-		)
-	}
+	req.Message.AuthorUUID = user_id
 
 	doc, err := json.Marshal(req.Message)
 	if err != nil {
@@ -146,24 +160,40 @@ func (*server) SendMessage(ctx context.Context, req *messagepb.SendMessageReques
 }
 
 func (*server) GetMessagesByChatroom(ctx context.Context, req *messagepb.GetMessagesByChatroomRequest) (*messagepb.GetMessagesByChatroomResponse, error) {
-	cfg := elasticsearch.Config{
-		Addresses: []string{
-			"http://elasticsearch:9200",
-		},
+
+	user_id, err := common_jwt.ReadUUIDFromContext(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	// Connect to ElasticSearch
-	client, err := elasticsearch.NewClient(cfg)
-	if err != nil {
-		log.Printf("Elasticsearch connection error %v", err)
+	if ok, err := interceptors.IsUserInChatroom(req.GetChatroomID(), user_id); !ok || err != nil {
+		if !ok && err == nil {
+			log.Printf("User %v not found in this chatroom: %v", user_id, req.GetChatroomID())
+			return nil, status.Errorf(
+				codes.Unauthenticated,
+				fmt.Sprintf("User %v not found in this chatroom: %v", user_id, req.GetChatroomID()),
+			)
+		}
+
+		log.Printf("Error while checking if user belong to chatroom: %v", err)
 		return nil, status.Errorf(
 			codes.Internal,
-			fmt.Sprintf("Elasticsearch connection error: %v", err),
+			fmt.Sprintf("Error while checking if user belong to chatroom: %v", err),
 		)
+
 	}
+
+	client, err := common_elastic.Init()
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := client.Search(client.Search.WithIndex(req.GetChatroomID()))
+	var messages []*messagepb.Message
 
 	var response map[string]interface{}
+
+	fmt.Println(response)
 
 	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
 		log.Printf("Error while parsing body: %v", err)
@@ -172,10 +202,21 @@ func (*server) GetMessagesByChatroom(ctx context.Context, req *messagepb.GetMess
 			fmt.Sprintf("Error while parsing body: %v", err),
 		)
 	}
-	var h map[string]interface{} = response["hits"].(map[string]interface{})
-	var hits []interface{} = h["hits"].([]interface{})
 
-	var messages []*messagepb.Message
+	if _, ok := response["hits"]; !ok {
+		return &messagepb.GetMessagesByChatroomResponse{
+			Messages: messages,
+		}, nil
+	}
+	var h map[string]interface{} = response["hits"].(map[string]interface{})
+
+	if _, ok := h["hits"]; !ok {
+		return &messagepb.GetMessagesByChatroomResponse{
+			Messages: messages,
+		}, nil
+	}
+
+	var hits []interface{} = h["hits"].([]interface{})
 
 	for _, hit := range hits {
 		currentHit := hit.(map[string]interface{})
@@ -204,7 +245,7 @@ func StartServer() {
 		log.Fatalf("Failed to listen %v \n", err)
 	}
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(grpc.UnaryInterceptor(interceptors.UnaryInterceptor))
 	messagepb.RegisterMessageServiceServer(s, &server{})
 	reflection.Register(s) // allows us to expose the gRPC server so the client can see what's available. You can use Evans CLI for that
 
