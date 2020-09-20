@@ -1,6 +1,8 @@
 package message_server
 
 import (
+	"fmt"
+	"google.golang.org/grpc/codes"
 	"strings"
 	"context"
 	"encoding/json"
@@ -13,6 +15,7 @@ import (
 	"github.com/rgamba/evtwebsocket"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 )
@@ -91,11 +94,19 @@ func (*server) SendMessage(ctx context.Context, req *messagepb.SendMessageReques
 	client, err := elasticsearch.NewClient(cfg)
 	if err != nil {
 		log.Printf("Elasticsearch connection error %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Elasticsearch connection error: %v", err),
+		)
 	}
 
 	doc, err := json.Marshal(req.Message)
 	if err != nil {
 		log.Printf("Json Marshaling returned error : %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Json Marshaling returned error: %v", err),
+		)
 	}
 
 	indexRequest := esapi.IndexRequest{
@@ -107,23 +118,31 @@ func (*server) SendMessage(ctx context.Context, req *messagepb.SendMessageReques
 	res, err := indexRequest.Do(ctx, client)
 	if err != nil {
 		log.Printf("Inserting index failed: %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Inserting index failed: %v", err),
+		)
 	}
 	defer res.Body.Close()
 
-	
 	if res.IsError() {
-		log.Printf("%s error index document ID=%d", res.Status())
+		log.Printf("Inserting index failed: ", res.Status())
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Inserting index failed: %v", err),
+		)
 	}
 	if err := json.NewDecoder(res.Body).Decode(&docMap); err != nil {
 		log.Printf("Error parsing the response body: %s", err) 
-	}
-	log.Println("resMap", docMap)
-	
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Error parsing the response body: %v", err),
+		)
+	}	
 	response := messagepb.SendMessageResponse{
 		Success: true,
 	}
 	return &response, nil
-
 }
 //
 func StartServer() {
