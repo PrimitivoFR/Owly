@@ -1,23 +1,24 @@
 package message_server
 
 import (
-	"fmt"
-	"google.golang.org/grpc/codes"
-	"strings"
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net"
 	message_models "primitivofr/owly/server/message/message_server/models"
 	"primitivofr/owly/server/message/messagepb"
+	"strings"
 	"time"
 
+	"google.golang.org/grpc/codes"
+
+	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/rgamba/evtwebsocket"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
-	"github.com/elastic/go-elasticsearch/v8"
-	"github.com/elastic/go-elasticsearch/v8/esapi"
 )
 
 type server struct{}
@@ -81,7 +82,6 @@ func (*server) SendMessage(ctx context.Context, req *messagepb.SendMessageReques
 
 	// Create a mapping for the Elasticsearch documents
 	var docMap map[string]interface{}
-	
 
 	// Declare an Elasticsearch configuration
 	cfg := elasticsearch.Config{
@@ -110,9 +110,9 @@ func (*server) SendMessage(ctx context.Context, req *messagepb.SendMessageReques
 	}
 
 	indexRequest := esapi.IndexRequest{
-		Index : req.Message.ChatroomID,
-		Body : strings.NewReader(string(doc)),
-		Refresh : "true",
+		Index:   req.Message.ChatroomID,
+		Body:    strings.NewReader(string(doc)),
+		Refresh: "true",
 	}
 
 	res, err := indexRequest.Do(ctx, client)
@@ -133,17 +133,68 @@ func (*server) SendMessage(ctx context.Context, req *messagepb.SendMessageReques
 		)
 	}
 	if err := json.NewDecoder(res.Body).Decode(&docMap); err != nil {
-		log.Printf("Error parsing the response body: %s", err) 
+		log.Printf("Error parsing the response body: %s", err)
 		return nil, status.Errorf(
 			codes.Internal,
 			fmt.Sprintf("Error parsing the response body: %v", err),
 		)
-	}	
+	}
 	response := messagepb.SendMessageResponse{
 		Success: true,
 	}
 	return &response, nil
 }
+
+func (*server) GetMessagesByChatroom(ctx context.Context, req *messagepb.GetMessagesByChatroomRequest) (*messagepb.GetMessagesByChatroomResponse, error) {
+	cfg := elasticsearch.Config{
+		Addresses: []string{
+			"http://elasticsearch:9200",
+		},
+	}
+
+	// Connect to ElasticSearch
+	client, err := elasticsearch.NewClient(cfg)
+	if err != nil {
+		log.Printf("Elasticsearch connection error %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Elasticsearch connection error: %v", err),
+		)
+	}
+	res, err := client.Search(client.Search.WithIndex(req.GetChatroomID()))
+
+	var response map[string]interface{}
+
+	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
+		log.Printf("Error while parsing body: %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Error while parsing body: %v", err),
+		)
+	}
+	var h map[string]interface{} = response["hits"].(map[string]interface{})
+	var hits []interface{} = h["hits"].([]interface{})
+
+	var messages []*messagepb.Message
+
+	for _, hit := range hits {
+		currentHit := hit.(map[string]interface{})
+		var message *messagepb.Message
+
+		sourceMap := currentHit["_source"]
+		sourceJSON, _ := json.Marshal(sourceMap)
+		json.Unmarshal(sourceJSON, &message)
+
+		message.Id = currentHit["_id"].(string)
+		messages = append(messages, message)
+	}
+
+	return &messagepb.GetMessagesByChatroomResponse{
+		Messages: messages,
+	}, nil
+
+}
+
 //
 func StartServer() {
 

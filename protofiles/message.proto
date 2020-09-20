@@ -41,7 +41,16 @@ message SendMessageResponse {
     bool success = 1;
 }
 
+message GetMessagesByChatroomRequest {
+    string chatroomID = 1;
+}
+
+message GetMessagesByChatroomResponse {
+    repeated Message messages = 1; 
+}
+
 service MessageService {
     rpc StreamMessagesByChatroom(StreamMessagesByChatroomRequest) returns (stream StreamMessagesByChatroomResponse) {}
     rpc SendMessage(SendMessageRequest) returns (SendMessageResponse) {}
+    rpc GetMessagesByChatroom(GetMessagesByChatroomRequest) returns (GetMessagesByChatroomResponse) {}
 }
