@@ -22,6 +22,7 @@ import { ChatroomComponent } from './chatroom/chatroom.component';
 import { JwtModule } from '@auth0/angular-jwt';
 import { CookieModule } from 'ngx-cookie';
 import { TextareaAutosizeModule } from 'ngx-textarea-autosize';
+import { GRPC_MESSAGE_SERVICE_CLIENT_SETTINGS } from 'src/proto/message.pbconf';
 
 @NgModule({
   declarations: [
@@ -48,7 +49,8 @@ import { TextareaAutosizeModule } from 'ngx-textarea-autosize';
   providers: [
     { provide: GRPC_CLIENT_FACTORY, useClass: GrpcWebClientFactory },
     { provide: GRPC_USER_SERVICE_CLIENT_SETTINGS, useValue: { host: 'http://localhost:8085' } },
-    {provide: GRPC_CHATROOM_SERVICE_CLIENT_SETTINGS, useValue: {host: 'http://localhost:8085'}}
+    {provide: GRPC_CHATROOM_SERVICE_CLIENT_SETTINGS, useValue: {host: 'http://localhost:8085'}},
+    { provide: GRPC_MESSAGE_SERVICE_CLIENT_SETTINGS, useValue: {host: 'http://localhost:8085'}}
   ],
   bootstrap: [AppComponent]
 })
