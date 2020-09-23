@@ -43,7 +43,6 @@ export class SignInFormComponent implements OnInit {
     let request = new LoginUserRequest({username: this.f.username.value, password: this.f.password.value })
     const success = await this.authService.login(request);
 
-    console.log(success);
     if(success) {
       this.snackService.showSnack('Welcome !');
       this.chatroomService.getChatrooms();

@@ -44,8 +44,6 @@ export class ChatroomComponent implements OnInit {
     this.navService.currentNavStore.subscribe(v => this.currentStoreItem = v)
     
     this.authService.currentUser.subscribe(v => this.currentUser = v)
-    console.log("currentStoreItem: ")
-    console.log(this.currentStoreItem)
 
     this.sendMsgForm = this.formBuilder.group({
       message: ['', Validators.required],
@@ -86,7 +84,6 @@ export class ChatroomComponent implements OnInit {
 
     try {
       const res = await this.messageService.sendMessage(req);
-      console.log(res)
 
       return res.success
     } catch (e) {

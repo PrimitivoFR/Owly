@@ -36,7 +36,7 @@ export class NavigationComponent implements OnInit {
   }
 
   goToChatroom(localID: string) {
-    console.log("going to "+localID);
+
     this.navService.updateNavStore(localID)
     this.router.navigateByUrl('/chatroom');
 
@@ -46,7 +46,6 @@ export class NavigationComponent implements OnInit {
     await this.chatroomService.getChatrooms();
     await this.messageService.getMessagesForAllChatrooms();
     this.storeService.currentChatroomsAndMessageStore.subscribe((v) => {
-      console.log(v)
       this.roomStore = v;      
     });
     this.navService.updateNavStore("0")

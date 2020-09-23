@@ -1,3 +1,4 @@
+import { Message } from '@angular/compiler/src/i18n/i18n_ast';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { LocalRoomsAndMessagesStore } from 'src/_models/localRoomsAndMessagesStore';
@@ -15,4 +16,5 @@ export class StoreService {
     updateWholeStore(val: LocalRoomsAndMessagesStore[]) {
         this.chatroomsAndMessageStore.next(val);
     }
+    
 }

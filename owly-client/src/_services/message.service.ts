@@ -36,8 +36,8 @@ export class MessageService {
   }
 
   async getMessagesForAllChatrooms() {
-    console.log("getMessagesForAllChatrooms")
 
+    
     var rooms: LocalRoomsAndMessagesStore[];
     this.storeService.currentChatroomsAndMessageStore.subscribe((v) => rooms = v);
   

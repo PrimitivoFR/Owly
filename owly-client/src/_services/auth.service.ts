@@ -35,7 +35,7 @@ export class AuthService {
 
     createLoggedUserFromJWT(jwt: string): LoggedUser {
         var infos = this.jwtHelper.decodeToken(jwt);
-        console.log(infos);
+
         const { email, given_name, family_name, preferred_username } = infos;
         return new LoggedUser({ username: preferred_username, firstName: given_name, lastName: family_name, email, accessToken: jwt })
     }
