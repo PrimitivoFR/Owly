@@ -2,7 +2,7 @@
 <div class="w-11/12 objects-center m-auto items-center max-h-custom-6 overflow-auto">
     <div *ngFor="let message of currentStoreItem.messages">
 
-        <div *ngIf="currentUser.username != message.authorNAME" class="w-7/12 bg-blue-700 text-gray-100 mt-6 px-4 py-2 rounded-lg float-left">
+        <div [ngClass]="{'float-right': currentUser.username === message.authorNAME}" class="w-7/12 bg-blue-700 text-gray-100 mt-6 px-4 py-2 rounded-lg">
             <div class="font-bold text-base">
                 {{message.authorNAME}}
             </div>
@@ -13,17 +13,7 @@
                 {{timestampToReadableDate(message.timestamp)}}
             </div>
         </div>
-        <div *ngIf="currentUser.username == message.authorNAME" class="w-7/12 bg-blue-700 text-gray-100 mt-6 px-4 py-2 rounded-lg float-right">
-            <div class="font-bold text-base">
-                {{message.authorNAME}}
-            </div>
-            <div class="w-full text-sm">
-                {{message.content}}
-            </div>
-            <div class="float-right mr-4 mt-2 text-xs">
-              {{timestampToReadableDate(message.timestamp)}}
-            </div>
-        </div>
+
     </div>
 <form [formGroup]="sendMsgForm" class="flex bottom-custom">
     <textarea 
