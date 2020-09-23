@@ -3,10 +3,10 @@
         <div class="flex items-center justify-center mt-10 mb-10">
             <img class="w-8/12 cursor-pointer" src="../../assets/img/owly.png" routerLink="/home">
         </div>
-        <nav *ngFor="let chatroom of chatroomsList.chatrooms" class="mt-2">
-            <a class="transform flex items-center py-5 px-8 bg-gray-700 text-gray-100 text-xl rounded-none hover:translate-x-2" routerLink="/chatroom/{{chatroom.name}}/{{chatroom.id}}">
+        <nav *ngFor="let room of chatroomsList; let i = index " class="mt-2">
+            <a (click)="goToChatroom(room.localID)" class="transform flex items-center py-5 px-8 bg-gray-700 text-gray-100 text-xl rounded-none hover:translate-x-2" >
                 <entypo name="chat"></entypo>
-                <span class="mx-4 font-medium">{{chatroom.name}}</span>
+                <span class="mx-4 font-medium">{{room.chatroom.name}}</span>
             </a>
         </nav>
     </div>

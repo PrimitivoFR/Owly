@@ -15,7 +15,7 @@ const routes: Routes = [
 
   { path: 'home', component: HomeComponent,  canActivate: [AuthGuard]},
   { path: 'create-chatroom', component: CreateChatroomComponent, canActivate: [AuthGuard] },
-  { path: 'chatroom/:name/:id', component: ChatroomComponent, canActivate: [AuthGuard] },
+  { path: 'chatroom', component: ChatroomComponent, canActivate: [AuthGuard],  },
 
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   

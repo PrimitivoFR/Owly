@@ -46,7 +46,7 @@ export class SignInFormComponent implements OnInit {
     console.log(success);
     if(success) {
       this.snackService.showSnack('Welcome !');
-      this.chatroomService.getChatroom();
+      this.chatroomService.getChatrooms();
       this.router.navigate(['home'], { queryParams: { login: true }});
     }
     else {

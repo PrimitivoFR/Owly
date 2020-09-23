@@ -1,9 +1,13 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { GetMessagesByChatroomResponse, SendMessageRequest, SendMessageResponse } from 'src/proto/message.pb';
+import { GetMessagesByChatroomRequest, GetMessagesByChatroomResponse, SendMessageRequest, SendMessageResponse } from 'src/proto/message.pb';
 import { MessageServiceClient } from 'src/proto/message.pbsc';
+import { LocalChatroom } from 'src/_models/localChatroom';
+import { LocalMessages as LocalMessage } from 'src/_models/localMessages';
+import { LocalRoomsAndMessagesStore } from 'src/_models/localRoomsAndMessagesStore';
 import { LoggedUser } from 'src/_models/loggedUser';
 import { AuthService } from './auth.service';
+import { ChatroomService } from './chatroom.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,16 +19,51 @@ export class MessageService {
   constructor(
     private authService: AuthService,
     private messageClient: MessageServiceClient,
+    private chatroomService: ChatroomService
   ) {
     this.authService.currentUser.subscribe((user) => {
       this.currentUser = user;
     });
   }
 
+  private messagesStore = new BehaviorSubject<LocalMessage[]>([]);
+  currentMessagesStore = this.messagesStore.asObservable();
+
+
   async sendMessage(req: SendMessageRequest): Promise<SendMessageResponse> {
     req.message.authorNAME = this.currentUser.username;
     const res = await this.messageClient.sendMessage(req, {"authorization": this.currentUser.accessToken}).toPromise();
     return res;
+  }
+
+  async getMessagesForAllChatrooms() {
+    console.log("getMessagesForAllChatrooms")
+
+    var rooms: LocalChatroom[];
+    this.chatroomService.chatroomsListValue.subscribe((v) => rooms = v);
+  
+    var roomsAndMessages: LocalRoomsAndMessagesStore[] = []
+    roomsAndMessages = rooms.map(async (room: LocalChatroom) =>{
+
+      const res = await this.getMessagesByChatroom(new GetMessagesByChatroomRequest({
+        chatroomID: room.chatroom.id
+      }))
+      res.messages.sort((a,b) => parseInt(a.timestamp) > parseInt(b.timestamp) ? 1 : -1)
+      var storeEl = new LocalRoomsAndMessagesStore();
+      storeEl.chatroom = room.chatroom;
+      storeEl.localID = room.localID;
+      storeEl.messages = res.messages;
+      return storeEl;
+
+    }) as unknown as LocalRoomsAndMessagesStore[]
+    roomsAndMessages = await Promise.all(roomsAndMessages)
+
+    this.chatroomService.updateStore(roomsAndMessages);
+
+  }
+
+  async getMessagesByChatroom(req: GetMessagesByChatroomRequest): Promise<GetMessagesByChatroomResponse> {
+    return await this.messageClient.getMessagesByChatroom(req, {"authorization": this.currentUser.accessToken}).toPromise();
   }
 
 }
