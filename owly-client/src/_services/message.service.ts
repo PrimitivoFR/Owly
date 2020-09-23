@@ -8,6 +8,7 @@ import { LocalRoomsAndMessagesStore } from 'src/_models/localRoomsAndMessagesSto
 import { LoggedUser } from 'src/_models/loggedUser';
 import { AuthService } from './auth.service';
 import { ChatroomService } from './chatroom.service';
+import { StoreService } from './store.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,15 +20,13 @@ export class MessageService {
   constructor(
     private authService: AuthService,
     private messageClient: MessageServiceClient,
-    private chatroomService: ChatroomService
+    private chatroomService: ChatroomService,
+    private storeService:  StoreService
   ) {
     this.authService.currentUser.subscribe((user) => {
       this.currentUser = user;
     });
   }
-
-  private messagesStore = new BehaviorSubject<LocalMessage[]>([]);
-  currentMessagesStore = this.messagesStore.asObservable();
 
 
   async sendMessage(req: SendMessageRequest): Promise<SendMessageResponse> {
@@ -39,11 +38,11 @@ export class MessageService {
   async getMessagesForAllChatrooms() {
     console.log("getMessagesForAllChatrooms")
 
-    var rooms: LocalChatroom[];
-    this.chatroomService.chatroomsListValue.subscribe((v) => rooms = v);
+    var rooms: LocalRoomsAndMessagesStore[];
+    this.storeService.currentChatroomsAndMessageStore.subscribe((v) => rooms = v);
   
     var roomsAndMessages: LocalRoomsAndMessagesStore[] = []
-    roomsAndMessages = rooms.map(async (room: LocalChatroom) =>{
+    roomsAndMessages = rooms.map(async (room: LocalRoomsAndMessagesStore) =>{
 
       const res = await this.getMessagesByChatroom(new GetMessagesByChatroomRequest({
         chatroomID: room.chatroom.id
@@ -58,7 +57,7 @@ export class MessageService {
     }) as unknown as LocalRoomsAndMessagesStore[]
     roomsAndMessages = await Promise.all(roomsAndMessages)
 
-    this.chatroomService.updateStore(roomsAndMessages);
+    this.storeService.updateWholeStore(roomsAndMessages);
 
   }
 

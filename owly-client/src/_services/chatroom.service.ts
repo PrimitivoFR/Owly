@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { RecursivePartial } from '@ngx-grpc/common';
 import { LocalChatroom } from 'src/_models/localChatroom';
 import { LocalRoomsAndMessagesStore } from 'src/_models/localRoomsAndMessagesStore';
+import { StoreService } from './store.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,16 +19,7 @@ import { LocalRoomsAndMessagesStore } from 'src/_models/localRoomsAndMessagesSto
 
 export class ChatroomService {
   
-  private chatroomsAndMessageStore = new BehaviorSubject<LocalRoomsAndMessagesStore[]>([]);
-  currentChatroomsAndMessageStore = this.chatroomsAndMessageStore.asObservable();
-
-
-  updateStore(val: LocalRoomsAndMessagesStore[]) {
-    this.chatroomsAndMessageStore.next(val);
-  }
-
-  private chatroomsList = new BehaviorSubject<LocalChatroom[]>([]);
-  chatroomsListValue = this.chatroomsList.asObservable();
+  
 
   currentUser: LoggedUser;
 
@@ -35,7 +27,8 @@ export class ChatroomService {
 
   constructor(
     private chatroomClient: ChatroomServiceClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private storeService: StoreService
   ) {
     this.authService.currentUser.subscribe((user) => {
       this.currentUser = user;
@@ -55,17 +48,17 @@ export class ChatroomService {
 
     var res = await this.chatroomClient.getChatroomsByUser(req, {"authorization": token}).toPromise()
     console.log(res)
-    var localChatrooms: LocalChatroom[] = []
+    var localChatrooms: LocalRoomsAndMessagesStore[] = []
     if (res.count != "0" ) {
-      localChatrooms = res.chatrooms.map((chatroom: Chatroom, index) => new LocalChatroom({localID: index.toString(), chatroom})) as unknown as LocalChatroom[];
+      localChatrooms = res.chatrooms.map((chatroom: Chatroom, index) => {
+        var room = new LocalRoomsAndMessagesStore();
+        room.localID = index.toString();
+        room.chatroom = chatroom;
+        return room
+      }) as unknown as LocalRoomsAndMessagesStore[];
     }
-    this.chatroomsList.next(localChatrooms);
+    
+    this.storeService.updateWholeStore(localChatrooms);
   }
 
-  getStoreItemById(id: string): LocalRoomsAndMessagesStore {
-    const rooms = this.chatroomsAndMessageStore.value;
-    const room = rooms.find((element: LocalRoomsAndMessagesStore) => element.localID === id);
-    return room
-
-  }
 }

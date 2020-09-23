@@ -4,6 +4,7 @@ import { LocalRoomsAndMessagesStore } from 'src/_models/localRoomsAndMessagesSto
 import { ChatroomService } from 'src/_services/chatroom.service';
 import { map, filter } from 'rxjs/operators';
 import { MessageService } from 'src/_services/message.service';
+import { StoreService } from 'src/_services/store.service';
 
 
 @Injectable({
@@ -13,8 +14,8 @@ import { MessageService } from 'src/_services/message.service';
 export class NavigationService {
 
     constructor(
-        private chatroomService: ChatroomService,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private storeService: StoreService
     ) { }
 
     private navStore = new BehaviorSubject<LocalRoomsAndMessagesStore>(new LocalRoomsAndMessagesStore());
@@ -23,11 +24,10 @@ export class NavigationService {
     
 
     updateNavStore(localID: string) {
-        this.chatroomService.getChatrooms()
         this.messageService.getMessagesForAllChatrooms()
 
         var currentStoreItem: LocalRoomsAndMessagesStore;
-        const currentStore = this.chatroomService.currentChatroomsAndMessageStore.pipe(
+        const currentStore = this.storeService.currentChatroomsAndMessageStore.pipe(
                 map(items => items.find(e => e.localID === localID))
                 );
         

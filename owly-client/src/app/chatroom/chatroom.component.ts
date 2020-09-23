@@ -32,12 +32,10 @@ export class ChatroomComponent implements OnInit {
   private currentUser: LoggedUser;
 
   constructor(
-    private route: ActivatedRoute,
     private navService: NavigationService,
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private messageService: MessageService,
-    private chatroomService: ChatroomService
   ) { }
 
 
