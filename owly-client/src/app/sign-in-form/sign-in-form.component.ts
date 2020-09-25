@@ -4,8 +4,10 @@ import { Router } from '@angular/router';
 import { LoginUserRequest } from 'src/proto/user.pb';
 import { AuthService } from 'src/_services/auth.service';
 import { ChatroomService } from 'src/_services/chatroom.service';
+import { MessageService } from 'src/_services/message.service';
 import { UserService } from 'src/_services/user.service';
 import { SnackAlertService } from '../common/components/snack-alert/snack-alert.service';
+import { NavigationService } from '../navigation/navigation.service';
 
 @Component({
   selector: 'app-sign-in-form',
@@ -22,6 +24,8 @@ export class SignInFormComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private chatroomService: ChatroomService,
+    private messageService: MessageService,
+    private navService: NavigationService
   ) { }
 
   ngOnInit(): void {
@@ -43,11 +47,12 @@ export class SignInFormComponent implements OnInit {
     let request = new LoginUserRequest({username: this.f.username.value, password: this.f.password.value })
     const success = await this.authService.login(request);
 
-    console.log(success);
     if(success) {
       this.snackService.showSnack('Welcome !');
-      this.chatroomService.getChatroom();
-      this.router.navigate(['home'], { queryParams: { login: true }});
+      await this.chatroomService.getChatrooms();
+      this.messageService.getMessagesForAllChatrooms();
+      this.navService.updateNavStore("0");
+      this.router.navigate(['chatroom']);
     }
     else {
       this.submitted = false;

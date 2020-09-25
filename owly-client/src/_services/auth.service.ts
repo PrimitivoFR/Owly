@@ -2,15 +2,24 @@ import { Injectable } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { CookieService } from 'ngx-cookie';
 import { BehaviorSubject } from 'rxjs';
+import { Chatroom } from 'src/proto/chatroom.pb';
 import { LoginUserRequest } from 'src/proto/user.pb';
 import { UserServiceClient } from 'src/proto/user.pbsc';
 import { LoggedUser } from 'src/_models/loggedUser';
+import { ChatroomService } from './chatroom.service';
+import { MessageService } from './message.service';
+import { StoreService } from './store.service';
 import { UserService } from './user.service';
 
 
 @Injectable()
 export class AuthService {
-    constructor(public jwtHelper: JwtHelperService,private cookieService: CookieService, private userClient: UserServiceClient) { 
+    constructor(
+        public jwtHelper: JwtHelperService,
+        private cookieService: CookieService, 
+        
+        private userClient: UserServiceClient,
+        private storeService: StoreService) { 
         const user:LoggedUser = <LoggedUser>this.cookieService.getObject("owly_user_cookies");
         this.user.next(user)
      }
@@ -35,7 +44,7 @@ export class AuthService {
 
     createLoggedUserFromJWT(jwt: string): LoggedUser {
         var infos = this.jwtHelper.decodeToken(jwt);
-        console.log(infos);
+
         const { email, given_name, family_name, preferred_username } = infos;
         return new LoggedUser({ username: preferred_username, firstName: given_name, lastName: family_name, email, accessToken: jwt })
     }
@@ -55,11 +64,14 @@ export class AuthService {
         this.user.next(loggedUser);
         
         this.cookieService.putObject("owly_user_cookies", loggedUser)
+
+        // this.messageService.getMessagesForAllChatrooms()
         return true
     }
 
     logout() {
-        this.user.next(new LoggedUser());
+        this.user.next(undefined);
         this.cookieService.remove("owly_user_cookies");
+        this.storeService.emptyStore()
     }
 }

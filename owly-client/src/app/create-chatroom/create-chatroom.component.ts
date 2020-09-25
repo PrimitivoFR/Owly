@@ -72,7 +72,6 @@ export class CreateChatroomComponent implements OnInit {
     
     try {
       const res = await this.chatroomService.createChatroom(req);
-      console.log(res)
     
       return res.success
     } catch (e) {

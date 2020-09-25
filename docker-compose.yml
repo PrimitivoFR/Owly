@@ -65,7 +65,11 @@ services:
     restart: on-failure:2
     networks: 
       - back-end
-    
+    depends_on:
+      - keycloak
+      - elasticsearch
+      - mongo
+  
   envoy:
     hostname: envoy
     image: envoyproxy/envoy-alpine:v1.13.0
@@ -77,6 +81,8 @@ services:
       - front-end
     ports:
       - 8085:8085
+    depends_on:
+      - server
     
 volumes: 
   mongodbdata:

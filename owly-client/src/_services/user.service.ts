@@ -22,9 +22,7 @@ interface CreateNewUserEvent {
 export class UserService {
 
     constructor(
-        private userClient: UserServiceClient,
-        private cookieService: CookieService,
-        private authService: AuthService
+        private userClient: UserServiceClient
     ) { 
         
     }

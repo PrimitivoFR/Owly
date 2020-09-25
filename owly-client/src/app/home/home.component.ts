@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'src/_services/auth.service';
 import { SnackAlertService } from '../common/components/snack-alert/snack-alert.service';
 
@@ -12,6 +12,7 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private snackService: SnackAlertService,
     private authService: AuthService,
   ) { }
@@ -24,6 +25,7 @@ export class HomeComponent implements OnInit {
 
   logout() {
     this.authService.logout();
+    this.router.navigate(["login"]);
   }
 
 }
