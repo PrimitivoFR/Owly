@@ -14,6 +14,7 @@ import { LoggedUser } from 'src/_models/loggedUser';
 import { AuthService } from 'src/_services/auth.service';
 import { Location } from '@angular/common';
 import { NavigationService } from '../navigation/navigation.service';
+import { StoreService } from 'src/_services/store.service';
 
 @Component({
   selector: 'app-chatroom',
@@ -36,9 +37,8 @@ export class ChatroomComponent implements OnInit {
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private messageService: MessageService,
+    private storeService: StoreService,
   ) { }
-
-
 
   ngOnInit() {
     this.navService.currentNavStore.subscribe(v => this.currentStoreItem = v)
@@ -66,25 +66,27 @@ export class ChatroomComponent implements OnInit {
     }
     else {
       console.log("something went wrong");
+      console.error(this.sendMsgForm.errors)
     }
   }
 
   async sendMessage(): Promise<Boolean> {
-    const req = new SendMessageRequest({
-      message: new Message({
-        authorUUID: "",
-        authorNAME: "",
-        chatroomID: this.currentStoreItem.chatroom.id,
-        content: this.f.message.value,
-        timestamp: new Date().getTime().toString(),
-        hasFileAttached: false,
-        isAnswer: false
-      })
+    const message = new Message({
+      authorNAME: this.currentUser.username,
+      chatroomID: this.currentStoreItem.chatroom.id,
+      content: this.f.message.value,
+      timestamp: new Date().getTime().toString(),
+      hasFileAttached: false,
+      isAnswer: false
     });
-
+    const req = new SendMessageRequest({
+      message: message
+    });
+    //this.storeService.addTempoMessage(this.currentStoreItem.localID, message)
     try {
       const res = await this.messageService.sendMessage(req);
-
+      this.messageService.getMessagesForAllChatrooms();
+      console.log(res)
       return res.success
     } catch (e) {
 

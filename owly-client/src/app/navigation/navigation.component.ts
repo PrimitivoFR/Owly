@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Chatroom, GetChatroomsByUserRequest, GetChatroomsByUserResponse } from 'src/proto/chatroom.pb';
 import { LocalChatroom } from 'src/_models/localChatroom';
 import { LocalRoomsAndMessagesStore } from 'src/_models/localRoomsAndMessagesStore';
+import { LoggedUser } from 'src/_models/loggedUser';
 import { AuthService } from 'src/_services/auth.service';
 import { ChatroomService } from 'src/_services/chatroom.service';
 import { MessageService } from 'src/_services/message.service';
@@ -18,7 +19,7 @@ export class NavigationComponent implements OnInit {
 
   chatroomsList: LocalChatroom[];
   roomStore: LocalRoomsAndMessagesStore[];
-
+  currentUser: LoggedUser;
   constructor(
     private router: Router,
     private chatroomService: ChatroomService,
@@ -29,25 +30,18 @@ export class NavigationComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    
-    if(this.authService.isAuthenticated())
-      this.getChatroomsAndMessages();
-      
+    this.authService.currentUser.subscribe(u => this.currentUser = u);
+    this.navService.updateNavStore("0");
   }
 
-  goToChatroom(localID: string) {
 
-    this.navService.updateNavStore(localID)
-    this.router.navigateByUrl('/chatroom');
-
+  navCreateChatroom() {
+    this.router.navigate(["create-chatroom"])
   }
 
-  async getChatroomsAndMessages() {
-    await this.chatroomService.getChatrooms();
-    await this.messageService.getMessagesForAllChatrooms();
-    this.storeService.currentChatroomsAndMessageStore.subscribe((v) => {
-      this.roomStore = v;      
-    });
-    this.navService.updateNavStore("0")
+  logout() {
+    this.authService.logout();
+    this.router.navigate(["login"]);
   }
+
 }

@@ -39,6 +39,7 @@ export class ChatroomService {
   async createChatroom(req: CreateChatroomRequest): Promise<CreateChatroomResponse> {
     const token = this.currentUser.accessToken;
     const res = await this.chatroomClient.createChatroom(req, {"authorization": token}).toPromise();
+    this.getChatrooms()
     return res;
   }
 

@@ -3,12 +3,17 @@
         <div class="flex items-center justify-center mt-10 mb-10">
             <img class="w-8/12 cursor-pointer" src="../../assets/img/owly.png" routerLink="/home">
         </div>
-        <nav *ngFor="let room of roomStore; let i = index " class="mt-2">
-            <a (click)="goToChatroom(room.localID)" class="transform flex items-center py-5 px-8 bg-gray-700 text-gray-100 text-xl rounded-none hover:translate-x-2" >
-                <entypo name="chat"></entypo>
-                <span class="mx-4 font-medium">{{room.chatroom.name}}</span>
-            </a>
-        </nav>
+        <div *ngIf="currentUser != undefined" class="items-center">
+            <button (click)="navCreateChatroom()" class="bg-gray-200 hover:bg-gray-300 font-bold py-2 px-4 ml-10 mt-3 rounded inline-flex items-center">
+        
+                <span>Create a chatroom</span>
+            </button>
+            <app-chatroom-list></app-chatroom-list>
+            <button  (click)="logout()" class="bg-gray-200 hover:bg-gray-300 font-bold py-2 px-4 ml-10 mt-3 rounded inline-flex items-center">
+                <entypo name="logout"></entypo>
+                <span>Logout</span>
+            </button>
+        </div>
     </div>
     <div class="w-10/12 h-screen">
         <router-outlet></router-outlet>

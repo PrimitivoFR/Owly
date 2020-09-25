@@ -37,7 +37,9 @@ export class NavigationService {
             } else {
             currentStoreItem = v
             }
+            this.navStore.next(currentStoreItem)
         })
-        this.navStore.next(currentStoreItem)
+        console.log(currentStoreItem)
+        
     }
 }

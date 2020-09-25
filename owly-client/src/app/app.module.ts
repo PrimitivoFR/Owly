@@ -23,6 +23,7 @@ import { JwtModule } from '@auth0/angular-jwt';
 import { CookieModule } from 'ngx-cookie';
 import { TextareaAutosizeModule } from 'ngx-textarea-autosize';
 import { GRPC_MESSAGE_SERVICE_CLIENT_SETTINGS } from 'src/proto/message.pbconf';
+import { ChatroomListComponent } from './navigation/chatroom-list/chatroom-list.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import { GRPC_MESSAGE_SERVICE_CLIENT_SETTINGS } from 'src/proto/message.pbconf';
     TopBarComponent,
     HomeComponent,
     ChatroomComponent,
+    ChatroomListComponent,
   ],
   imports: [
     BrowserModule,
