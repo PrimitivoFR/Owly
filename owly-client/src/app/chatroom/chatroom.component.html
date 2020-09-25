@@ -2,7 +2,7 @@
 <div class="w-11/12 objects-center m-auto items-center max-h-custom-6 overflow-auto">
     <div *ngFor="let message of currentStoreItem.messages">
 
-        <div [ngClass]="{'float-right': currentUser.username === message.authorNAME}" class="w-7/12 bg-blue-700 text-gray-100 mt-6 px-4 py-2 rounded-lg">
+        <div [ngClass]="{'float-right': currentUser.username == message.authorNAME,'float-left': currentUser.username != message.authorNAME }" class="w-7/12 bg-blue-700 text-gray-100 mt-6 px-4 py-2 rounded-lg">
             <div class="font-bold text-base">
                 {{message.authorNAME}}
             </div>
