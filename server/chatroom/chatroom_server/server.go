@@ -29,8 +29,13 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 	}
 	name := req.GetName()
 	user_ids := req.GetUsers()
+
 	if name == "" {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("The chatroom name can't be empty"))
+	}
+
+	if len([]rune(name)) > 50 {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Chatroom name is too long. Req: %v", req))
 	}
 
 	user_ids = append(user_ids, currentUserID)
