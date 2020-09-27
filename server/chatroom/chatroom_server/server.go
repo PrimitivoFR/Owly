@@ -29,11 +29,28 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 	}
 	name := req.GetName()
 	user_ids := req.GetUsers()
+
 	if name == "" {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("The chatroom name can't be empty"))
 	}
 
+	if len([]rune(name)) > 50 {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Chatroom name is too long. Req: %v", req))
+	}
+
 	user_ids = append(user_ids, currentUserID)
+
+	// getting rid of duplicated users in user_ids
+	var deduplicated_user_ids []string
+	user_map := make(map[string]bool)
+
+	for _, user := range user_ids {
+		if !user_map[user] {
+			deduplicated_user_ids = append(deduplicated_user_ids, user)
+			user_map[user] = true
+		}
+	}
+	user_ids = deduplicated_user_ids
 
 	chatroom := models.Chatroom{
 		ID:    primitive.NewObjectID(),

@@ -48,6 +48,13 @@ func (*server) CreateNewUser(ctx context.Context, req *userpb.CreateNewUserReque
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Missing core argument. Req: %v", req))
 	}
 
+	if len([]rune(firstName)) > 50 ||
+		len([]rune(lastName)) > 50 ||
+		len([]rune(email)) > 100 ||
+		len([]rune(username)) > 50 {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("One or more arguments are too long. Req: %v", req))
+	}
+
 	ID, err := adminGuy.CreateUser(user)
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Sprintf("Error while creating user account: %v", err))

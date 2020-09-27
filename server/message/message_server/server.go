@@ -109,6 +109,10 @@ func (*server) SendMessage(ctx context.Context, req *messagepb.SendMessageReques
 		return nil, err
 	}
 
+	if len([]rune(req.Message.Content)) > 1000 {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Message is too long. Req: %v", req))
+	}
+
 	if ok, err := interceptors.IsUserInChatroom(req.Message.GetChatroomID(), user_id); !ok || err != nil {
 		if !ok && err == nil {
 			log.Printf("User %v not found in this chatroom: %v", user_id, req.Message.GetChatroomID())
