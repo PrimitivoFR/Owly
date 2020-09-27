@@ -40,6 +40,18 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 
 	user_ids = append(user_ids, currentUserID)
 
+	// getting rid of duplicated users in user_ids
+	var deduplicated_user_ids []string
+	user_map := make(map[string]bool)
+
+	for _, user := range user_ids {
+		if !user_map[user] {
+			deduplicated_user_ids = append(deduplicated_user_ids, user)
+			user_map[user] = true
+		}
+	}
+	user_ids = deduplicated_user_ids
+
 	chatroom := models.Chatroom{
 		ID:    primitive.NewObjectID(),
 		Name:  name,
