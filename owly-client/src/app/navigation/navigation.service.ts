@@ -54,11 +54,16 @@ export class NavigationService {
             })).subscribe((res) => {
                 currentStoreItem.messages.push(res.message)
             });
-        
-       
-
-       
-        
-        
     }
+
+
+    // O <- Function to add a tempo Message
+    // Params: message
+    // currentStoreItem.messages.push
+
+
+    // O <- Function to remove the tempo message
+    // Params: tempo uuid of the message
+    // currentStoreItem.messages.filter or find then remove
+    // Do NOT USE pop() !!
 }

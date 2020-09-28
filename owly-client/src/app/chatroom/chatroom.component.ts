@@ -15,6 +15,7 @@ import { AuthService } from 'src/_services/auth.service';
 import { Location } from '@angular/common';
 import { NavigationService } from '../navigation/navigation.service';
 import { StoreService } from 'src/_services/store.service';
+// import {v4 as uuidv4} from 'uuid'; <- Generate uuid
 
 @Component({
   selector: 'app-chatroom',
@@ -71,6 +72,8 @@ export class ChatroomComponent implements OnInit {
   }
 
   async sendMessage(): Promise<Boolean> {
+
+    // True message which goes to the db
     const message = new Message({
       authorNAME: this.currentUser.username,
       chatroomID: this.currentStoreItem.chatroom.id,
@@ -79,16 +82,32 @@ export class ChatroomComponent implements OnInit {
       hasFileAttached: false,
       isAnswer: false
     });
+    // Create tempo message
+    // var tempoMess = message;
+    // tempoMess.id = "TEMPO_+uuid"
+
     const req = new SendMessageRequest({
       message: message
     });
-    //this.storeService.addTempoMessage(this.currentStoreItem.localID, message)
+
     try {
+
+      // O <- Add the tempo message to the list, using a function of navigation service
+    
       const res = await this.messageService.sendMessage(req);
+
+      // ! <- Here the message has been sent correctly
+
+      // X <- Delete the tempo message
+
       this.messageService.getMessagesForAllChatrooms();
       console.log(res)
       return res.success
     } catch (e) {
+
+      // ! <- Here the message has NOT been sent correctly
+      // O <- Display a snackabar "Message not sent..."
+      // X <- Delete the tempo message
 
       return false
     }
@@ -100,5 +119,7 @@ export class ChatroomComponent implements OnInit {
 
     return date.getHours()+":"+date.getMinutes() +" - "+ date.getDate() + "/" + (date.getMonth()+1)
   }
+
+  // O <- Function that checks if the id field for the message contains "TEMPO_"
 
 }
