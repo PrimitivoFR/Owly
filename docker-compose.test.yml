@@ -15,10 +15,6 @@ services:
       - ./server:/go/src/owly-server
     working_dir: /go/src/owly-server
     command: sh -c "cd user/user_server && go test" # TODO: Modify this to run tests everywhere
-    ports:
-      - 50051:50051
-      - 50052:50052
-      - 50053:50053
     
 
   # client:

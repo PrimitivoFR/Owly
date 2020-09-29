@@ -36,4 +36,4 @@ Take care to run the **test mode** and check that everything runs fine with your
 ### Test mode
 
 Run everything:
-`docker-compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.test.yml up`
+`docker-compose -f docker-compose.yml -f docker-compose.test.yml up`
