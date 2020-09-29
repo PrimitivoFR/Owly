@@ -2,11 +2,30 @@ version: "3.8"
 
 
 services:
-  client:
-    hostname: client
-    networks:
-      - front-end
-    build:
-      context: ./owly-client
-    ports: 
-      - 80:80
+
+
+  keycloak:
+    env_file: ./keycloak/.keycloak-env
+  
+  # go test
+  server:
+    image: golang
+    env_file: ./keycloak/.keycloak-env
+    volumes:
+      - ./server:/go/src/owly-server
+    working_dir: /go/src/owly-server
+    command: sh -c "cd user/user_server && go test" # TODO: Modify this to run tests everywhere
+    ports:
+      - 50051:50051
+      - 50052:50052
+      - 50053:50053
+    
+
+  # client:
+  #   hostname: client
+  #   networks:
+  #     - front-end
+  #   build:
+  #     context: ./owly-client
+  #   ports: 
+  #     - 80:80

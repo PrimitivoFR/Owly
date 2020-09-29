@@ -75,6 +75,7 @@ func (*server) CreateNewUser(ctx context.Context, req *userpb.CreateNewUserReque
 	}
 
 	// TODO : check what to do with the return, instead of making it "_"
+	// TODO: check if UserCollection is nil, and if so, call the common_mongo.SetupMongoDB(). After that, remove the function call from the test
 	_, err_insert := common_mongo.UserCollection.InsertOne(context.Background(), user_mongo)
 	if err_insert != nil {
 		log.Printf("Error while creating user: %v. Error is: %v", user_mongo, err_insert)
