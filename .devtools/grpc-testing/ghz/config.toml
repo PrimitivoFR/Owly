@@ -1,0 +1,13 @@
+# ghz-web basic config
+# (used by the start-ghz-web.sh script)
+
+[server]
+port = 3000   # the port for the http server
+
+[database]  # the database options
+type = "sqlite3"
+connection = "data/ghz.db"
+
+[log]
+level = "info"          # log level
+path = "/tmp/ghz.log"   # the path to log file, otherwize stdout is used
