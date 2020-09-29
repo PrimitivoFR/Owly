@@ -9,6 +9,7 @@ import (
 	"primitivofr/owly/server/user/user_server/keycloak"
 	"primitivofr/owly/server/user/userpb"
 
+	common_jwt "primitivofr/owly/server/common/jwt"
 	common_mongo "primitivofr/owly/server/common/mongo"
 
 	"github.com/Nerzal/gocloak/v7"
@@ -128,6 +129,14 @@ func (*server) LoginUser(ctx context.Context, req *userpb.LoginUserRequest) (*us
 }
 
 func (*server) SearchUserByUsername(ctx context.Context, req *userpb.SearchUserByUsernameRequest) (*userpb.SearchUserByUsernameResponse, error) {
+
+	currentUserID, err := common_jwt.ReadUUIDFromContext(ctx)
+	if err != nil {
+		log.Printf("An error has occured while trying to read the token %v", err)
+		return nil, status.Error(codes.Internal, fmt.Sprintf("An error has occured while trying to read the token %v", err))
+
+	}
+
 	adminGuy, err := keycloak.InitAdmin()
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Sprintf("Error: %v", err))
@@ -142,8 +151,9 @@ func (*server) SearchUserByUsername(ctx context.Context, req *userpb.SearchUserB
 			Username: *user.Username,
 			Email:    *user.Email,
 		}
-
-		userListRes = append(userListRes, userRes)
+		if userRes.Uuid != currentUserID {
+			userListRes = append(userListRes, userRes)
+		}
 	}
 
 	return &userpb.SearchUserByUsernameResponse{
