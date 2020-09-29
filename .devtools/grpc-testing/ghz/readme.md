@@ -1,5 +1,5 @@
-This directory contains POC/tests related to ghz, gRPC testing & benchmarking tool/
-link for installation instructions: https://github.com/bojand/ghz
+This directory contains POC/tests related to ghz, a gRPC testing & benchmarking tool.  
+Link for installation instructions: https://github.com/bojand/ghz
 
 By default, ghz will basically spam a gRPC call 200 times and save metrics such as latency (min, max, average) or distribution of the status codes.
 
@@ -47,7 +47,7 @@ Status code distribution:
 
 ## using ghz-web
 - run `start-ghz-web.sh`
-- open a web browser and go to localhost:300
+- open a web browser and go to localhost:3000
 - Create a new project, name does not matter. When you clic the `save` button, the project will appear in the list.
 If you clic on it, it should redirect you to `http://localhost:3000/projects/1`. Do not close the page.
 - run `post-benchmark.sh` at least one time. The benchmark should take approximately 30 seconds to run.
