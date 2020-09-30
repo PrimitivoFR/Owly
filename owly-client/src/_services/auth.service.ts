@@ -51,22 +51,29 @@ export class AuthService {
 
 
     async login(req: LoginUserRequest): Promise<Boolean> {
-        const res = await this.userClient.loginUser(req).toPromise();
-        if (res.result.accessToken == "") {
+        try {
+            const res = await this.userClient.loginUser(req).toPromise();
+            if (res.result.accessToken == "") {
+                return false;
+            }
+            const { accessToken, refreshToken } = res.result;
+            
+            const loggedUser = this.createLoggedUserFromJWT(accessToken);
+    
+            loggedUser.refreshToken = refreshToken;
+    
+            this.user.next(loggedUser);
+            
+            this.cookieService.putObject("owly_user_cookies", loggedUser)
+    
+            // this.messageService.getMessagesForAllChatrooms()
+            return true;
+        }
+        catch(error) {
+            console.log(error)
             return false;
         }
-        const { accessToken, refreshToken } = res.result;
         
-        const loggedUser = this.createLoggedUserFromJWT(accessToken);
-
-        loggedUser.refreshToken = refreshToken;
-
-        this.user.next(loggedUser);
-        
-        this.cookieService.putObject("owly_user_cookies", loggedUser)
-
-        // this.messageService.getMessagesForAllChatrooms()
-        return true
     }
 
     logout() {
