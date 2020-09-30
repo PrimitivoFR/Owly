@@ -3,14 +3,11 @@ package user_server
 import (
 	"context"
 	"log"
-	common_mongo "primitivofr/owly/server/common/mongo"
 	"primitivofr/owly/server/user/userpb"
 	"testing"
 )
 
 func TestCreateNewUser(t *testing.T) {
-
-	common_mongo.SetupMongoDB() // Need to setup mongoDB connection because CreateNewUser uses it
 
 	s := server{}
 
