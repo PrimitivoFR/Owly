@@ -140,6 +140,10 @@ func (*server) SendMessage(ctx context.Context, req *messagepb.SendMessageReques
 
 	req.Message.AuthorUUID = user_id
 
+	// TODO: Read authorNAME too from token
+
+	req.Message.Timestamp = time.Now().Unix() // TODO: Reinterpret timestamp with localzone on client
+
 	doc, err := json.Marshal(req.Message)
 	if err != nil {
 		log.Printf("Json Marshaling returned error : %v", err)
