@@ -2,7 +2,7 @@
   "name": "owly-client",
   "version": "0.0.0",
   "scripts": {
-    "proto:generate": "protoc --plugin=protoc-gen-ng=./node_modules/.bin/protoc-gen-ng --ng_out=./src/proto/ -I ../protofiles/ user.proto chatroom.proto message.proto",
+    "proto:generate": "protoc --plugin=protoc-gen-ng=./node_modules/.bin/protoc-gen-ng --ng_out=./src/proto/ -I ../protofiles/ user.proto chatroom.proto message.proto auth.proto",
     "ng": "ng",
     "start": "ng serve",
     "start:dev": "ng serve --host 0.0.0.0 --poll",

@@ -27,6 +27,10 @@ static_resources:
                           route:
                             cluster: message_service
                             max_grpc_timeout: 0s
+                        - match: { prefix: "/auth" }
+                          route:
+                            cluster: auth_service
+                            max_grpc_timeout: 0s
                       cors:
                         allow_origin_string_match:
                           - prefix: "*"
@@ -57,3 +61,9 @@ static_resources:
       http2_protocol_options: {}
       lb_policy: round_robin
       hosts: [{ socket_address: { address: server, port_value: 50053 } }]
+    - name: auth_service
+      connect_timeout: 0.25s
+      type: logical_dns
+      http2_protocol_options: {}
+      lb_policy: round_robin
+      hosts: [{ socket_address: { address: server, port_value: 50054 } }]

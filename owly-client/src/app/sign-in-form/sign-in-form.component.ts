@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LoginUserRequest } from 'src/proto/user.pb';
+import { LoginUserRequest } from 'src/proto/auth.pb';
 import { AuthService } from 'src/_services/auth.service';
 import { ChatroomService } from 'src/_services/chatroom.service';
 import { MessageService } from 'src/_services/message.service';

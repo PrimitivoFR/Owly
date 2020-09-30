@@ -1,9 +1,9 @@
-package user_server
+package authserver
 
 import (
 	"context"
 	"log"
-	"primitivofr/owly/server/user/userpb"
+	"primitivofr/owly/server/auth/authpb"
 	"testing"
 )
 
@@ -12,18 +12,18 @@ func TestCreateNewUser(t *testing.T) {
 	s := server{}
 
 	tests := []struct {
-		req  userpb.CreateNewUserRequest
-		want userpb.CreateNewUserResponse
+		req  authpb.CreateNewUserRequest
+		want authpb.CreateNewUserResponse
 	}{
 		{
-			req: userpb.CreateNewUserRequest{
+			req: authpb.CreateNewUserRequest{
 				Email:     "toto@toto.fr",
 				Password:  "Aze123",
 				Username:  "applinh",
 				FirstName: "Thomas",
 				LastName:  "Martin",
 			},
-			want: userpb.CreateNewUserResponse{
+			want: authpb.CreateNewUserResponse{
 				Success: true,
 			},
 		},

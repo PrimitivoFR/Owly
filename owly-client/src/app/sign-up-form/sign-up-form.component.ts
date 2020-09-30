@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
+import { AuthService } from 'src/_services/auth.service';
 import { UserService } from '../../_services/user.service';
 
 @Component({
@@ -14,7 +15,8 @@ export class SignUpFormComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private userService: UserService
+    private userService: UserService,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -40,7 +42,7 @@ export class SignUpFormComponent implements OnInit {
         return;
     }
 
-    this.userService.createUser({
+    this.authService.createUser({
       firstName: this.f.firstName.value,
       lastName: this.f.lastName.value,
       email: this.f.email.value,
