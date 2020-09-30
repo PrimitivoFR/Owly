@@ -62,7 +62,6 @@ services:
     hostname: server
     environment:
       MONGO_HOSTNAME: mongo
-    restart: on-failure:2
     networks: 
       - back-end
     depends_on:

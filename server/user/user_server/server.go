@@ -68,20 +68,20 @@ func (*server) CreateNewUser(ctx context.Context, req *userpb.CreateNewUserReque
 	}
 
 	// insert user object in mongodb
-	user_mongo := models.UserMongo{
+	userMongo := models.UserMongo{
 		// ID:       primitive.NewObjectID(),
 		ID:        ID,
 		Username:  username,
 		Chatrooms: []string{}, //empty string array
 	}
 
-	// TODO : check what to do with the return, instead of making it "_"
-	_, err_insert := common_mongo.UserCollection.InsertOne(context.Background(), user_mongo)
-	if err_insert != nil {
-		log.Printf("Error while creating user: %v. Error is: %v", user_mongo, err_insert)
+	errInsert := common_mongo.InsertOneUserCollection(userMongo)
+
+	if errInsert != nil {
+		log.Printf("Error while creating user: %v. Error is: %v", userMongo, errInsert)
 		return nil, status.Errorf(
 			codes.Internal,
-			fmt.Sprintf("Error while creating user: %v. Error is: %v", user_mongo, err_insert),
+			fmt.Sprintf("Error while creating user: %v. Error is: %v", userMongo, errInsert),
 		)
 	}
 

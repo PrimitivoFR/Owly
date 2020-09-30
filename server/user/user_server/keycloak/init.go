@@ -30,6 +30,7 @@ func checkConnection() {
 		}
 		time.Sleep(2 * time.Second)
 		log.Println("Waiting for keycloak instance...")
+		log.Println(err)
 	}
 }
 
