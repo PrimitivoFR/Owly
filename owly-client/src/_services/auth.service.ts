@@ -70,7 +70,7 @@ export class AuthService {
 
     async login(req: LoginUserRequest): Promise<Boolean> {
         try {
-            const res = await this.userClient.loginUser(req).toPromise();
+            const res = await this.authClient.loginUser(req).toPromise();
             if (res.result.accessToken == "") {
                 return false;
             }
