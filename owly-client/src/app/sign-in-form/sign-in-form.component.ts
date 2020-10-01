@@ -6,6 +6,7 @@ import { AuthService } from 'src/_services/auth.service';
 import { ChatroomService } from 'src/_services/chatroom.service';
 import { MessageService } from 'src/_services/message.service';
 import { UserService } from 'src/_services/user.service';
+import { LoadingSpinnerService } from '../common/components/loading-spinner/loading-spinner.service';
 import { SnackAlertService } from '../common/components/snack-alert/snack-alert.service';
 import { NavigationService } from '../navigation/navigation.service';
 
@@ -25,7 +26,8 @@ export class SignInFormComponent implements OnInit {
     private authService: AuthService,
     private chatroomService: ChatroomService,
     private messageService: MessageService,
-    private navService: NavigationService
+    private navService: NavigationService,
+    private loadingSpinnerService: LoadingSpinnerService
   ) { }
 
   ngOnInit(): void {
@@ -45,7 +47,9 @@ export class SignInFormComponent implements OnInit {
     }
 
     let request = new LoginUserRequest({username: this.f.username.value, password: this.f.password.value })
+    this.loadingSpinnerService.showSpinner();
     const success = await this.authService.login(request);
+    this.loadingSpinnerService.hideSpinner();
 
     if(success) {
       this.snackService.showSnack('Welcome !');
