@@ -3,16 +3,17 @@
         <div class="flex items-center justify-center mt-10 mb-10">
             <img class="w-8/12 cursor-pointer" src="../../assets/img/owly.png" routerLink="/home">
         </div>
-        <div *ngIf="currentUser != undefined" class="items-center">
-            <button (click)="navCreateChatroom()" class="bg-gray-200 hover:bg-gray-300 font-bold py-2 px-4 ml-10 mt-3 rounded inline-flex items-center">
-        
+        <div *ngIf="currentUser != undefined">
+            <a (click)="navCreateChatroom()" class="flex items-center justify-center mb-5 text-gray-200 border border-gray-200 border-t border-r-0 border-b border-l-0 py-2 px4 text-xl cursor-pointer hover:text-gray-800 hover:border-gray-800 hover:bg-gray-200">
+                <entypo class="mr-3" name="plus"></entypo>
                 <span>Create a chatroom</span>
-            </button>
+            </a>
+            <span class="flex font-medium text-sm text-gray-400 px-4 my-4 uppercase">Chatrooms</span>
             <app-chatroom-list></app-chatroom-list>
-            <button  (click)="logout()" class="bg-gray-200 hover:bg-gray-300 font-bold py-2 px-4 ml-10 mt-3 rounded inline-flex items-center">
-                <entypo name="logout"></entypo>
+            <a (click)="logout()" class="flex items-center justify-center mt-5 text-gray-200 border border-gray-200 border-t border-r-0 border-b border-l-0 py-2 px4 text-xl cursor-pointer hover:text-gray-800 hover:border-gray-800 hover:bg-gray-200">
+                <entypo class="mr-3" name="logout"></entypo>
                 <span>Logout</span>
-            </button>
+            </a>
         </div>
     </div>
     <div class="w-10/12 h-screen">

@@ -8,6 +8,7 @@ import { AuthService } from 'src/_services/auth.service';
 import { ChatroomService } from 'src/_services/chatroom.service';
 import { MessageService } from 'src/_services/message.service';
 import { StoreService } from 'src/_services/store.service';
+import { SnackAlertService } from '../common/components/snack-alert/snack-alert.service';
 import { NavigationService } from './navigation.service';
 
 @Component({
@@ -26,7 +27,8 @@ export class NavigationComponent implements OnInit {
     private authService: AuthService,
     private messageService: MessageService,
     private navService: NavigationService,
-    private storeService: StoreService
+    private storeService: StoreService,
+    private snackAlertService: SnackAlertService
   ) { }
 
   ngOnInit(): void {
@@ -42,6 +44,7 @@ export class NavigationComponent implements OnInit {
   logout() {
     this.authService.logout();
     this.router.navigate(["login"]);
+    this.snackAlertService.showSnack("You are successfully logged out !");
   }
 
 }
