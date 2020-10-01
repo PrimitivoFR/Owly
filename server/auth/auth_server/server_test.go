@@ -3,6 +3,7 @@ package authserver
 import (
 	"context"
 	"log"
+	"os"
 	"primitivofr/owly/server/auth/authpb"
 	"reflect"
 	"testing"
@@ -87,6 +88,11 @@ func TestLoginUser(t *testing.T) {
 			t.Errorf("LoginUser(%v)=%v, wanted %v", req, resp, reflect.TypeOf(tt.want).String())
 		} else {
 			log.Println("[Successfully passed TestLoginUser]")
+
+			if resp != nil {
+				os.Setenv("accessToken", resp.Result.GetAccessToken())
+			}
+
 		}
 
 	}
