@@ -14,7 +14,7 @@ services:
     volumes:
       - ./server:/go/src/owly-server
     working_dir: /go/src/owly-server
-    command: sh -c "cd user/user_server && go test" # TODO: Modify this to run tests everywhere
+    command: bash -c "./runTests.sh"
     
 
   # client:

@@ -1,0 +1,58 @@
+// GO: protoc protofiles/auth.proto --go_out=plugins=grpc:./server/
+// TS: protoc --ts_out="service=grpc-web:owly-client/src" protofiles/auth.proto
+
+syntax = "proto3";
+
+package auth;
+
+option go_package ="auth/authpb";
+
+message User {
+    string uuid = 1;
+    string username = 2;
+    string email = 3;
+}
+
+message JWT {
+    string AccessToken = 1;
+    string IDToken = 2;
+    int64 ExpiresIn = 3;
+    int64 RefreshExpiresIn = 4;
+    string RefreshToken = 5;
+    string TokenType = 6;
+    int64 NotBeforePolicy = 7;
+    string SessionState = 8;
+    string Scope = 9;
+}
+
+message CreateNewUserRequest {
+    string first_name = 1;
+    string last_name = 2;
+    string username = 3;
+    string email = 4;
+    string password = 5;
+}
+
+message CreateNewUserResponse {
+    bool success = 1;
+}
+
+
+
+message LoginUserRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message LoginUserResponse {
+    JWT result = 1;
+}
+
+
+
+
+service AuthService {
+
+    rpc CreateNewUser(CreateNewUserRequest) returns(CreateNewUserResponse) {}
+    rpc LoginUser(LoginUserRequest) returns(LoginUserResponse) {}
+}

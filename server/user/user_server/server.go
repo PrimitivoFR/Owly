@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"primitivofr/owly/server/common/models"
-	"primitivofr/owly/server/user/user_server/keycloak"
+
+	"primitivofr/owly/server/common/interceptors"
+	common_keycloak "primitivofr/owly/server/common/keycloak"
+
 	"primitivofr/owly/server/user/userpb"
 
 	common_jwt "primitivofr/owly/server/common/jwt"
-	common_mongo "primitivofr/owly/server/common/mongo"
 
-	"github.com/Nerzal/gocloak/v7"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
@@ -23,111 +23,6 @@ type server struct{}
 
 //
 
-func (*server) CreateNewUser(ctx context.Context, req *userpb.CreateNewUserRequest) (*userpb.CreateNewUserResponse, error) {
-
-	adminGuy, err := keycloak.InitAdmin()
-	if err != nil {
-		return nil, status.Error(codes.Internal, fmt.Sprintf("Error: %v", err))
-	}
-
-	firstName := req.GetFirstName()
-	lastName := req.GetLastName()
-	enabled := true
-	username := req.GetUsername()
-	email := req.GetEmail()
-	pass := req.GetPassword()
-
-	user := gocloak.User{
-		FirstName: &firstName,
-		LastName:  &lastName,
-		Email:     &email,
-		Enabled:   &enabled,
-		Username:  &username,
-	}
-
-	if firstName == "" || lastName == "" || email == "" || pass == "" {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Missing core argument. Req: %v", req))
-	}
-
-	if len([]rune(firstName)) > 50 ||
-		len([]rune(lastName)) > 50 ||
-		len([]rune(email)) > 100 ||
-		len([]rune(username)) > 50 {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("One or more arguments are too long. Req: %v", req))
-	}
-
-	ID, err := adminGuy.CreateUser(user)
-	if err != nil {
-		return nil, status.Error(codes.Internal, fmt.Sprintf("Error while creating user account: %v", err))
-	}
-
-	err = adminGuy.SetUserPassword(ID, pass, false)
-	if err != nil {
-		log.Printf("Error while setting up password: %v", err)
-		return nil, status.Error(codes.Internal, fmt.Sprintf("Error while setting up password: %v", err))
-	}
-
-	// insert user object in mongodb
-	userMongo := models.UserMongo{
-		// ID:       primitive.NewObjectID(),
-		ID:        ID,
-		Username:  username,
-		Chatrooms: []string{}, //empty string array
-	}
-
-	errInsert := common_mongo.InsertOneUserCollection(userMongo)
-
-	if errInsert != nil {
-		log.Printf("Error while creating user: %v. Error is: %v", userMongo, errInsert)
-		return nil, status.Errorf(
-			codes.Internal,
-			fmt.Sprintf("Error while creating user: %v. Error is: %v", userMongo, errInsert),
-		)
-	}
-
-	res := &userpb.CreateNewUserResponse{
-		Success: true,
-	}
-
-	return res, nil
-}
-
-func (*server) LoginUser(ctx context.Context, req *userpb.LoginUserRequest) (*userpb.LoginUserResponse, error) {
-	adminGuy, err := keycloak.InitAdmin()
-	if err != nil {
-		return nil, status.Error(codes.Internal, fmt.Sprintf("Error: %v", err))
-	}
-
-	client_secret, err := adminGuy.GetClientSecret("owlycli")
-	if err != nil {
-		log.Printf("Internal error: %v", err)
-		return nil, status.Error(codes.Internal, fmt.Sprintf("Internal error: %v", err))
-	}
-	username := req.GetUsername()
-	password := req.GetPassword()
-
-	res, err := adminGuy.Client.Login(context.Background(), "owlycli", client_secret, "OWLY", username, password)
-
-	if err != nil {
-		log.Printf("Authentification error: %v", err)
-		return nil, status.Error(codes.PermissionDenied, fmt.Sprintf("Authentification error: %v", err))
-	}
-
-	return &userpb.LoginUserResponse{
-		Result: &userpb.JWT{
-			AccessToken:      res.AccessToken,
-			IDToken:          res.IDToken,
-			ExpiresIn:        int64(res.ExpiresIn),
-			RefreshExpiresIn: int64(res.RefreshExpiresIn),
-			RefreshToken:     res.RefreshToken,
-			TokenType:        res.TokenType,
-			NotBeforePolicy:  int64(res.NotBeforePolicy),
-			SessionState:     res.SessionState,
-			Scope:            res.Scope,
-		},
-	}, nil
-}
-
 func (*server) SearchUserByUsername(ctx context.Context, req *userpb.SearchUserByUsernameRequest) (*userpb.SearchUserByUsernameResponse, error) {
 
 	currentUserID, err := common_jwt.ReadUUIDFromContext(ctx)
@@ -137,7 +32,7 @@ func (*server) SearchUserByUsername(ctx context.Context, req *userpb.SearchUserB
 
 	}
 
-	adminGuy, err := keycloak.InitAdmin()
+	adminGuy, err := common_keycloak.InitAdmin()
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Sprintf("Error: %v", err))
 	}
@@ -171,7 +66,7 @@ func StartServer() {
 		log.Fatalf("Failed to listen %v \n", err)
 	}
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(grpc.UnaryInterceptor(interceptors.UnaryInterceptor))
 	userpb.RegisterUserServiceServer(s, &server{})
 	reflection.Register(s) // allows us to expose the gRPC server so the client can see what's available. You can use Evans CLI for that
 

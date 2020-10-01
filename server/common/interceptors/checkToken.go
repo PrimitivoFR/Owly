@@ -2,12 +2,12 @@ package interceptors
 
 import (
 	"log"
-	"primitivofr/owly/server/user/user_server/keycloak"
+	common_keycloak "primitivofr/owly/server/common/keycloak"
 )
 
 func checkTokenInterceptor(token string) (bool, error) {
 	log.Println(token)
-	adminGuy, err := keycloak.InitAdmin()
+	adminGuy, err := common_keycloak.InitAdmin()
 	if err != nil {
 		log.Println(err)
 	}

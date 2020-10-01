@@ -1,4 +1,4 @@
-package keycloak
+package common_keycloak
 
 import (
 	"log"

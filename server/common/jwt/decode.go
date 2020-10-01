@@ -1,14 +1,11 @@
 package common_jwt
 
 import (
-	"primitivofr/owly/server/user/user_server/keycloak"
+	common_keycloak "primitivofr/owly/server/common/keycloak"
 )
 
-func DecodeJWT(token string) {
-
-}
 func ExtractUUIDfromJWT(token string) (string, error) {
-	adminGuy, err := keycloak.InitAdmin()
+	adminGuy, err := common_keycloak.InitAdmin()
 	if err != nil {
 		return "", err
 	}
