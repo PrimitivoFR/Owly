@@ -42,12 +42,15 @@ export class AuthService {
         return !this.jwtHelper.isTokenExpired(token);
     }
 
-    createUser(data) {
+    async createUser(data): Promise<boolean> {
         const request = this.createUserRequest(data);
-        this.authClient.createNewUser(request).subscribe(
-            (res) => console.log(res),
-            (err) => console.log(err)
-        );
+        try {
+            const res = await this.authClient.createNewUser(request).toPromise();
+            return res.success;
+        }
+        catch(err) {
+            return false;
+        }
     }
 
     private createUserRequest(data) {
