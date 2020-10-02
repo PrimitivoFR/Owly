@@ -3,8 +3,13 @@ package authserver
 import (
 	"context"
 	"log"
+	"os"
 	"primitivofr/owly/server/auth/authpb"
+	"reflect"
 	"testing"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func TestCreateNewUser(t *testing.T) {
@@ -39,8 +44,57 @@ func TestCreateNewUser(t *testing.T) {
 		if err != nil {
 			t.Errorf("CreateNewUser got unexpected error %v", err)
 		} else if resp.Success != tt.want.Success {
-			t.Errorf("CreateNewUser(%v)=%v, wanted %v", req, resp, &tt.want)
+			t.Errorf("CreateNewUser(%v)=%v, wanted %v", req, resp, tt.want)
+		} else {
+			log.Println("[Successfully passed TestCreateNewUser]")
 		}
 
 	}
+}
+
+func TestLoginUser(t *testing.T) {
+	s := server{}
+
+	tests := []struct {
+		req  authpb.LoginUserRequest
+		want interface{}
+	}{
+		{
+			req: authpb.LoginUserRequest{
+				Username: "applinh",
+				Password: "Aze123",
+			},
+			want: &authpb.LoginUserResponse{},
+		},
+		{
+			req: authpb.LoginUserRequest{
+				Username: "applinh",
+				Password: "Aze1234",
+			},
+			want: status.Error(codes.PermissionDenied, ""),
+		},
+	}
+
+	for _, tt := range tests {
+		req := &tt.req
+
+		log.Println(req)
+
+		resp, err := s.LoginUser(context.Background(), req)
+
+		if err != nil && reflect.TypeOf(tt.want) != reflect.TypeOf(err) {
+			t.Errorf("LoginUser got unexpected error %v", err)
+		} else if resp != nil && reflect.TypeOf(resp) != reflect.TypeOf(tt.want) {
+			t.Errorf("LoginUser(%v)=%v, wanted %v", req, resp, reflect.TypeOf(tt.want).String())
+		} else {
+			log.Println("[Successfully passed TestLoginUser]")
+
+			if resp != nil {
+				os.Setenv("accessToken", resp.Result.GetAccessToken())
+			}
+
+		}
+
+	}
+
 }
