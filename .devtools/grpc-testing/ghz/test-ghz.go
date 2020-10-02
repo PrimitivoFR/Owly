@@ -15,8 +15,8 @@ func main() {
 	report, err := runner.Run(
 		"user.UserService.LoginUser",
 		"localhost:50051",
-		runner.WithProtoFile("../protofiles/user.proto", []string{}),
-		runner.WithDataFromFile("evans-python/json/login.json"),
+		runner.WithProtoFile("../../protofiles/user.proto", []string{}),
+		runner.WithDataFromFile("../evans-python/json/login.json"),
 		runner.WithInsecure(true),
 	)
 
