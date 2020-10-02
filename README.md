@@ -23,10 +23,10 @@ Restart a specific service:
 #### About the client in dev mod
 
 The owly-client is not included anymore in the dev env stack.
-It was also resulting in making the whole dev env highly slower, and was impacting negativly the performances of the dev env.
+It was resulting in making the whole dev env highly slower, and was impacting negativly the workflow.
 
-In brief, it was way to heavy to load, and for now, we can't figure it out how to fix it.
-In the meantime, you'll have to run apart:
+In brief, it was way to heavy to load.
+For now, you'll have to run apart:
 
 `npm i && npm start` to start the client.
 
