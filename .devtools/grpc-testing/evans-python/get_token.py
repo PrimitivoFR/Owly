@@ -35,7 +35,7 @@ parser.add_argument('-p', '--password', type=str, required=True)
 args = parser.parse_args()
 
 login_json = f'{{"username": "{args.user}", "password": "{args.password}"}}'
-login = grpc_call(50051, 'LoginUser', input=login_json)
+login = grpc_call(50054, 'LoginUser', input=login_json)
 access_token = login['result']['AccessToken']
 
 
