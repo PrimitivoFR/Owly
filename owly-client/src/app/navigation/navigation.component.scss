@@ -1,0 +1,12 @@
+.max-h-custom-50 {
+    max-height: 50vh;
+}
+
+.overflow-custom {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}

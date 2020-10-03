@@ -9,7 +9,9 @@
                 <span>Create a chatroom</span>
             </a>
             <span class="flex font-medium text-sm text-gray-400 px-4 my-4 uppercase">Chatrooms</span>
-            <app-chatroom-list></app-chatroom-list>
+            <div class="max-h-custom-50 overflow-custom">
+                <app-chatroom-list></app-chatroom-list>
+            </div>
             <a (click)="logout()" class="flex items-center justify-center mt-5 text-gray-200 border border-gray-200 border-t border-r-0 border-b border-l-0 py-2 px4 text-xl cursor-pointer hover:text-gray-800 hover:border-gray-800 hover:bg-gray-200">
                 <entypo class="mr-3" name="logout"></entypo>
                 <span>Logout</span>
