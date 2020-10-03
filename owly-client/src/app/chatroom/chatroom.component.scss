@@ -1,7 +1,7 @@
 .bottom-custom {
     position: absolute;
     bottom: 20px;
-    width: 83.333333%;
+    width: 75vw;
 }
 
 .right-custom {
@@ -18,13 +18,18 @@
 }
 
 .max-h-custom-2 {
-    max-height: 20%;
+    max-height: 10vh;
 }
 
 .max-h-custom-6 {
+    height: 70%;
     max-height: 70%;
 }
 
 .overflow-custom {
     overflow: auto !important;
+}
+
+::-webkit-scrollbar {
+    display: none;
 }

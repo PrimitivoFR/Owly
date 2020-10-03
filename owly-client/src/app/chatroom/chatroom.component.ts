@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
 import { Chatroom } from 'src/proto/chatroom.pb';
 import { GetMessagesByChatroomRequest, Message, SendMessageRequest } from 'src/proto/message.pb';
 import { LocalChatroom } from 'src/_models/localChatroom';
@@ -15,7 +14,8 @@ import { AuthService } from 'src/_services/auth.service';
 import { Location } from '@angular/common';
 import { NavigationService } from '../navigation/navigation.service';
 import { StoreService } from 'src/_services/store.service';
-// import {v4 as uuidv4} from 'uuid'; <- Generate uuid
+import {v4 as uuidv4} from 'uuid';
+import { SnackAlertService } from '../common/components/snack-alert/snack-alert.service';
 
 @Component({
   selector: 'app-chatroom',
@@ -39,6 +39,7 @@ export class ChatroomComponent implements OnInit {
     private authService: AuthService,
     private messageService: MessageService,
     private storeService: StoreService,
+    private snackAlertService: SnackAlertService,
   ) { }
 
   ngOnInit() {
@@ -49,7 +50,6 @@ export class ChatroomComponent implements OnInit {
     this.sendMsgForm = this.formBuilder.group({
       message: ['', Validators.required],
     });
-
   }
 
   get f() { return this.sendMsgForm.controls; }
@@ -83,8 +83,8 @@ export class ChatroomComponent implements OnInit {
       isAnswer: false
     });
     // Create tempo message
-    // var tempoMess = message;
-    // tempoMess.id = "TEMPO_+uuid"
+    var tempoMess = message;
+    tempoMess.id = "TEMPO_" + uuidv4();
 
     const req = new SendMessageRequest({
       message: message
@@ -93,12 +93,14 @@ export class ChatroomComponent implements OnInit {
     try {
 
       // O <- Add the tempo message to the list, using a function of navigation service
+      this.navService.addTempoMsg(tempoMess);
     
       const res = await this.messageService.sendMessage(req);
 
       // ! <- Here the message has been sent correctly
 
       // X <- Delete the tempo message
+      this.navService.deleteTempoMsg(tempoMess.id);
 
       this.messageService.getMessagesForAllChatrooms();
       console.log(res)
@@ -107,7 +109,7 @@ export class ChatroomComponent implements OnInit {
 
       // ! <- Here the message has NOT been sent correctly
       // O <- Display a snackabar "Message not sent..."
-      // X <- Delete the tempo message
+      this.snackAlertService.showSnack("Something went wrong, the message was not sent");
 
       return false
     }
@@ -120,6 +122,17 @@ export class ChatroomComponent implements OnInit {
     return date.getHours()+":"+date.getMinutes() +" - "+ date.getDate() + "/" + (date.getMonth()+1)
   }
 
+  EnterSubmit(event) {
+    if(event.which == 13) {
+      this.onSubmit();
+    }
+  }
+
   // O <- Function that checks if the id field for the message contains "TEMPO_"
+  checkTempoMsg(id): boolean {
+    if(id.includes('TEMPO_'))
+      return true;
+    return false;
+  }
 
 }
