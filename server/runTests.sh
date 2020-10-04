@@ -1,4 +1,5 @@
 #!/bin/bash
 
 
-cd ./auth/auth_server && go test
+go test ./auth/auth_server
+go test ./user/user_server
