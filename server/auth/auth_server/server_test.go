@@ -2,6 +2,7 @@ package authserver
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"primitivofr/owly/server/auth/authpb"
@@ -90,7 +91,13 @@ func TestLoginUser(t *testing.T) {
 			log.Println("[Successfully passed TestLoginUser]")
 
 			if resp != nil {
-				os.Setenv("accessToken", resp.Result.GetAccessToken())
+
+				f, err := os.Create("../../token.txt")
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+				f.WriteString(resp.Result.GetAccessToken())
 			}
 
 		}
