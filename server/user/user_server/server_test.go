@@ -13,10 +13,10 @@ import (
 )
 
 func check(e error, desc string) {
-    if e != nil {
+	if e != nil {
 		log.Println(desc)
-        panic(e)
-    }
+		panic(e)
+	}
 }
 
 func TestSearchUserByUsername(t *testing.T) {
