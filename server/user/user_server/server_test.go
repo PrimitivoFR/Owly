@@ -12,6 +12,12 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+func check(e error, desc string) {
+    if e != nil {
+		log.Println(desc)
+        panic(e)
+    }
+}
 
 func TestSearchUserByUsername(t *testing.T) {
 	s := server{}
@@ -45,8 +51,11 @@ func TestSearchUserByUsername(t *testing.T) {
 		},
 	}
 
-	f, _ := os.Open("../../token.txt")
-	accessToken, _ := ioutil.ReadAll(f)
+	f, open_err := os.Open("/go/src/owly-server/token.txt")
+	check(open_err, "Could not open token file")
+
+	accessToken, readall_err := ioutil.ReadAll(f)
+	check(readall_err, "Error while reading token file")
 	
 	md := metadata.Pairs("authorization", string(accessToken))
 	ctx := metadata.NewIncomingContext(context.Background(), md)
