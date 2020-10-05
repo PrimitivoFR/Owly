@@ -12,15 +12,6 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-// "context"
-// "log"
-// "os"
-// "primitivofr/owly/user/auth/userpb"
-// "reflect"
-// "testing"
-
-// "google.golang.org/grpc/codes"
-// "google.golang.org/grpc/status"
 
 func TestSearchUserByUsername(t *testing.T) {
 	s := server{}
@@ -39,11 +30,18 @@ func TestSearchUserByUsername(t *testing.T) {
 		},
 		{
 			req: userpb.SearchUserByUsernameRequest{
-				Username: "notexist",
+				Username: "",
 			},
 			want: userpb.SearchUserByUsernameResponse{
-				Count: 0,
+				// Only 1 as this function doesn't return the current user
+				Count: 1, 
 			},
+		},
+		{
+			req: userpb.SearchUserByUsernameRequest{
+				Username: "notexist",
+			},
+			want: userpb.SearchUserByUsernameResponse{},
 		},
 	}
 
@@ -62,7 +60,7 @@ func TestSearchUserByUsername(t *testing.T) {
 			reflect.TypeOf(resp) != reflect.TypeOf(&tt.want) ||
 			resp.Count != tt.want.Count) {
 			t.Errorf(
-				"SearchUserByUsername(%v)=%v, wanted %v,",
+				"SearchUserByUsername(%v)=\n%v \nwanted %v",
 				&tt.req, resp, &tt.want,
 			)
 		} else {
