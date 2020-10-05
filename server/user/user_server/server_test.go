@@ -35,11 +35,10 @@ func TestSearchUserByUsername(t *testing.T) {
 			},
 		},
 		{
-			req: userpb.SearchUserByUsernameRequest{
-				Username: "",
-			},
+			req: userpb.SearchUserByUsernameRequest{}, // empty username implied
 			want: userpb.SearchUserByUsernameResponse{
-				// Only 1 as this function doesn't return the current user
+				// only 1 as this function doesn't return the current user
+				// and as "user" should be the only user besides applinh
 				Count: 1, 
 			},
 		},
@@ -47,7 +46,7 @@ func TestSearchUserByUsername(t *testing.T) {
 			req: userpb.SearchUserByUsernameRequest{
 				Username: "notexist",
 			},
-			want: userpb.SearchUserByUsernameResponse{},
+			want: userpb.SearchUserByUsernameResponse{}, //count = 0 implied
 		},
 	}
 
