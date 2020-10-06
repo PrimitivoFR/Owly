@@ -54,7 +54,7 @@ export class SignInFormComponent implements OnInit {
     if(success) {
       this.snackService.showSnack('Welcome !');
       await this.chatroomService.getChatrooms();
-      this.messageService.getMessagesForAllChatrooms();
+      //this.messageService.getMessagesForAllChatrooms();
       this.navService.updateNavStore("0");
       this.router.navigate(['chatroom']);
     }

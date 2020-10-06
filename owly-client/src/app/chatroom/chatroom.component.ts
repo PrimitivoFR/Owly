@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Chatroom } from 'src/proto/chatroom.pb';
 import { GetMessagesByChatroomRequest, Message, SendMessageRequest } from 'src/proto/message.pb';
@@ -22,7 +22,7 @@ import { SnackAlertService } from '../common/components/snack-alert/snack-alert.
   templateUrl: './chatroom.component.html',
   styleUrls: ['./chatroom.component.scss']
 })
-export class ChatroomComponent implements OnInit {
+export class ChatroomComponent implements OnInit, AfterViewInit {
 
   localIdChatroom: string;
   nameChatroom: string;
@@ -32,6 +32,11 @@ export class ChatroomComponent implements OnInit {
   currentStoreItem: LocalRoomsAndMessagesStore = new LocalRoomsAndMessagesStore();
 
   private currentUser: LoggedUser;
+  private scrollContainer: any;
+  private isNearBottom = true;
+
+  @ViewChild('scrollframe', {static: true}) scrollFrame: ElementRef;
+  @ViewChildren('item') itemElements: QueryList<any>;
 
   constructor(
     private navService: NavigationService,
@@ -49,6 +54,14 @@ export class ChatroomComponent implements OnInit {
 
     this.sendMsgForm = this.formBuilder.group({
       message: ['', Validators.required],
+    });
+  }
+  
+  ngAfterViewInit() {
+    this.scrollContainer = this.scrollFrame.nativeElement;
+    this.itemElements.changes.subscribe(res  => {
+      console.log(res)
+      this.onItemElementsChanged();
     });
   }
 
@@ -102,7 +115,7 @@ export class ChatroomComponent implements OnInit {
       // X <- Delete the tempo message
       this.navService.deleteTempoMsg(tempoMess.id);
 
-      this.messageService.getMessagesForAllChatrooms();
+      //this.messageService.getMessagesForAllChatrooms();
       console.log(res)
       return res.success
     } catch (e) {
@@ -133,6 +146,31 @@ export class ChatroomComponent implements OnInit {
     if(id.includes('TEMPO_'))
       return true;
     return false;
+  }
+
+  private onItemElementsChanged(): void {
+    if (this.isNearBottom) {
+      this.scrollToBottom();
+    }
+  }
+
+  private scrollToBottom(): void {
+    console.log(this.scrollContainer);
+    this.scrollContainer.scroll({
+      top: this.scrollContainer.scrollHeight,
+      behavior: 'smooth'
+    });
+  }
+
+  private isUserNearBottom(): boolean {
+    const threshold = 150;
+    const position = this.scrollContainer.scrollTop + this.scrollContainer.offsetHeight;
+    const height = this.scrollContainer.scrollHeight;
+    return position > height - threshold;
+  }
+
+  scrolled(event: any): void {
+    this.isNearBottom = this.isUserNearBottom();
   }
 
 }

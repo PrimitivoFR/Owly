@@ -32,7 +32,7 @@ export class NavigationService {
             this.currentMessageStream.unsubscribe();
         }
 
-        this.messageService.getMessagesForAllChatrooms()
+        //this.messageService.getMessagesForAllChatrooms()
 
         var currentStoreItem: LocalRoomsAndMessagesStore;
         const currentStore = this.storeService.currentChatroomsAndMessageStore.pipe(
