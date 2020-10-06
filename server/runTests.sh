@@ -7,3 +7,4 @@
 
 go test ./auth/auth_server
 go test ./user/user_server
+go test ./chatroom/chatroom_server
