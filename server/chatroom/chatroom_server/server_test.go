@@ -1,12 +1,14 @@
 package chatroom_server
 
 import (
-	"testing"
+	"context"
+	"io/ioutil"
 	"log"
 	"os"
-	"io/ioutil"
 	"primitivofr/owly/server/chatroom/chatroompb"
-	"context"
+	common_mongo "primitivofr/owly/server/common/mongo"
+	"testing"
+
 	"google.golang.org/grpc/metadata"
 )
 
@@ -23,7 +25,7 @@ func prepare_testing_ctx() (ctx context.Context) {
 
 	accessToken, readall_err := ioutil.ReadAll(f)
 	check(readall_err, "Error while reading token file")
-	
+
 	md := metadata.Pairs("authorization", string(accessToken))
 	ctx = metadata.NewIncomingContext(context.Background(), md)
 	return
@@ -31,6 +33,10 @@ func prepare_testing_ctx() (ctx context.Context) {
 
 func TestCreateChatroom(t *testing.T) {
 	s := server{}
+
+	err := common_mongo.SetupMongoDB()
+
+	check(err, "Error while setting up mongodb")
 
 	tests := []struct {
 		req  chatroompb.CreateChatroomRequest
