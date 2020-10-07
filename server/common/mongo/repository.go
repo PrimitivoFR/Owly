@@ -2,39 +2,40 @@ package common_mongo
 
 import (
 	"context"
-	"log"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type MongoORM interface {
-	ORMInsertOne(document interface{}) error
+	ORMInsertOne(document interface{}) (*mongo.InsertOneResult, error)
 	CheckConnectivity() error
 }
 
-type MongoCollection struct {
-	*mongo.Collection
+type MongoEntity struct {
+	c **mongo.Collection
 }
 
-func (collection *MongoCollection) ORMInsertOne(document interface{}) error {
-
-	log.Println("collection", collection)
+func (collection *MongoEntity) ORMInsertOne(document interface{}) (*mongo.InsertOneResult, error) {
 
 	if err := collection.CheckConnectivity(); err != nil {
-		return err
+		return nil, err
 	}
 
-	// TODO : check what to do with the return, instead of making it "_"
-	_, errInsert := collection.InsertOne(context.Background(), document)
+	collec := collection.c
+	entity := *collec
 
-	return errInsert
+	// TODO : check what to do with the return, instead of making it "_"
+	res, errInsert := entity.InsertOne(context.Background(), document)
+
+	return res, errInsert
 }
 
-func (collection *MongoCollection) CheckConnectivity() error {
+func (collection *MongoEntity) CheckConnectivity() error {
 
-	log.Println("check co")
+	collec := collection.c
+	entity := *collec
 
-	if collection == nil {
+	if collection == nil || collection.c == nil || entity == nil {
 		errSetup := SetupMongoDB()
 		if errSetup != nil {
 			return errSetup

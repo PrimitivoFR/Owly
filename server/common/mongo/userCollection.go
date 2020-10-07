@@ -1,31 +1,15 @@
 package common_mongo
 
 import (
-	"context"
 	"primitivofr/owly/server/common/models"
+
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func checkUserCollectionConnectivity() error {
-	if UserCollection == nil {
-		errSetup := SetupMongoDB()
-		if errSetup != nil {
-			return errSetup
-		}
-	}
-	return nil
-}
+func InsertOneUserCollection(user_mongo models.UserMongo) (*mongo.InsertOneResult, error) {
 
-func InsertOneUserCollection(user_mongo models.UserMongo) error {
+	var m MongoORM = &MongoEntity{&UserCollection}
 
-	// var c = &MongoCollection{UserCollection}
-	// var m MongoORM = c
-	// errInsert := m.ORMInsertOne(user_mongo)
-	// return errInsert
+	return m.ORMInsertOne(user_mongo)
 
-	if err := checkUserCollectionConnectivity(); err != nil {
-		return err
-	}
-
-	_, errInsert := UserCollection.InsertOne(context.Background(), user_mongo)
-	return errInsert
 }
