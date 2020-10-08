@@ -30,7 +30,8 @@ message StreamMessagesByChatroomRequest {
 }
 
 message StreamMessagesByChatroomResponse {
-    Message message = 1;
+    string operation = 1;
+    Message message = 2;
 }
 
 message SendMessageRequest {
