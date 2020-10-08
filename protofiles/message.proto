@@ -50,7 +50,8 @@ message GetMessagesByChatroomResponse {
 }
 
 message DeleteMessageRequest {
-    Message message = 1;
+    string messageID = 1;
+    string chatroomID = 2;
 }
 
 message DeleteMessageResponse {
