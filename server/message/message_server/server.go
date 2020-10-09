@@ -79,7 +79,8 @@ func (*server) StreamMessagesByChatroom(req *messagepb.StreamMessagesByChatroomR
 					log.Printf("Error while reading message %v", err)
 				} else {
 					err := stream.Send(&messagepb.StreamMessagesByChatroomResponse{
-						Message: &message,
+						Operation: esWSResp.Operation,
+						Message:   &message,
 					})
 					if err != nil {
 						log.Printf("Error while streaming %v", err)
