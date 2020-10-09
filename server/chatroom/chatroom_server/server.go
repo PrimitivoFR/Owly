@@ -161,6 +161,14 @@ func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatro
 	}, nil
 }
 
+func (*server) DeleteChatroom(context.Context, *chatroompb.DeleteChatroomRequest) (*chatroompb.DeleteChatroomResponse, error) {
+	return &chatroompb.DeleteChatroomResponse{}, nil
+}
+
+func (*server) LeaveChatroom(context.Context, *chatroompb.LeaveChatroomRequest) (*chatroompb.LeaveChatroomResponse, error) {
+	return &chatroompb.LeaveChatroomResponse{}, nil
+}
+
 //
 
 func StartServer() {
