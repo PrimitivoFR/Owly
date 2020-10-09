@@ -8,6 +8,7 @@ import (
 	"primitivofr/owly/server/chatroom/chatroompb"
 	common_mongo "primitivofr/owly/server/common/mongo"
 	"testing"
+	"reflect"
 
 	"google.golang.org/grpc/metadata"
 )
@@ -19,7 +20,7 @@ func check(e error, desc string) {
 	}
 }
 
-func prepare_testing_ctx() (ctx context.Context) {
+func prepareTestingCtx() (ctx context.Context) {
 	f, open_err := os.Open("/go/src/owly-server/token.txt")
 	check(open_err, "Could not open token file")
 
@@ -31,12 +32,24 @@ func prepare_testing_ctx() (ctx context.Context) {
 	return
 }
 
+func setubDb() {
+	err := common_mongo.SetupMongoDB()
+	check(err, "Error while setting up mongodb")
+}
+
+func assert(t *testing.T, expected interface{}, test interface{}) {
+	if test != expected {
+		t.Errorf(
+			"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
+			expected, reflect.TypeOf(expected), test, reflect.TypeOf(test),
+		)
+	}
+}
+
 func TestCreateChatroom(t *testing.T) {
 	s := server{}
-
-	err := common_mongo.SetupMongoDB()
-
-	check(err, "Error while setting up mongodb")
+	setubDb()
+	ctx := prepareTestingCtx()
 
 	tests := []struct {
 		req  chatroompb.CreateChatroomRequest
@@ -51,19 +64,40 @@ func TestCreateChatroom(t *testing.T) {
 				Success: true,
 			},
 		},
+		// TODO : add test case with multiple users (but we need the user ids)
 	}
-
-	ctx := prepare_testing_ctx()
 
 	for _, tt := range tests {
 		resp, err := s.CreateChatroom(ctx, &tt.req)
 		check(err, "CreateChatroom got unexpected error")
 
-		if resp.Success != tt.want.Success {
-			t.Errorf(
-				"CreateChatroom Success state was not expected for name '%v'",
-				&tt.req.Name,
-			)
-		}
+		assert(t, tt.want.Success, resp.Success)
+	}
+}
+
+func TestGetChatroomsByUser(t *testing.T) {
+	s := server{}
+	setubDb()
+	ctx := prepareTestingCtx()
+
+	tests := []struct {
+		req  chatroompb.GetChatroomsByUserRequest
+		want chatroompb.GetChatroomsByUserResponse
+	}{
+		{
+			req: chatroompb.GetChatroomsByUserRequest{},
+			want: chatroompb.GetChatroomsByUserResponse{
+				Success: true,
+				Count: 1,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		resp, err := s.GetChatroomsByUser(ctx, &tt.req)
+		check(err, "GetChatroomsByUser got unexpected error")
+
+		assert(t, tt.want.Success, resp.Success)
+		assert(t, tt.want.Count, resp.Count)
 	}
 }
