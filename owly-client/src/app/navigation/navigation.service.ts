@@ -52,7 +52,13 @@ export class NavigationService {
         this.currentMessageStream = this.messageService.streamMessagesByChatroom(new StreamMessagesByChatroomRequest({
                 chatroomID: currentStoreItem.chatroom.id
             })).subscribe((res) => {
-                currentStoreItem.messages.push(res.message)
+                if(res.operation == "CREATE") {
+                    currentStoreItem.messages.push(res.message)
+                }
+                if(res.operation == "DELETE") {
+                    currentStoreItem.messages = currentStoreItem.messages.filter((mess: Message) => mess.id != res.message.id) // Deletes the message: return every 
+                }
+                
             });
     }
 
