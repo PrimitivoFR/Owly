@@ -266,6 +266,10 @@ func (*server) GetMessagesByChatroom(ctx context.Context, req *messagepb.GetMess
 
 }
 
+func (*server) DeleteMessage(context.Context, *messagepb.DeleteMessageRequest) (*messagepb.DeleteMessageResponse, error) {
+	return &messagepb.DeleteMessageResponse{}, nil
+}
+
 //
 func StartServer() {
 
