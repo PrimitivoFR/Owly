@@ -24,6 +24,9 @@ type server struct{}
 //
 func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroomRequest) (*chatroompb.CreateChatroomResponse, error) {
 	currentUserID, err := common_jwt.ReadUUIDFromContext(ctx)
+
+	log.Println(currentUserID)
+
 	if err != nil {
 		return nil, err
 	}
@@ -54,9 +57,12 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 
 	chatroom := models.Chatroom{
 		ID:    primitive.NewObjectID(),
+		Owner: currentUserID,
 		Name:  name,
 		Users: user_ids,
 	}
+
+	log.Println(chatroom)
 
 	res, err := common_mongo.ChatroomCollection.InsertOne(context.Background(), chatroom)
 	if err != nil {
@@ -148,8 +154,9 @@ func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatro
 		users_chatrooms = append(
 			users_chatrooms,
 			&chatroompb.Chatroom{
-				Name: chatroom_result.Name,
-				Id:   chatroom_result.ID.Hex(),
+				Name:  chatroom_result.Name,
+				Id:    chatroom_result.ID.Hex(),
+				Owner: chatroom_result.Owner,
 			},
 		)
 	}
