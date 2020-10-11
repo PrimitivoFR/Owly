@@ -72,7 +72,7 @@ func (*server) CreateNewUser(ctx context.Context, req *authpb.CreateNewUserReque
 		Chatrooms: []string{}, //empty string array
 	}
 
-	errInsert := common_mongo.InsertOneUserCollection(userMongo)
+	_, errInsert := common_mongo.InsertOneUserCollection(userMongo)
 
 	if errInsert != nil {
 		log.Printf("Error while creating user: %v. Error is: %v", userMongo, errInsert)
