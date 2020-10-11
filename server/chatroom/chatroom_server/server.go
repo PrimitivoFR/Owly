@@ -58,7 +58,7 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 		Users: user_ids,
 	}
 
-	res, err := common_mongo.ChatroomCollection.InsertOne(context.Background(), chatroom)
+	res, err := common_mongo.InsertOneChatroomCollection(chatroom)
 	if err != nil {
 		log.Printf("Error while creating chatroom: %v. Error is: %v", chatroom, err)
 		return nil, status.Errorf(
