@@ -269,17 +269,17 @@ func (*server) GetMessagesByChatroom(ctx context.Context, req *messagepb.GetMess
 }
 
 func (*server) DeleteMessage(ctx context.Context, req *messagepb.DeleteMessageRequest) (*messagepb.DeleteMessageResponse, error) {
-	user_id, err := common_jwt.ReadUUIDFromContext(ctx)
+	userId, err := common_jwt.ReadUUIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if ok, err := interceptors.IsUserInChatroom(req.ChatroomID, user_id); !ok || err != nil {
+	if ok, err := interceptors.IsUserInChatroom(req.ChatroomID, userId); !ok || err != nil {
 		if !ok && err == nil {
-			log.Printf("User %v not found in this chatroom: %v", user_id, req.ChatroomID)
+			log.Printf("User %v not found in this chatroom: %v", userId, req.ChatroomID)
 			return nil, status.Errorf(
 				codes.Unauthenticated,
-				fmt.Sprintf("User %v not found in this chatroom: %v", user_id, req.ChatroomID),
+				fmt.Sprintf("User %v not found in this chatroom: %v", userId, req.ChatroomID),
 			)
 		}
 
@@ -292,9 +292,9 @@ func (*server) DeleteMessage(ctx context.Context, req *messagepb.DeleteMessageRe
 	}
 
 	//Elastic client init with Olivere package
-	client, err:= elastic.NewClient(
+	client, err := elastic.NewClient(
 		elastic.SetSniff(true),
-		elastic.SetURL("http://localhost:9200"),
+		elastic.SetURL("http://elasticsearch:9200"),
 		elastic.SetHealthcheckInterval(5*time.Second),
 	)
 	if err != nil {
@@ -314,9 +314,12 @@ func (*server) DeleteMessage(ctx context.Context, req *messagepb.DeleteMessageRe
 		)
 	}
 
+	// TODO: check if userId == authorUUID of the message for which a deletion has been requested
+
 	deleteService := elastic.NewDeleteService(client)
 	deleteService.Index(req.ChatroomID)
 	deleteService.Id(req.MessageID)
+	deleteService.Type("_doc")
 	deleteService.Refresh("true")
 
 	_, err = deleteService.Do(ctx)
