@@ -34,6 +34,8 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   private currentUser: LoggedUser;
   private scrollContainer: any;
   private isNearBottom = true;
+  private dropdownOpen = false;
+  private currentIndex = 0;
 
   @ViewChild('scrollframe', {static: true}) scrollFrame: ElementRef;
   @ViewChildren('item') itemElements: QueryList<any>;
@@ -126,6 +128,28 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
 
       return false
     }
+  }
+
+  async deleteMessage(messageID) {
+    if(confirm("Are you sure you want to continue ?")) {
+      this.dropdownOpen = false;
+      // const req = {
+      //   chatroom_id: ¿?
+      //   message_id: messageID
+      // }
+
+      // if(res.success) {
+      //   this.snackAlertService.showSnack("The message has been deleted !");
+      // }
+      // else {
+      //   this.snackAlertService.showSnack("Something went wrong, the message was not deleted");
+      // }
+    }
+    else {
+      this.dropdownOpen = false;
+    }
+
+
   }
 
   timestampToReadableDate(timestamp: string) {

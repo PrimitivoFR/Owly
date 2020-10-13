@@ -1,8 +1,24 @@
 <app-top-bar title="{{currentStoreItem.chatroom.name}}"></app-top-bar>
+<app-snack-alert></app-snack-alert>
 <div class="w-11/12 objects-center m-auto items-center max-h-custom-6 overflow-scroll"  #scrollframe>
-    <div *ngFor="let message of currentStoreItem.messages" #item>
+    <div *ngFor="let message of currentStoreItem.messages; let i = index" #item>
 
         <div [ngClass]="{'float-right': currentUser.username == message.authorNAME,'float-left': currentUser.username != message.authorNAME, 'bg-blue-200': checkTempoMsg(message.id), 'bg-blue-700': !checkTempoMsg(message.id) }" class="w-7/12 text-gray-100 mt-6 px-4 py-2 rounded-lg">
+            <div *ngIf="currentUser.username == message.authorNAME">
+                <div *ngIf="dropdownOpen" (click)="dropdownOpen = false" class="fixed inset-0 h-full w-full z-10"></div>
+                <div (click)="dropdownOpen = !dropdownOpen; currentIndex = i;" class="float-right mr-2 mt-1 text-base cursor-pointer transform transition duration-300 hover:text-white hover:scale-150">
+                    <entypo name="down-open"></entypo>
+                </div>
+                <div class="relative">
+                    <div *ngIf="dropdownOpen && currentIndex == i" class="absolute right-0 mt-6 py-2 w-48 bg-white rounded-md shadow-xl z-20">
+                        <a (click)="deleteMessage(message)" class="block px-4 py-2 text-sm capitalize text-red-700 hover:text-red-500 cursor-pointer">
+                            <entypo class="mr-1" name="trash"></entypo>
+                            Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
             <div class="font-bold text-base">
                 {{message.authorNAME}}
             </div>
