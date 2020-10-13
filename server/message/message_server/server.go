@@ -17,6 +17,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/elastic/go-elasticsearch/v8/esapi"
+	"github.com/olivere/elastic"
 	"github.com/rgamba/evtwebsocket"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -267,8 +268,72 @@ func (*server) GetMessagesByChatroom(ctx context.Context, req *messagepb.GetMess
 
 }
 
-func (*server) DeleteMessage(context.Context, *messagepb.DeleteMessageRequest) (*messagepb.DeleteMessageResponse, error) {
-	return &messagepb.DeleteMessageResponse{}, nil
+func (*server) DeleteMessage(ctx context.Context, req *messagepb.DeleteMessageRequest) (*messagepb.DeleteMessageResponse, error) {
+	user_id, err := common_jwt.ReadUUIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if ok, err := interceptors.IsUserInChatroom(req.ChatroomID, user_id); !ok || err != nil {
+		if !ok && err == nil {
+			log.Printf("User %v not found in this chatroom: %v", user_id, req.ChatroomID)
+			return nil, status.Errorf(
+				codes.Unauthenticated,
+				fmt.Sprintf("User %v not found in this chatroom: %v", user_id, req.ChatroomID),
+			)
+		}
+
+		log.Printf("Error while checking if user belong to chatroom: %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Error while checking if user belong to chatroom: %v", err),
+		)
+
+	}
+
+	//Elastic client init with Olivere package
+	client, err:= elastic.NewClient(
+		elastic.SetSniff(true),
+		elastic.SetURL("http://localhost:9200"),
+		elastic.SetHealthcheckInterval(5*time.Second),
+	)
+	if err != nil {
+		log.Printf("Elasticsearch connection error %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Elasticsearch connection error %v", err),
+		)
+	}
+
+	exist, err := client.IndexExists(req.ChatroomID).Do(ctx)
+	if !exist {
+		log.Printf("Index %v not found", req.ChatroomID)
+		return nil, status.Errorf(
+			codes.NotFound,
+			fmt.Sprintf("Index %v not found", req.ChatroomID),
+		)
+	}
+
+	deleteService := elastic.NewDeleteService(client)
+	deleteService.Index(req.ChatroomID)
+	deleteService.Id(req.MessageID)
+	deleteService.Refresh("true")
+
+	_, err = deleteService.Do(ctx)
+
+	if err != nil {
+		log.Printf("Delete Index returned error %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Delete Index returned error %v", err),
+		)
+	}
+
+	response := messagepb.DeleteMessageResponse{
+		Success: true,
+	}
+
+	return &response, nil
 }
 
 //
