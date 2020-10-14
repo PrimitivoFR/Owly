@@ -1,7 +1,5 @@
 .bottom-custom {
-    position: absolute;
     bottom: 20px;
-    width: 75vw;
 }
 
 .right-custom {
@@ -9,21 +7,38 @@
     right: 30%;
 }
 
-.h-custom-8 {
-    height: 80%;
+.mt-custom-snackBar {
+    margin-top: 10vh;
 }
 
-.h-custom-2 {
-    height: 20%;
+.h-custom-messages {
+    height: 75vh;
+    max-height: 75vh;
+}
+
+.h-custom-messages-w-reply {
+    height: 70vh;
+    max-height: 70vh;
+}
+
+.h-custom-textInput {
+    height: 15vh;
+}
+
+.h-custom-textInput-w-reply {
+    height: 20vh;
+}
+
+.h-custom-reply {
+    height: 8vh;
+}
+
+.mt-custom {
+    margin-top: 5vh;
 }
 
 .max-h-custom-2 {
     max-height: 10vh;
-}
-
-.max-h-custom-6 {
-    height: 70%;
-    max-height: 70%;
 }
 
 .overflow-custom {
