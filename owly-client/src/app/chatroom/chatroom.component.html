@@ -11,7 +11,7 @@
                 </div>
                 <div class="relative">
                     <div *ngIf="dropdownOpen && currentIndex == i" class="absolute right-0 mt-6 py-2 w-48 bg-white rounded-md shadow-xl z-20">
-                        <a (click)="deleteMessage(message)" class="block px-4 py-2 text-sm capitalize text-red-700 hover:text-red-500 cursor-pointer">
+                        <a (click)="deleteMessage(message.id)" class="block px-4 py-2 text-sm capitalize text-red-700 hover:text-red-500 cursor-pointer">
                             <entypo class="mr-1" name="trash"></entypo>
                             Delete
                         </a>
