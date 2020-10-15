@@ -183,7 +183,7 @@ func (*server) DeleteChatroom(ctx context.Context, req *chatroompb.DeleteChatroo
         return nil, err
 	}
 	
-    if !*currentUserIsOwner {
+    if !currentUserIsOwner {
         return nil, status.Error(
             codes.PermissionDenied,
             fmt.Sprintf(
@@ -226,7 +226,7 @@ func (*server) LeaveChatroom(ctx context.Context, req *chatroompb.LeaveChatroomR
         return nil, ownerErr
 	}
 
-    if *userIsOwner {
+    if userIsOwner {
         return nil, status.Error(
             codes.PermissionDenied,
             fmt.Sprintf(

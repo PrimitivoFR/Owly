@@ -17,29 +17,29 @@ func InsertOneChatroomCollection(chatroomMongo models.Chatroom) (*mongo.InsertOn
 
 }
 
-func IsChatroomOwner(userID string, chatroomID string) (*bool, error) {
+func IsChatroomOwner(userID string, chatroomID string) (bool, error) {
 
     if ChatroomCollection == nil {
         errSetup := SetupMongoDB()
         if errSetup != nil {
-            return nil, errSetup
+            return false, errSetup
         }
     }
 
     OID, errOID := primitive.ObjectIDFromHex(chatroomID)
     if errOID != nil {
-        return nil, errOID
+        return false, errOID
     }
 
     var chartoomResult models.Chatroom
     errFind := ChatroomCollection.FindOne(context.Background(), bson.M{"_id": OID}).Decode(&chartoomResult)
     if errFind != nil {
-        return nil, errFind
+        return false, errFind
 	}
 	
 	userIsChatroomOwner := userID == chartoomResult.Owner
 
-    return &userIsChatroomOwner, nil
+    return userIsChatroomOwner, nil
 }
 
 func PopUserInChatroomCollection(userID string, chatroomID string) (error) {
