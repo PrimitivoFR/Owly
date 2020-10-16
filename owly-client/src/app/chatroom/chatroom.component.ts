@@ -33,9 +33,12 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
 
   private currentUser: LoggedUser;
   private scrollContainer: any;
-  private isNearBottom = true;
-  private dropdownOpen = false;
-  private currentIndex = 0;
+  private isNearBottom: boolean = true;
+  private dropdownOpen: boolean = false;
+  private currentIndex: number = 0;
+  public isAnswer: boolean = false;
+  public answersTo: string = "";
+  public messageToReply: Message;
 
   @ViewChild('scrollframe', {static: true}) scrollFrame: ElementRef;
   @ViewChildren('item') itemElements: QueryList<any>;
@@ -50,8 +53,11 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
-    this.navService.currentNavStore.subscribe(v => this.currentStoreItem = v)
-    
+    this.navService.currentNavStore.subscribe(v => {
+      this.currentStoreItem = v;
+      this.cancelReplyTo();
+    })
+
     this.authService.currentUser.subscribe(v => this.currentUser = v)
 
     this.sendMsgForm = this.formBuilder.group({
@@ -89,7 +95,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   async sendMessage(): Promise<Boolean> {
 
     // True message which goes to the db
-    const message = new Message({
+    var message = new Message({
       authorNAME: this.currentUser.username,
       chatroomID: this.currentStoreItem.chatroom.id,
       content: this.f.message.value,
@@ -97,6 +103,12 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
       hasFileAttached: false,
       isAnswer: false
     });
+
+    if(this.isAnswer) {
+      message.isAnswer = true;
+      message.answersTo = this.answersTo;
+    }
+
     // Create tempo message
     var tempoMess = message;
     tempoMess.id = "TEMPO_" + uuidv4();
@@ -119,6 +131,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
 
       //this.messageService.getMessagesForAllChatrooms();
       console.log(res)
+      this.cancelReplyTo();
       return res.success
     } catch (e) {
 
@@ -147,8 +160,40 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     else {
       this.dropdownOpen = false;
     }
+  }
 
+  replyTo(messageID) {
+    this.isAnswer = true;
+    this.answersTo = messageID;
+    this.messageToReply = this.currentStoreItem.messages.find(message => message.id == messageID);
+  }
 
+  cancelReplyTo() {
+    this.isAnswer = false;
+    this.answersTo = "";
+    this.messageToReply = null;
+  }
+
+  messageAnswered(messageID) {
+    let message = this.currentStoreItem.messages.find(message => message.id == messageID);
+    if(message) {
+      return `
+        <div class="font-bold text-base">
+          ${message.authorNAME}
+        </div>
+        <div class="w-full text-sm">
+          ${message.content}
+        </div>
+      `;
+    }
+    else {
+      return `
+        <div class="font-bold text-red-600 text-base">
+          Message unavailable
+        </div>
+      `;
+    }
+    
   }
 
   timestampToReadableDate(timestamp: string) {
