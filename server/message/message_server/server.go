@@ -305,7 +305,7 @@ func (*server) DeleteMessage(ctx context.Context, req *messagepb.DeleteMessageRe
 		)
 	}
 
-	exist, err := client.IndexExists(req.ChatroomID).Do(ctx)
+	exist, err := client.IndexExists(req.ChatroomID).Do(context.Background())
 	if !exist {
 		log.Printf("Index %v not found", req.ChatroomID)
 		return nil, status.Errorf(
@@ -314,7 +314,33 @@ func (*server) DeleteMessage(ctx context.Context, req *messagepb.DeleteMessageRe
 		)
 	}
 
-	// TODO: check if userId == authorUUID of the message for which a deletion has been requested
+	// CHECK if userId == authorUUID of the message for which a deletion has been requested
+	doc, err := client.Get().
+		Index(req.ChatroomID).
+		Id(req.MessageID).
+		Type("_doc").
+		Do(context.Background())
+
+	if err != nil {
+		log.Printf("Error while getting message in ES %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Error while getting  message in ES %v", err),
+		)
+	}
+	var message messagepb.Message
+	data := *doc.Source
+	json.Unmarshal(data, &message)
+
+	// Not authorized
+	if message.AuthorUUID != userId {
+		log.Printf("This user %v is not the author of the message %v. He can't delete it", userId, message.Id)
+		return nil, status.Errorf(
+			codes.Unauthenticated,
+			fmt.Sprintf("This user %v is not the author of the message %v. He can't delete it", userId, message.Id),
+		)
+	}
+	//
 
 	deleteService := elastic.NewDeleteService(client)
 	deleteService.Index(req.ChatroomID)
@@ -322,7 +348,7 @@ func (*server) DeleteMessage(ctx context.Context, req *messagepb.DeleteMessageRe
 	deleteService.Type("_doc")
 	deleteService.Refresh("true")
 
-	_, err = deleteService.Do(ctx)
+	_, err = deleteService.Do(context.Background())
 
 	if err != nil {
 		log.Printf("Delete Index returned error %v", err)
