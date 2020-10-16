@@ -17,6 +17,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/elastic/go-elasticsearch/v8/esapi"
+	"github.com/olivere/elastic"
 	"github.com/rgamba/evtwebsocket"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -79,7 +80,8 @@ func (*server) StreamMessagesByChatroom(req *messagepb.StreamMessagesByChatroomR
 					log.Printf("Error while reading message %v", err)
 				} else {
 					err := stream.Send(&messagepb.StreamMessagesByChatroomResponse{
-						Message: &message,
+						Operation: esWSResp.Operation,
+						Message:   &message,
 					})
 					if err != nil {
 						log.Printf("Error while streaming %v", err)
@@ -264,6 +266,103 @@ func (*server) GetMessagesByChatroom(ctx context.Context, req *messagepb.GetMess
 		Messages: messages,
 	}, nil
 
+}
+
+func (*server) DeleteMessage(ctx context.Context, req *messagepb.DeleteMessageRequest) (*messagepb.DeleteMessageResponse, error) {
+	userId, err := common_jwt.ReadUUIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if ok, err := interceptors.IsUserInChatroom(req.ChatroomID, userId); !ok || err != nil {
+		if !ok && err == nil {
+			log.Printf("User %v not found in this chatroom: %v", userId, req.ChatroomID)
+			return nil, status.Errorf(
+				codes.Unauthenticated,
+				fmt.Sprintf("User %v not found in this chatroom: %v", userId, req.ChatroomID),
+			)
+		}
+
+		log.Printf("Error while checking if user belong to chatroom: %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Error while checking if user belong to chatroom: %v", err),
+		)
+
+	}
+
+	//Elastic client init with Olivere package
+	client, err := elastic.NewClient(
+		elastic.SetSniff(true),
+		elastic.SetURL("http://elasticsearch:9200"),
+		elastic.SetHealthcheckInterval(5*time.Second),
+	)
+	if err != nil {
+		log.Printf("Elasticsearch connection error %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Elasticsearch connection error %v", err),
+		)
+	}
+
+	exist, err := client.IndexExists(req.ChatroomID).Do(context.Background())
+	if !exist {
+		log.Printf("Index %v not found", req.ChatroomID)
+		return nil, status.Errorf(
+			codes.NotFound,
+			fmt.Sprintf("Index %v not found", req.ChatroomID),
+		)
+	}
+
+	// CHECK if userId == authorUUID of the message for which a deletion has been requested
+	doc, err := client.Get().
+		Index(req.ChatroomID).
+		Id(req.MessageID).
+		Type("_doc").
+		Do(context.Background())
+
+	if err != nil {
+		log.Printf("Error while getting message in ES %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Error while getting  message in ES %v", err),
+		)
+	}
+	var message messagepb.Message
+	data := *doc.Source
+	json.Unmarshal(data, &message)
+
+	// Not authorized
+	if message.AuthorUUID != userId {
+		log.Printf("This user %v is not the author of the message %v. He can't delete it", userId, message.Id)
+		return nil, status.Errorf(
+			codes.Unauthenticated,
+			fmt.Sprintf("This user %v is not the author of the message %v. He can't delete it", userId, message.Id),
+		)
+	}
+	//
+
+	deleteService := elastic.NewDeleteService(client)
+	deleteService.Index(req.ChatroomID)
+	deleteService.Id(req.MessageID)
+	deleteService.Type("_doc")
+	deleteService.Refresh("true")
+
+	_, err = deleteService.Do(context.Background())
+
+	if err != nil {
+		log.Printf("Delete Index returned error %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Delete Index returned error %v", err),
+		)
+	}
+
+	response := messagepb.DeleteMessageResponse{
+		Success: true,
+	}
+
+	return &response, nil
 }
 
 //

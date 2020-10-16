@@ -30,7 +30,8 @@ message StreamMessagesByChatroomRequest {
 }
 
 message StreamMessagesByChatroomResponse {
-    Message message = 1;
+    string operation = 1;
+    Message message = 2;
 }
 
 message SendMessageRequest {
@@ -49,8 +50,18 @@ message GetMessagesByChatroomResponse {
     repeated Message messages = 1; 
 }
 
+message DeleteMessageRequest {
+    string messageID = 1;
+    string chatroomID = 2;
+}
+
+message DeleteMessageResponse {
+    bool success = 1;
+}
+
 service MessageService {
     rpc StreamMessagesByChatroom(StreamMessagesByChatroomRequest) returns (stream StreamMessagesByChatroomResponse) {}
     rpc SendMessage(SendMessageRequest) returns (SendMessageResponse) {}
     rpc GetMessagesByChatroom(GetMessagesByChatroomRequest) returns (GetMessagesByChatroomResponse) {}
+    rpc DeleteMessage(DeleteMessageRequest) returns (DeleteMessageResponse) {}
 }
