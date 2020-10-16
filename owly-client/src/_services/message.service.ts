@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { GetMessagesByChatroomRequest, GetMessagesByChatroomResponse, SendMessageRequest, SendMessageResponse, StreamMessagesByChatroomRequest } from 'src/proto/message.pb';
+import { DeleteMessageRequest, DeleteMessageResponse, GetMessagesByChatroomRequest, GetMessagesByChatroomResponse, SendMessageRequest, SendMessageResponse, StreamMessagesByChatroomRequest } from 'src/proto/message.pb';
 import { MessageServiceClient } from 'src/proto/message.pbsc';
 import { LocalChatroom } from 'src/_models/localChatroom';
 import { LocalMessages as LocalMessage } from 'src/_models/localMessages';
@@ -33,6 +33,10 @@ export class MessageService {
     req.message.authorNAME = this.currentUser.username;
     const res = await this.messageClient.sendMessage(req, {"authorization": this.currentUser.accessToken}).toPromise();
     return res;
+  }
+
+  async deleteMessage(req: DeleteMessageRequest): Promise<DeleteMessageResponse> {
+    return await this.messageClient.deleteMessage(req, {"authorization": this.currentUser.accessToken}).toPromise();
   }
 
   async getMessagesForAllChatrooms() {

@@ -24,6 +24,9 @@ type server struct{}
 //
 func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroomRequest) (*chatroompb.CreateChatroomResponse, error) {
 	currentUserID, err := common_jwt.ReadUUIDFromContext(ctx)
+
+	log.Println(currentUserID)
+
 	if err != nil {
 		return nil, err
 	}
@@ -54,11 +57,13 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 
 	chatroom := models.Chatroom{
 		ID:    primitive.NewObjectID(),
+		Owner: currentUserID,
 		Name:  name,
 		Users: user_ids,
 	}
 
-	res, err := common_mongo.ChatroomCollection.InsertOne(context.Background(), chatroom)
+	res, err := common_mongo.InsertOneChatroomCollection(chatroom)
+  
 	if err != nil {
 		log.Printf("Error while creating chatroom: %v. Error is: %v", chatroom, err)
 		return nil, status.Errorf(
@@ -148,8 +153,9 @@ func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatro
 		users_chatrooms = append(
 			users_chatrooms,
 			&chatroompb.Chatroom{
-				Name: chatroom_result.Name,
-				Id:   chatroom_result.ID.Hex(),
+				Name:  chatroom_result.Name,
+				Id:    chatroom_result.ID.Hex(),
+				Owner: chatroom_result.Owner,
 			},
 		)
 	}
@@ -159,6 +165,89 @@ func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatro
 		Count:     int64(len(users_chatrooms)),
 		Success:   true,
 	}, nil
+}
+
+func (*server) DeleteChatroom(ctx context.Context, req *chatroompb.DeleteChatroomRequest) (*chatroompb.DeleteChatroomResponse, error) {
+
+    // get ID of current user
+    currentUserID, err := common_jwt.ReadUUIDFromContext(ctx)
+    if err != nil {
+        return nil, err
+    }
+
+    targetChatroomID := req.GetId()
+
+    // check if the current user is the rightful owner
+    currentUserIsOwner, err := common_mongo.IsChatroomOwner(currentUserID, targetChatroomID)
+	if err != nil {
+        return nil, err
+	}
+	
+    if !currentUserIsOwner {
+        return nil, status.Error(
+            codes.PermissionDenied,
+            fmt.Sprintf(
+                "Current user is not the rightful owner of this" +
+                "chatroom, and thus cannot delete it."),
+        )
+	}
+	
+	// get targetChatroom from targetChatroomID
+	targetChatroom, errGetChatroom := common_mongo.FindOneChatroomCollection(targetChatroomID)
+	if errGetChatroom != nil {
+		return nil, errGetChatroom
+	}
+
+	// make all users leave the targetChatroom
+	for _, userID := range targetChatroom.Users {
+		common_mongo.PopChatroomInUserCollection(userID, targetChatroomID)
+	}
+
+    // delete chatroom object from database
+	deleteErr := common_mongo.DeleteOneChatroomCollection(targetChatroomID)
+	if deleteErr != nil {
+		return nil, deleteErr
+	}
+
+    return &chatroompb.DeleteChatroomResponse{Success: true}, nil
+}
+
+func (*server) LeaveChatroom(ctx context.Context, req *chatroompb.LeaveChatroomRequest) (*chatroompb.LeaveChatroomResponse, error) {
+
+    chatroomID := req.Id
+    userID, err := common_jwt.ReadUUIDFromContext(ctx)
+    if err != nil {
+        return nil, err
+	}
+	
+	// check if the current user is the rightful owner
+    userIsOwner, ownerErr := common_mongo.IsChatroomOwner(userID, chatroomID)
+	if ownerErr != nil {
+        return nil, ownerErr
+	}
+
+    if userIsOwner {
+        return nil, status.Error(
+            codes.PermissionDenied,
+            fmt.Sprintf(
+                "Current user is the rightful owner of this" +
+                "chatroom, and thus cannot leave it."),
+        )
+	}
+
+	// pop user from the user list in the chatroom object
+	// and vice versa
+	popUserChatroomErr := common_mongo.PopUserInChatroomCollection(userID, chatroomID)
+	popChatroomUserErr := common_mongo.PopChatroomInUserCollection(userID, chatroomID)
+
+	if popUserChatroomErr != nil {
+        return nil, popUserChatroomErr
+	}
+	if popChatroomUserErr != nil {
+        return nil, popChatroomUserErr
+	}
+
+    return &chatroompb.LeaveChatroomResponse{Success: true}, nil
 }
 
 //

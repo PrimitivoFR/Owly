@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Chatroom } from 'src/proto/chatroom.pb';
-import { GetMessagesByChatroomRequest, Message, SendMessageRequest } from 'src/proto/message.pb';
+import { DeleteMessageRequest, GetMessagesByChatroomRequest, Message, SendMessageRequest } from 'src/proto/message.pb';
 import { LocalChatroom } from 'src/_models/localChatroom';
 import { LocalMessages } from 'src/_models/localMessages';
 import { LocalRoomsAndMessagesStore } from 'src/_models/localRoomsAndMessagesStore';
@@ -146,17 +146,16 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   async deleteMessage(messageID) {
     if(confirm("Are you sure you want to continue ?")) {
       this.dropdownOpen = false;
-      // const req = {
-      //   chatroom_id: ¿?
-      //   message_id: messageID
-      // }
+      const req = new DeleteMessageRequest({
+        chatroomID: this.currentStoreItem.chatroom.id,
+        messageID: messageID
+      })
 
-      // if(res.success) {
-      //   this.snackAlertService.showSnack("The message has been deleted !");
-      // }
-      // else {
-      //   this.snackAlertService.showSnack("Something went wrong, the message was not deleted");
-      // }
+      const res = await this.messageService.deleteMessage(req);
+
+      if(!res.success) {
+        this.snackAlertService.showSnack("Something went wrong, the message was not deleted");
+      }
     }
     else {
       this.dropdownOpen = false;

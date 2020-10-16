@@ -10,6 +10,7 @@ option go_package ="chatroom/chatroompb";
 message Chatroom {
     string name = 1;
     string id = 2;
+    string owner = 3;
 }
 
 message CreateChatroomRequest {
@@ -31,7 +32,25 @@ message GetChatroomsByUserResponse {
     repeated Chatroom chatrooms = 3;
 }
 
+message DeleteChatroomRequest {
+    string id = 1;
+}
+
+message DeleteChatroomResponse {
+    bool success = 1;
+}
+
+message LeaveChatroomRequest {
+    string id = 1;
+}
+
+message LeaveChatroomResponse {
+    bool success = 1;
+}
+
 service ChatroomService {
     rpc CreateChatroom(CreateChatroomRequest) returns(CreateChatroomResponse) {}
     rpc GetChatroomsByUser(GetChatroomsByUserRequest) returns (GetChatroomsByUserResponse) {}
+    rpc DeleteChatroom(DeleteChatroomRequest) returns(DeleteChatroomResponse) {}
+    rpc LeaveChatroom(LeaveChatroomRequest) returns(LeaveChatroomResponse) {}
 }
