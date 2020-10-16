@@ -23,23 +23,20 @@
                     <entypo name="down-open"></entypo>
                 </div>
                 <div class="relative">
-
                     <div *ngIf="dropdownOpen && currentIndex == i" class="absolute right-0 mt-6 py-2 px-2 bg-white rounded-md shadow-xl z-20 divide-y divide-gray-400">
                         <a (click)="replyTo(message.id);dropdownOpen = !dropdownOpen; inputbox.focus()" class="block px-4 py-2 text-sm capitalize text-gray-700 hover:text-gray-500 cursor-pointer">
                             <entypo class="mr-1" name="reply"></entypo>
                             Reply
-
-                    <div *ngIf="dropdownOpen && currentIndex == i && currentUser.username == message.authorNAME" class="absolute right-0 mt-6 py-2 w-48 bg-white rounded-md shadow-xl z-20">
-                        <a (click)="deleteMessage(message.id)" class="block px-4 py-2 text-sm capitalize text-red-700 hover:text-red-500 cursor-pointer">
-                            <entypo class="mr-1" name="trash"></entypo>
-                            Delete
-
                         </a>
     
+                        <div *ngIf="dropdownOpen && currentIndex == i && currentUser.username == message.authorNAME">
+                            <a (click)="deleteMessage(message.id)" class="block px-4 py-2 text-sm capitalize text-red-700 hover:text-red-500 cursor-pointer">
+                                <entypo class="mr-1" name="trash"></entypo>
+                                Delete
+                            </a>
                         </div>
                     </div>
                 </div>
-
                 <div class="font-bold text-base">
                     {{message.authorNAME}}
                 </div>
