@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Chatroom } from 'src/proto/chatroom.pb';
+import { Chatroom, LeaveChatroomRequest } from 'src/proto/chatroom.pb';
 import { DeleteMessageRequest, GetMessagesByChatroomRequest, Message, SendMessageRequest } from 'src/proto/message.pb';
 import { LocalChatroom } from 'src/_models/localChatroom';
 import { LocalMessages } from 'src/_models/localMessages';
@@ -39,6 +39,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   public isAnswer: boolean = false;
   public answersTo: string = "";
   public messageToReply: Message;
+  public panelOpened: boolean = false;
 
   @ViewChild('scrollframe', {static: true}) scrollFrame: ElementRef;
   @ViewChildren('item') itemElements: QueryList<any>;
@@ -50,6 +51,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     private messageService: MessageService,
     private storeService: StoreService,
     private snackAlertService: SnackAlertService,
+    private chatroomService: ChatroomService,
   ) { }
 
   ngOnInit() {
@@ -195,6 +197,21 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     }
     
   }
+
+  // async leaveChatroom() {
+  //   const req = new LeaveChatroomRequest({
+  //     id: this.currentStoreItem.chatroom.id
+  //   })
+
+  //   const res = await this.chatroomService.leaveChatroom(req);
+
+  //   if(res.success) {
+
+  //   }
+  //   else {
+  //     this.snackAlertService.showSnack("Something went wrong, you can't leave the ");
+  //   }
+  // }
 
   timestampToReadableDate(timestamp: string) {
     const tmstp = parseInt(timestamp)

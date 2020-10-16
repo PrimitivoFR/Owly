@@ -21,6 +21,22 @@
     max-height: 70vh;
 }
 
+.w-custom-messages {
+    width: calc(100% * 11/12);
+} 
+
+.w-custom-message-w-panel {
+    width: calc(100% * 8/12);
+}
+
+.w-custom-panel-closed {
+    width: calc(100% * 0/12);
+}
+
+.w-custom-panel-opened {
+    width: calc(100% * 3/12);
+}
+
 .h-custom-textInput {
     height: 15vh;
 }
