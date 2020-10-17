@@ -10,6 +10,7 @@ import { RecursivePartial } from '@ngx-grpc/common';
 import { LocalChatroom } from 'src/_models/localChatroom';
 import { LocalRoomsAndMessagesStore } from 'src/_models/localRoomsAndMessagesStore';
 import { StoreService } from './store.service';
+import { MessageService } from './message.service';
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +30,7 @@ export class ChatroomService {
     private chatroomClient: ChatroomServiceClient,
     private authService: AuthService,
     private storeService: StoreService,
+    private messageService: MessageService,
   ) {
     this.authService.currentUser.subscribe((user) => {
       this.currentUser = user;
@@ -70,6 +72,7 @@ export class ChatroomService {
       const res = await this.chatroomClient.leaveChatroom(req, {"authorization": token}).toPromise();
       if(res.success) {
         this.getChatrooms();
+        this.messageService.getMessagesForAllChatrooms();
       }
       return res;
     }
@@ -86,7 +89,8 @@ export class ChatroomService {
       
       const res = await this.chatroomClient.deleteChatroom(req, {"authorization": token}).toPromise();
       if(res.success) {
-        this.getChatrooms();
+        await this.getChatrooms();
+        this.messageService.getMessagesForAllChatrooms();
       }
       return res;
     }

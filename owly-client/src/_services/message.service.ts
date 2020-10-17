@@ -20,7 +20,6 @@ export class MessageService {
   constructor(
     private authService: AuthService,
     private messageClient: MessageServiceClient,
-    private chatroomService: ChatroomService,
     private storeService:  StoreService
   ) {
     this.authService.currentUser.subscribe((user) => {

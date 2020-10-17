@@ -25,7 +25,6 @@ export class NavigationService {
     private currentMessageStream = new Subscription();
 
     updateNavStore(localID: string) {
-
         if(this.currentMessageStream != null) {
             // We have to do this, else the subscription will be recreated each time
             // we switch channels, which leads to receive the messages twice in the chat
