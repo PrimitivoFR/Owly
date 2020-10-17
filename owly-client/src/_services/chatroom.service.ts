@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie';
 import { BehaviorSubject } from 'rxjs';
-import { Chatroom, CreateChatroomRequest, CreateChatroomResponse, GetChatroomsByUserRequest, GetChatroomsByUserResponse } from 'src/proto/chatroom.pb';
+import { Chatroom, CreateChatroomRequest, CreateChatroomResponse, DeleteChatroomRequest, DeleteChatroomResponse, GetChatroomsByUserRequest, GetChatroomsByUserResponse, LeaveChatroomRequest, LeaveChatroomResponse } from 'src/proto/chatroom.pb';
 import { ChatroomServiceClient } from 'src/proto/chatroom.pbsc';
 import { LoggedUser } from 'src/_models/loggedUser';
 import { AuthService } from './auth.service';
@@ -10,6 +10,7 @@ import { RecursivePartial } from '@ngx-grpc/common';
 import { LocalChatroom } from 'src/_models/localChatroom';
 import { LocalRoomsAndMessagesStore } from 'src/_models/localRoomsAndMessagesStore';
 import { StoreService } from './store.service';
+import { MessageService } from './message.service';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +29,8 @@ export class ChatroomService {
   constructor(
     private chatroomClient: ChatroomServiceClient,
     private authService: AuthService,
-    private storeService: StoreService
+    private storeService: StoreService,
+    private messageService: MessageService,
   ) {
     this.authService.currentUser.subscribe((user) => {
       this.currentUser = user;
@@ -58,8 +60,44 @@ export class ChatroomService {
         return room
       }) as unknown as LocalRoomsAndMessagesStore[];
     }
-    
+
     this.storeService.updateWholeStore(localChatrooms);
+  }
+
+  async leaveChatroom(req: LeaveChatroomRequest): Promise<LeaveChatroomResponse> {
+    const token = this.currentUser.accessToken;
+    
+    try {
+      
+      const res = await this.chatroomClient.leaveChatroom(req, {"authorization": token}).toPromise();
+      if(res.success) {
+        this.getChatrooms();
+        this.messageService.getMessagesForAllChatrooms();
+      }
+      return res;
+    }
+    catch(err) {
+      return err;
+    }
+    
+  }
+
+  async deleteChatroom(req: DeleteChatroomRequest): Promise<DeleteChatroomResponse> {
+    const token = this.currentUser.accessToken;
+    
+    try {
+      
+      const res = await this.chatroomClient.deleteChatroom(req, {"authorization": token}).toPromise();
+      if(res.success) {
+        await this.getChatrooms();
+        this.messageService.getMessagesForAllChatrooms();
+      }
+      return res;
+    }
+    catch(err) {
+      return err;
+    }
+    
   }
 
 }

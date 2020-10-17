@@ -4,52 +4,70 @@
         <div class="absolute w-full z-20">
             <app-snack-alert></app-snack-alert>
         </div>
+        <div class="absolute top-0 right-0 mt-5 mr-5 h-10 w-10 items-center justify-center cursor-pointer text-gray-200 text-xl" (click)="panelOpened = !panelOpened">
+            <entypo name="info"></entypo>
+        </div>   
     </div>
-    <div id="messages" [ngClass]="{'h-custom-messages': !isAnswer, 'h-custom-messages-w-reply': isAnswer}" class="overflow-scroll w-11/12 objects-center m-auto items-center" #scrollframe>
-        <div *ngFor="let message of currentStoreItem.messages; let i = index" #item>
-    
-            <div [ngClass]="{'float-right': currentUser.username == message.authorNAME,'float-left': currentUser.username != message.authorNAME, 'bg-blue-200': checkTempoMsg(message.id), 'bg-blue-700': !checkTempoMsg(message.id) }" class="w-7/12 text-gray-100 mt-6 px-4 py-2 rounded-lg">
-                
-                <div class="flex">
+    <div class="flex">
+        <div id="messages" [ngClass]="{'h-custom-messages': !isAnswer, 'h-custom-messages-w-reply': isAnswer, 'w-custom-messages': !panelOpened, 'w-custom-message-w-panel': panelOpened}" class="overflow-scroll objects-center m-auto items-center" #scrollframe>
+            <div *ngFor="let message of currentStoreItem.messages; let i = index" #item>
+        
+                <div [ngClass]="{'float-right': currentUser.username == message.authorNAME,'float-left': currentUser.username != message.authorNAME, 'bg-blue-200': checkTempoMsg(message.id), 'bg-blue-700': !checkTempoMsg(message.id) }" class="w-7/12 text-gray-100 mt-6 px-4 py-2 rounded-lg">
                     
-                    <div *ngIf="message.isAnswer" class="flex w-full bg-blue-300 text-gray-100 rounded-lg px-4 py-2 mb-2">
-                        <entypo class="mr-1 text-xl" name="reply"></entypo>
-                        <div [innerHTML]="messageAnswered(message.answersTo)"></div>
-                    </div>
-                </div>
-                
-                <div *ngIf="dropdownOpen" (click)="dropdownOpen = false;" class="fixed inset-0 h-full w-full z-10"></div>
-                <div (click)="dropdownOpen = !dropdownOpen; currentIndex = i;" class="float-right mr-2 mt-1 text-base cursor-pointer transform transition duration-300 hover:text-white hover:scale-150">
-                    <entypo name="down-open"></entypo>
-                </div>
-                <div class="relative">
-                    <div *ngIf="dropdownOpen && currentIndex == i" class="absolute right-0 mt-6 py-2 px-2 bg-white rounded-md shadow-xl z-20 divide-y divide-gray-400">
-                        <a (click)="replyTo(message.id);dropdownOpen = !dropdownOpen; inputbox.focus()" class="block px-4 py-2 text-sm capitalize text-gray-700 hover:text-gray-500 cursor-pointer">
-                            <entypo class="mr-1" name="reply"></entypo>
-                            Reply
-                        </a>
-    
-                        <div *ngIf="dropdownOpen && currentIndex == i && currentUser.username == message.authorNAME">
-                            <a (click)="deleteMessage(message.id)" class="block px-4 py-2 text-sm capitalize text-red-700 hover:text-red-500 cursor-pointer">
-                                <entypo class="mr-1" name="trash"></entypo>
-                                Delete
-                            </a>
+                    <div class="flex">
+                        <div *ngIf="message.isAnswer" class="flex w-full bg-blue-300 text-gray-100 rounded-lg px-4 py-2 mb-2">
+                            <entypo class="mr-1 text-xl" name="reply"></entypo>
+                            <div [innerHTML]="messageAnswered(message.answersTo)"></div>
                         </div>
                     </div>
+                    
+                    <div *ngIf="dropdownOpen" (click)="dropdownOpen = false;" class="fixed inset-0 h-full w-full z-10"></div>
+                    <div (click)="dropdownOpen = !dropdownOpen; currentIndex = i;" class="float-right mr-2 mt-1 text-base cursor-pointer transform transition duration-300 hover:text-white hover:scale-150">
+                        <entypo name="down-open"></entypo>
+                    </div>
+                    <div class="relative">
+                        <div *ngIf="dropdownOpen && currentIndex == i" class="absolute right-0 mt-6 py-2 px-2 bg-white rounded-md shadow-xl z-20 divide-y divide-gray-400">
+                            <a (click)="replyTo(message.id);dropdownOpen = !dropdownOpen; inputbox.focus()" class="block px-4 py-2 text-sm capitalize text-gray-700 hover:text-gray-500 cursor-pointer">
+                                <entypo class="mr-1" name="reply"></entypo>
+                                Reply
+                            </a>
+        
+                            <div *ngIf="dropdownOpen && currentIndex == i && currentUser.username == message.authorNAME">
+                                <a (click)="deleteMessage(message.id)" class="block px-4 py-2 text-sm capitalize text-red-700 hover:text-red-500 cursor-pointer">
+                                    <entypo class="mr-1" name="trash"></entypo>
+                                    Delete
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="font-bold text-base">
+                        {{message.authorNAME}}
+                    </div>
+                    <div class="w-full text-sm">
+                        {{message.content}}
+                    </div>
+                    <div class="float-right mr-4 mt-2 text-xs">
+                        {{timestampToReadableDate(message.timestamp)}}
+                    </div>
                 </div>
-                <div class="font-bold text-base">
-                    {{message.authorNAME}}
+        
+            </div>
+        </div>
+        <div id="right-panel" [ngClass]="{'h-custom-messages': !isAnswer, 'h-custom-messages-w-reply': isAnswer, 'w-custom-panel-closed': !panelOpened, 'w-custom-panel-opened': panelOpened}"  class="bg-gray-500 border-t-2 border-b-2">
+            <div *ngIf="panelOpened">
+                <div id="closeButton" class="ml-3 cursor-pointer text-gray-200 text-lg" (click)="panelOpened = !panelOpened">
+                    <entypo name="cancel"></entypo>
                 </div>
-                <div class="w-full text-sm">
-                    {{message.content}}
+                <div id="leaveChatroom" class="mx-4 my-2 px-2 py-2 rounded-md text-center text-gray-800 bg-gray-300 cursor-pointer hover:text-gray-500" (click)="leaveChatroom()">
+                    Leave the chatroom
                 </div>
-                <div class="float-right mr-4 mt-2 text-xs">
-                    {{timestampToReadableDate(message.timestamp)}}
+                <div *ngIf="isChatroomOwner()" id="deleteChatroom" class="mx-4 my-2 px-2 py-2 rounded-md text-center text-gray-800 bg-gray-300 cursor-pointer hover:text-gray-500" (click)="deleteChatroom()">
+                    Delete the chatroom
                 </div>
             </div>
-    
         </div>
     </div>
+    
     <div id="textInput" [ngClass]="{'h-custom-textInput': !isAnswer, 'h-custom-textInput-w-reply': isAnswer}" class="shadow-custom-textInput bg-gray-600">
         <div *ngIf="isAnswer" class="flex ml-10">
             <div class="flex items-center justify-center text-gray-300 cursor-pointer text-2xl mr-5" (click)="cancelReplyTo()">

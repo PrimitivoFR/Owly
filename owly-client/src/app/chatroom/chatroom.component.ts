@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Chatroom } from 'src/proto/chatroom.pb';
+import { Chatroom, DeleteChatroomRequest, LeaveChatroomRequest } from 'src/proto/chatroom.pb';
 import { DeleteMessageRequest, GetMessagesByChatroomRequest, Message, SendMessageRequest } from 'src/proto/message.pb';
 import { LocalChatroom } from 'src/_models/localChatroom';
 import { LocalMessages } from 'src/_models/localMessages';
@@ -16,6 +16,7 @@ import { NavigationService } from '../navigation/navigation.service';
 import { StoreService } from 'src/_services/store.service';
 import {v4 as uuidv4} from 'uuid';
 import { SnackAlertService } from '../common/components/snack-alert/snack-alert.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-chatroom',
@@ -39,6 +40,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   public isAnswer: boolean = false;
   public answersTo: string = "";
   public messageToReply: Message;
+  public panelOpened: boolean = false;
 
   @ViewChild('scrollframe', {static: true}) scrollFrame: ElementRef;
   @ViewChildren('item') itemElements: QueryList<any>;
@@ -50,19 +52,25 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     private messageService: MessageService,
     private storeService: StoreService,
     private snackAlertService: SnackAlertService,
+    private chatroomService: ChatroomService,
+    private router: Router,
   ) { }
 
   ngOnInit() {
     this.navService.currentNavStore.subscribe(v => {
       this.currentStoreItem = v;
       this.cancelReplyTo();
+      this.panelOpened = false;
     })
 
-    this.authService.currentUser.subscribe(v => this.currentUser = v)
+    this.authService.currentUser.subscribe(v => {
+      this.currentUser = v;
+    })
 
     this.sendMsgForm = this.formBuilder.group({
       message: ['', Validators.required],
     });
+
   }
   
   ngAfterViewInit() {
@@ -194,6 +202,48 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
       `;
     }
     
+  }
+
+  async leaveChatroom() {
+    if(confirm("Are you sure you want to continue ?")) {
+      const req = new LeaveChatroomRequest({
+        id: this.currentStoreItem.chatroom.id
+      })
+      const chatroomName = this.currentStoreItem.chatroom.name;
+      const res = await this.chatroomService.leaveChatroom(req);
+  
+      if(res.success) {
+        this.snackAlertService.showSnack("You have left the chatroom : " + chatroomName);
+        this.navService.updateNavStore("0");
+        this.panelOpened = false;
+      }
+      else {
+        this.snackAlertService.showSnack("You can't leave the chatroom when you are the owner");
+      }
+    }
+  }
+
+  async deleteChatroom() {
+    if(confirm("Are you sure you want to continue ?")) {
+      const req = new DeleteChatroomRequest({
+        id: this.currentStoreItem.chatroom.id
+      })
+      const chatroomName = this.currentStoreItem.chatroom.name;
+      const res = await this.chatroomService.deleteChatroom(req);
+
+      if(res.success) {
+        this.snackAlertService.showSnack("You have deleted the chatroom : " + chatroomName);
+        this.navService.updateNavStore("0");
+        this.panelOpened = false;
+      }
+      else {
+        this.snackAlertService.showSnack("Something went wrong, you can't leave the chatroom");
+      }
+    }
+  }
+
+  isChatroomOwner(): boolean {
+    return this.authService.matchUUIDvsTOKEN(this.currentUser.accessToken, this.currentStoreItem.chatroom.owner);
   }
 
   timestampToReadableDate(timestamp: string) {
