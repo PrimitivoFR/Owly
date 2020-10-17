@@ -7,10 +7,16 @@ package chatroom;
 
 option go_package ="chatroom/chatroompb";
 
+message ChatroomUser {
+    string uuid = 1;
+    string username = 2;
+}
+
 message Chatroom {
     string name = 1;
     string id = 2;
     string owner = 3;
+    repeated ChatroomUser users = 4;
 }
 
 message CreateChatroomRequest {
