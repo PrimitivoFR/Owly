@@ -28,7 +28,7 @@ export class ChatroomService {
   constructor(
     private chatroomClient: ChatroomServiceClient,
     private authService: AuthService,
-    private storeService: StoreService
+    private storeService: StoreService,
   ) {
     this.authService.currentUser.subscribe((user) => {
       this.currentUser = user;
@@ -58,13 +58,25 @@ export class ChatroomService {
         return room
       }) as unknown as LocalRoomsAndMessagesStore[];
     }
-    
+
     this.storeService.updateWholeStore(localChatrooms);
   }
 
-  // async leaveChatroom(req: LeaveChatroomRequest): Promise<LeaveChatroomResponse> {
-  //   const token = this.currentUser.accessToken;
-  //   return await this.chatroomClient.leaveChatroom(req, {"authorization": token}).toPromise();
-  // }
+  async leaveChatroom(req: LeaveChatroomRequest): Promise<LeaveChatroomResponse> {
+    const token = this.currentUser.accessToken;
+    
+    try {
+      
+      const res = await this.chatroomClient.leaveChatroom(req, {"authorization": token}).toPromise();
+      if(res.success) {
+        this.getChatrooms();
+      }
+      return res;
+    }
+    catch(err) {
+      return err;
+    }
+    
+  }
 
 }

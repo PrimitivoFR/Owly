@@ -16,6 +16,7 @@ import { NavigationService } from '../navigation/navigation.service';
 import { StoreService } from 'src/_services/store.service';
 import {v4 as uuidv4} from 'uuid';
 import { SnackAlertService } from '../common/components/snack-alert/snack-alert.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-chatroom',
@@ -52,6 +53,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     private storeService: StoreService,
     private snackAlertService: SnackAlertService,
     private chatroomService: ChatroomService,
+    private router: Router,
   ) { }
 
   ngOnInit() {
@@ -198,20 +200,24 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     
   }
 
-  // async leaveChatroom() {
-  //   const req = new LeaveChatroomRequest({
-  //     id: this.currentStoreItem.chatroom.id
-  //   })
-
-  //   const res = await this.chatroomService.leaveChatroom(req);
-
-  //   if(res.success) {
-
-  //   }
-  //   else {
-  //     this.snackAlertService.showSnack("Something went wrong, you can't leave the ");
-  //   }
-  // }
+  async leaveChatroom() {
+    if(confirm("Are you sure you want to continue ?")) {
+      const req = new LeaveChatroomRequest({
+        id: this.currentStoreItem.chatroom.id
+      })
+      const chatroomName = this.currentStoreItem.chatroom.name;
+      const res = await this.chatroomService.leaveChatroom(req);
+  
+      if(res.success) {
+        this.snackAlertService.showSnack("You has left the chatroom : " + chatroomName);
+        
+        this.panelOpened = false;
+      }
+      else {
+        this.snackAlertService.showSnack("Something went wrong, you can't leave the chatroom");
+      }
+    }
+  }
 
   timestampToReadableDate(timestamp: string) {
     const tmstp = parseInt(timestamp)
