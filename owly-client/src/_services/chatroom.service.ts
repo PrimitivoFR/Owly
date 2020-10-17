@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie';
 import { BehaviorSubject } from 'rxjs';
-import { Chatroom, CreateChatroomRequest, CreateChatroomResponse, GetChatroomsByUserRequest, GetChatroomsByUserResponse, LeaveChatroomRequest, LeaveChatroomResponse } from 'src/proto/chatroom.pb';
+import { Chatroom, CreateChatroomRequest, CreateChatroomResponse, DeleteChatroomRequest, DeleteChatroomResponse, GetChatroomsByUserRequest, GetChatroomsByUserResponse, LeaveChatroomRequest, LeaveChatroomResponse } from 'src/proto/chatroom.pb';
 import { ChatroomServiceClient } from 'src/proto/chatroom.pbsc';
 import { LoggedUser } from 'src/_models/loggedUser';
 import { AuthService } from './auth.service';
@@ -68,6 +68,23 @@ export class ChatroomService {
     try {
       
       const res = await this.chatroomClient.leaveChatroom(req, {"authorization": token}).toPromise();
+      if(res.success) {
+        this.getChatrooms();
+      }
+      return res;
+    }
+    catch(err) {
+      return err;
+    }
+    
+  }
+
+  async deleteChatroom(req: DeleteChatroomRequest): Promise<DeleteChatroomResponse> {
+    const token = this.currentUser.accessToken;
+    
+    try {
+      
+      const res = await this.chatroomClient.deleteChatroom(req, {"authorization": token}).toPromise();
       if(res.success) {
         this.getChatrooms();
       }

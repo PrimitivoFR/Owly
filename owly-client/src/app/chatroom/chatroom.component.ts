@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Chatroom, LeaveChatroomRequest } from 'src/proto/chatroom.pb';
+import { Chatroom, DeleteChatroomRequest, LeaveChatroomRequest } from 'src/proto/chatroom.pb';
 import { DeleteMessageRequest, GetMessagesByChatroomRequest, Message, SendMessageRequest } from 'src/proto/message.pb';
 import { LocalChatroom } from 'src/_models/localChatroom';
 import { LocalMessages } from 'src/_models/localMessages';
@@ -60,6 +60,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     this.navService.currentNavStore.subscribe(v => {
       this.currentStoreItem = v;
       this.cancelReplyTo();
+      this.panelOpened = false;
     })
 
     this.authService.currentUser.subscribe(v => this.currentUser = v)
@@ -209,8 +210,27 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
       const res = await this.chatroomService.leaveChatroom(req);
   
       if(res.success) {
-        this.snackAlertService.showSnack("You has left the chatroom : " + chatroomName);
-        
+        this.snackAlertService.showSnack("You have left the chatroom : " + chatroomName);
+        this.navService.updateNavStore("0");
+        this.panelOpened = false;
+      }
+      else {
+        this.snackAlertService.showSnack("Something went wrong, you can't leave the chatroom");
+      }
+    }
+  }
+
+  async deleteChatroom() {
+    if(confirm("Are you sure you want to continue ?")) {
+      const req = new DeleteChatroomRequest({
+        id: this.currentStoreItem.chatroom.id
+      })
+      const chatroomName = this.currentStoreItem.chatroom.name;
+      const res = await this.chatroomService.deleteChatroom(req);
+
+      if(res.success) {
+        this.snackAlertService.showSnack("You have deleted the chatroom : " + chatroomName);
+        this.navService.updateNavStore("0");
         this.panelOpened = false;
       }
       else {
