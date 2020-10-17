@@ -63,11 +63,14 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
       this.panelOpened = false;
     })
 
-    this.authService.currentUser.subscribe(v => this.currentUser = v)
+    this.authService.currentUser.subscribe(v => {
+      this.currentUser = v;
+    })
 
     this.sendMsgForm = this.formBuilder.group({
       message: ['', Validators.required],
     });
+
   }
   
   ngAfterViewInit() {
@@ -215,7 +218,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
         this.panelOpened = false;
       }
       else {
-        this.snackAlertService.showSnack("Something went wrong, you can't leave the chatroom");
+        this.snackAlertService.showSnack("You can't leave the chatroom when you are the owner");
       }
     }
   }
@@ -237,6 +240,10 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
         this.snackAlertService.showSnack("Something went wrong, you can't leave the chatroom");
       }
     }
+  }
+
+  isChatroomOwner(): boolean {
+    return this.authService.matchUUIDvsTOKEN(this.currentUser.accessToken, this.currentStoreItem.chatroom.owner);
   }
 
   timestampToReadableDate(timestamp: string) {

@@ -61,7 +61,7 @@
                 <div id="leaveChatroom" class="mx-4 my-2 px-2 py-2 rounded-md text-center text-gray-800 bg-gray-300 cursor-pointer hover:text-gray-500" (click)="leaveChatroom()">
                     Leave the chatroom
                 </div>
-                <div id="deleteChatroom" class="mx-4 my-2 px-2 py-2 rounded-md text-center text-gray-800 bg-gray-300 cursor-pointer hover:text-gray-500" (click)="deleteChatroom()">
+                <div *ngIf="isChatroomOwner()" id="deleteChatroom" class="mx-4 my-2 px-2 py-2 rounded-md text-center text-gray-800 bg-gray-300 cursor-pointer hover:text-gray-500" (click)="deleteChatroom()">
                     Delete the chatroom
                 </div>
             </div>
