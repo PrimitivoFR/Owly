@@ -71,7 +71,7 @@ export class ChatroomService {
       
       const res = await this.chatroomClient.leaveChatroom(req, {"authorization": token}).toPromise();
       if(res.success) {
-        this.getChatrooms();
+        await this.getChatrooms();
         this.messageService.getMessagesForAllChatrooms();
       }
       return res;
