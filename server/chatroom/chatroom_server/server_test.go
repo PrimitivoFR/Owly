@@ -12,6 +12,7 @@ import (
 	common_mongo "primitivofr/owly/server/common/mongo"
 	"reflect"
 	"testing"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -59,10 +60,11 @@ func prepareLeaveAndDeleteChatroomTestCtx() {
 
 	// Starting auth MS
 	go authserver.StartServer()
+	time.Sleep(2 * time.Second)
 
 	// Init client
-	conn, err := grpc.Dial("localhost:50054", grpc.WithInsecure())
-	check(err, "Error whil trying to dial auth MS")
+	conn, err := grpc.Dial("server:50054", grpc.WithInsecure())
+	check(err, "Error while trying to dial auth MS")
 	c := authpb.NewAuthServiceClient(conn)
 
 	reqCreateUser := &authpb.CreateNewUserRequest{
@@ -102,9 +104,10 @@ func prepareLeaveAndDeleteChatroomTestCtx() {
 
 	// Starting chatroom MS
 	go StartServer()
+	time.Sleep(2 * time.Second)
 
 	// Init client
-	conn2, err := grpc.Dial("localhost:50052", grpc.WithInsecure())
+	conn2, err := grpc.Dial("server:50052", grpc.WithInsecure())
 	check(err, "Error whil trying to dial chatroom MS")
 	cChatroom := chatroompb.NewChatroomServiceClient(conn2)
 
@@ -143,7 +146,6 @@ func prepareLeaveAndDeleteChatroomTestCtx() {
 
 func TestCreateChatroom(t *testing.T) {
 	s := server{}
-	setubDb()
 	ctx := prepareTestingCtx()
 
 	tests := []struct {
@@ -172,7 +174,6 @@ func TestCreateChatroom(t *testing.T) {
 
 func TestGetChatroomsByUser(t *testing.T) {
 	s := server{}
-	setubDb()
 	ctx := prepareTestingCtx()
 
 	tests := []struct {
@@ -197,7 +198,6 @@ func TestGetChatroomsByUser(t *testing.T) {
 	}
 }
 func TestLeaveChatroom(t *testing.T) {
-	log.Println("TestLeaveChatroom")
 	prepareLeaveAndDeleteChatroomTestCtx()
 
 	s := server{}

@@ -1,12 +1,12 @@
 package user_server
 
 import (
-	"reflect"
-	"io/ioutil"
-	"os"
 	"context"
+	"io/ioutil"
 	"log"
+	"os"
 	"primitivofr/owly/server/user/userpb"
+	"reflect"
 	"testing"
 
 	"google.golang.org/grpc/metadata"
@@ -39,7 +39,7 @@ func TestSearchUserByUsername(t *testing.T) {
 			want: userpb.SearchUserByUsernameResponse{
 				// only 1 as this function doesn't return the current user
 				// and as "user" should be the only user besides applinh
-				Count: 1, 
+				Count: 1,
 			},
 		},
 		{
@@ -55,7 +55,7 @@ func TestSearchUserByUsername(t *testing.T) {
 
 	accessToken, readall_err := ioutil.ReadAll(f)
 	check(readall_err, "Error while reading token file")
-	
+
 	md := metadata.Pairs("authorization", string(accessToken))
 	ctx := metadata.NewIncomingContext(context.Background(), md)
 
@@ -64,8 +64,7 @@ func TestSearchUserByUsername(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("SearchUserByUsername got unexpected error %v", err)
-		} else if resp != nil && (
-			reflect.TypeOf(resp) != reflect.TypeOf(&tt.want) ||
+		} else if resp != nil && (reflect.TypeOf(resp) != reflect.TypeOf(&tt.want) ||
 			resp.Count != tt.want.Count) {
 			t.Errorf(
 				"SearchUserByUsername(%v)=\n%v \nwanted %v",
