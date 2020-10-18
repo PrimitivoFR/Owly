@@ -7,6 +7,137 @@ import { GrpcMessage, RecursivePartial } from '@ngx-grpc/common';
 import { BinaryReader, BinaryWriter, ByteSource } from 'google-protobuf';
 
 /**
+ * Message implementation for chatroom.ChatroomUser
+ */
+export class ChatroomUser implements GrpcMessage {
+  /**
+   * Deserialize binary data to message
+   * @param instance message instance
+   */
+  static deserializeBinary(bytes: ByteSource) {
+    const instance = new ChatroomUser();
+    ChatroomUser.deserializeBinaryFromReader(instance, new BinaryReader(bytes));
+    return instance;
+  }
+
+  /**
+   * Check all the properties and set default protobuf values if necessary
+   * @param _instance message instance
+   */
+  static refineValues(_instance: ChatroomUser) {
+    _instance.uuid = _instance.uuid || '';
+    _instance.username = _instance.username || '';
+  }
+
+  /**
+   * Deserializes / reads binary message into message instance using provided binary reader
+   * @param _instance message instance
+   * @param _reader binary reader instance
+   */
+  static deserializeBinaryFromReader(
+    _instance: ChatroomUser,
+    _reader: BinaryReader
+  ) {
+    while (_reader.nextField()) {
+      if (_reader.isEndGroup()) break;
+
+      switch (_reader.getFieldNumber()) {
+        case 1:
+          _instance.uuid = _reader.readString();
+          break;
+        case 2:
+          _instance.username = _reader.readString();
+          break;
+        default:
+          _reader.skipField();
+      }
+    }
+
+    ChatroomUser.refineValues(_instance);
+  }
+
+  /**
+   * Serializes a message to binary format using provided binary reader
+   * @param _instance message instance
+   * @param _writer binary writer instance
+   */
+  static serializeBinaryToWriter(
+    _instance: ChatroomUser,
+    _writer: BinaryWriter
+  ) {
+    if (_instance.uuid) {
+      _writer.writeString(1, _instance.uuid);
+    }
+    if (_instance.username) {
+      _writer.writeString(2, _instance.username);
+    }
+  }
+
+  private _uuid?: string;
+  private _username?: string;
+
+  /**
+   * Message constructor. Initializes the properties and applies default Protobuf values if necessary
+   * @param _value initial values object or instance of ChatroomUser to deeply clone from
+   */
+  constructor(_value?: RecursivePartial<ChatroomUser>) {
+    _value = _value || {};
+    this.uuid = _value.uuid;
+    this.username = _value.username;
+    ChatroomUser.refineValues(this);
+  }
+  get uuid(): string | undefined {
+    return this._uuid;
+  }
+  set uuid(value: string | undefined) {
+    this._uuid = value;
+  }
+  get username(): string | undefined {
+    return this._username;
+  }
+  set username(value: string | undefined) {
+    this._username = value;
+  }
+
+  /**
+   * Serialize message to binary data
+   * @param instance message instance
+   */
+  serializeBinary() {
+    const writer = new BinaryWriter();
+    ChatroomUser.serializeBinaryToWriter(this, writer);
+    return writer.getResultBuffer();
+  }
+
+  /**
+   * Cast message to standard JavaScript object (all non-primitive values are deeply cloned)
+   */
+  toObject(): ChatroomUser.AsObject {
+    return {
+      uuid: this.uuid,
+      username: this.username
+    };
+  }
+
+  /**
+   * JSON serializer
+   * Only intended to be used by `JSON.stringify` function. If you want to cast message to standard JavaScript object, use `toObject()` instead
+   */
+  toJSON() {
+    return this.toObject();
+  }
+}
+export module ChatroomUser {
+  /**
+   * Standard JavaScript object representation for ChatroomUser
+   */
+  export interface AsObject {
+    uuid?: string;
+    username?: string;
+  }
+}
+
+/**
  * Message implementation for chatroom.Chatroom
  */
 export class Chatroom implements GrpcMessage {
@@ -28,6 +159,7 @@ export class Chatroom implements GrpcMessage {
     _instance.name = _instance.name || '';
     _instance.id = _instance.id || '';
     _instance.owner = _instance.owner || '';
+    _instance.users = _instance.users || [];
   }
 
   /**
@@ -52,6 +184,14 @@ export class Chatroom implements GrpcMessage {
         case 3:
           _instance.owner = _reader.readString();
           break;
+        case 4:
+          const messageInitializer4 = new ChatroomUser();
+          _reader.readMessage(
+            messageInitializer4,
+            ChatroomUser.deserializeBinaryFromReader
+          );
+          (_instance.users = _instance.users || []).push(messageInitializer4);
+          break;
         default:
           _reader.skipField();
       }
@@ -75,11 +215,19 @@ export class Chatroom implements GrpcMessage {
     if (_instance.owner) {
       _writer.writeString(3, _instance.owner);
     }
+    if (_instance.users && _instance.users.length) {
+      _writer.writeRepeatedMessage(
+        4,
+        _instance.users as any,
+        ChatroomUser.serializeBinaryToWriter
+      );
+    }
   }
 
   private _name?: string;
   private _id?: string;
   private _owner?: string;
+  private _users?: ChatroomUser[];
 
   /**
    * Message constructor. Initializes the properties and applies default Protobuf values if necessary
@@ -90,6 +238,7 @@ export class Chatroom implements GrpcMessage {
     this.name = _value.name;
     this.id = _value.id;
     this.owner = _value.owner;
+    this.users = (_value.users || []).map(m => new ChatroomUser(m));
     Chatroom.refineValues(this);
   }
   get name(): string | undefined {
@@ -110,6 +259,12 @@ export class Chatroom implements GrpcMessage {
   set owner(value: string | undefined) {
     this._owner = value;
   }
+  get users(): ChatroomUser[] | undefined {
+    return this._users;
+  }
+  set users(value: ChatroomUser[] | undefined) {
+    this._users = value;
+  }
 
   /**
    * Serialize message to binary data
@@ -128,7 +283,8 @@ export class Chatroom implements GrpcMessage {
     return {
       name: this.name,
       id: this.id,
-      owner: this.owner
+      owner: this.owner,
+      users: (this.users || []).map(m => m.toObject())
     };
   }
 
@@ -148,6 +304,7 @@ export module Chatroom {
     name?: string;
     id?: string;
     owner?: string;
+    users?: ChatroomUser.AsObject[];
   }
 }
 
