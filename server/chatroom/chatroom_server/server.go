@@ -111,10 +111,7 @@ func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatro
 		return nil, err
 	}
 
-	filter := bson.M{"_id": user_id}
-	var user_result models.UserMongo
-
-	err = common_mongo.UserCollection.FindOne(context.Background(), filter).Decode(&user_result)
+	user_result, err := common_mongo.FindOneUserCollection(user_id)
 
 	if err != nil { //err typically is "no documents in result"
 		log.Printf("Error while getting chatrooms for user %v. Error is: %v", user_result.Username, err)
@@ -127,26 +124,17 @@ func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatro
 	// build the list of chatroom objects
 	users_chatrooms := []*chatroompb.Chatroom{}
 
-	for _, chatroom_oid := range user_result.Chatrooms {
+	for _, chatroomOid := range user_result.Chatrooms {
 
-		oid, err_oid := primitive.ObjectIDFromHex(chatroom_oid)
+		// No need to convert to object ID, it's done in the function, since we know we use
+		// objectID as value for _id for a chatroom object in chatroom collection
+		chatroomResult, chatroomErr := common_mongo.FindOneChatroomCollection(chatroomOid)
 
-		if err_oid != nil {
-			log.Printf("Error while gathering chatrooms (oid). Chatroom: %v. Error: %v", chatroom_oid, err_oid)
+		if chatroomErr != nil {
+			log.Printf("Error while gathering chatrooms. Chatroom: %v. Error: %v", chatroomOid, chatroomErr)
 			return nil, status.Errorf(
 				codes.Internal,
-				fmt.Sprintf("Error while gathering chatrooms (oid). Chatroom: %v. Error: %v", chatroom_oid, err_oid),
-			)
-		}
-
-		var chatroom_result models.Chatroom
-		chatroom_err := common_mongo.ChatroomCollection.FindOne(context.Background(), bson.M{"_id": oid}).Decode(&chatroom_result)
-
-		if chatroom_err != nil {
-			log.Printf("Error while gathering chatrooms. Chatroom: %v. Error: %v", chatroom_oid, chatroom_err)
-			return nil, status.Errorf(
-				codes.Internal,
-				fmt.Sprintf("Error while gathering chatrooms. Chatroom: %v. Error: %v", chatroom_oid, chatroom_err),
+				fmt.Sprintf("Error while gathering chatrooms. Chatroom: %v. Error: %v", chatroomOid, chatroomErr),
 			)
 		}
 
@@ -162,7 +150,7 @@ func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatro
 			)
 		}
 
-		for _, uuid := range chatroom_result.Users {
+		for _, uuid := range chatroomResult.Users {
 			res, err := adminGuy.GetUserByUUID(uuid)
 			chatroomUser := &chatroompb.ChatroomUser{Uuid: uuid}
 			if err == nil {
@@ -181,9 +169,9 @@ func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatro
 		users_chatrooms = append(
 			users_chatrooms,
 			&chatroompb.Chatroom{
-				Name:  chatroom_result.Name,
-				Id:    chatroom_result.ID.Hex(),
-				Owner: chatroom_result.Owner,
+				Name:  chatroomResult.Name,
+				Id:    chatroomResult.ID.Hex(),
+				Owner: chatroomResult.Owner,
 				Users: usersList,
 			},
 		)

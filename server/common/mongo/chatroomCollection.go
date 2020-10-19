@@ -3,10 +3,11 @@ package common_mongo
 import (
 	"primitivofr/owly/server/common/models"
 
-	"go.mongodb.org/mongo-driver/mongo"
 	"context"
-    "go.mongodb.org/mongo-driver/bson/primitive"
-    "go.mongodb.org/mongo-driver/bson"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func InsertOneChatroomCollection(chatroomMongo models.Chatroom) (*mongo.InsertOneResult, error) {
@@ -19,114 +20,117 @@ func InsertOneChatroomCollection(chatroomMongo models.Chatroom) (*mongo.InsertOn
 
 func IsChatroomOwner(userID string, chatroomID string) (bool, error) {
 
-    if ChatroomCollection == nil {
-        errSetup := SetupMongoDB()
-        if errSetup != nil {
-            return false, errSetup
-        }
-    }
-
-    OID, errOID := primitive.ObjectIDFromHex(chatroomID)
-    if errOID != nil {
-        return false, errOID
-    }
-
-    var chartoomResult models.Chatroom
-    errFind := ChatroomCollection.FindOne(context.Background(), bson.M{"_id": OID}).Decode(&chartoomResult)
-    if errFind != nil {
-        return false, errFind
+	if ChatroomCollection == nil {
+		errSetup := SetupMongoDB()
+		if errSetup != nil {
+			return false, errSetup
+		}
 	}
-	
+
+	OID, errOID := primitive.ObjectIDFromHex(chatroomID)
+	if errOID != nil {
+		return false, errOID
+	}
+
+	var chartoomResult models.Chatroom
+	errFind := ChatroomCollection.FindOne(context.Background(), bson.M{"_id": OID}).Decode(&chartoomResult)
+	if errFind != nil {
+		return false, errFind
+	}
+
 	userIsChatroomOwner := userID == chartoomResult.Owner
 
-    return userIsChatroomOwner, nil
+	return userIsChatroomOwner, nil
 }
 
-func PopUserInChatroomCollection(userID string, chatroomID string) (error) {
+func PopUserInChatroomCollection(userID string, chatroomID string) error {
 
 	if ChatroomCollection == nil {
-        errSetup := SetupMongoDB()
-        if errSetup != nil {
-            return errSetup
-        }
-    }
+		errSetup := SetupMongoDB()
+		if errSetup != nil {
+			return errSetup
+		}
+	}
 
 	chatroomOID, errOID := primitive.ObjectIDFromHex(chatroomID)
-    if errOID != nil {
+	if errOID != nil {
 		return errOID
 	}
 
-    // find chatroom by OID
-    var chatroomResult models.Chatroom
-    findErr := ChatroomCollection.FindOne(
-        context.Background(),
-        bson.M{"_id": chatroomOID},
+	// find chatroom by OID
+	var chatroomResult models.Chatroom
+	findErr := ChatroomCollection.FindOne(
+		context.Background(),
+		bson.M{"_id": chatroomOID},
 	).Decode(&chatroomResult)
-	
+
 	if findErr != nil {
 		return findErr
 	}
 
 	// remove user from the user list in the chatroom object
-    for i, id := range chatroomResult.Users {
-        if id == userID {
-            chatroomResult.Users = append(chatroomResult.Users[:i], chatroomResult.Users[i+1:]...)
-            break
-        }
+	for i, id := range chatroomResult.Users {
+		if id == userID {
+			chatroomResult.Users = append(chatroomResult.Users[:i], chatroomResult.Users[i+1:]...)
+			break
+		}
 	}
-	
+
 	// update chatroom in DB
-    _, updateChatroomERR := ChatroomCollection.UpdateOne(
-        context.Background(),
-        bson.M{"_id": chatroomOID},
-        bson.M{"$set": bson.M{"users": chatroomResult.Users}},
-    )
-    if updateChatroomERR != nil {
-        return updateChatroomERR
-    }
+	_, updateChatroomERR := ChatroomCollection.UpdateOne(
+		context.Background(),
+		bson.M{"_id": chatroomOID},
+		bson.M{"$set": bson.M{"users": chatroomResult.Users}},
+	)
+	if updateChatroomERR != nil {
+		return updateChatroomERR
+	}
 
 	return nil // no error, everything went well
 }
 
 func FindOneChatroomCollection(chatroomID string) (*models.Chatroom, error) {
+	// We need ID here, it will automatically convert to ObjectID
 
-	if ChatroomCollection == nil {
-        errSetup := SetupMongoDB()
-        if errSetup != nil {
-            return nil, errSetup
-        }
-    }
+	var m MongoORM = &MongoEntity{&ChatroomCollection}
 
 	chatroomOID, errOID := primitive.ObjectIDFromHex(chatroomID)
-    if errOID != nil {
+	if errOID != nil {
 		return nil, errOID
 	}
 
 	// find chatroom by OID
-    var chatroomResult models.Chatroom
-    findErr := ChatroomCollection.FindOne(
-        context.Background(),
-        bson.M{"_id": chatroomOID},
-	).Decode(&chatroomResult)
-	
-	if findErr != nil {
-		return nil, findErr
+	result, err := m.ORMFindOneById(chatroomOID)
+	if err != nil {
+		return nil, err
+	}
+
+	var chatroomResult models.Chatroom
+
+	if result == nil {
+		return &chatroomResult, nil
+	}
+
+	err = result.Decode(&chatroomResult)
+
+	if err != nil {
+		return nil, err
 	}
 
 	return &chatroomResult, nil
 }
 
-func DeleteOneChatroomCollection(chatroomID string) (error) {
+func DeleteOneChatroomCollection(chatroomID string) error {
 
 	if ChatroomCollection == nil {
-        errSetup := SetupMongoDB()
-        if errSetup != nil {
-            return errSetup
-        }
-    }
+		errSetup := SetupMongoDB()
+		if errSetup != nil {
+			return errSetup
+		}
+	}
 
 	chatroomOID, errOID := primitive.ObjectIDFromHex(chatroomID)
-    if errOID != nil {
+	if errOID != nil {
 		return errOID
 	}
 
@@ -135,8 +139,8 @@ func DeleteOneChatroomCollection(chatroomID string) (error) {
 		bson.M{"_id": chatroomOID},
 	)
 	if deleteErr != nil {
-        return deleteErr
+		return deleteErr
 	}
-	
+
 	return nil // no error, everything went well
 }
