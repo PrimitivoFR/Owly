@@ -230,11 +230,12 @@ func TestLeaveChatroom(t *testing.T) {
 	for _, tt := range tests {
 		resp, err := s.LeaveChatroom(ctx, &tt.req)
 		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
+			// We're expecting an error
 
-			wantedErr, _ := status.FromError(tt.want.(error))
-			actualErr, _ := status.FromError(err)
+			// wantedErr, _ := status.FromError(tt.want.(error))
+			// actualErr, _ := status.FromError(err)
 
-			assert(t, wantedErr, actualErr)
+			assert(t, tt.want, err)
 
 		} else if err != nil {
 			check(err, "LeaveChatroom got unexpected error")
@@ -274,11 +275,12 @@ func TestDeleteChatroom(t *testing.T) {
 	for _, tt := range tests {
 		resp, err := s.DeleteChatroom(ctx, &tt.req)
 		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
+			// We're expecting an error
 
-			wantedErr, _ := status.FromError(tt.want.(error))
-			actualErr, _ := status.FromError(err)
+			// wantedErr, _ := status.FromError(tt.want.(error))
+			// actualErr, _ := status.FromError(err)
 
-			assert(t, wantedErr, actualErr)
+			assert(t, tt.want, err)
 
 		} else if err != nil {
 			check(err, "DeleteChatroom got unexpected error")
