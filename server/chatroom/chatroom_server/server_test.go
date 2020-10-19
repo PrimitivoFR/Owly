@@ -15,7 +15,9 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 )
 
 func check(e error, desc string) {
@@ -43,7 +45,7 @@ func setubDb() {
 }
 
 func assert(t *testing.T, expected interface{}, test interface{}) {
-	if test != expected {
+	if reflect.DeepEqual(expected, test) {
 		t.Errorf(
 			"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
 			expected, reflect.TypeOf(expected), test, reflect.TypeOf(test),
@@ -168,7 +170,7 @@ func TestCreateChatroom(t *testing.T) {
 		resp, err := s.CreateChatroom(ctx, &tt.req)
 		check(err, "CreateChatroom got unexpected error")
 
-		assert(t, tt.want.Success, resp.Success)
+		assert(t, tt.want.Success, &resp.Success)
 	}
 }
 
@@ -193,8 +195,8 @@ func TestGetChatroomsByUser(t *testing.T) {
 		resp, err := s.GetChatroomsByUser(ctx, &tt.req)
 		check(err, "GetChatroomsByUser got unexpected error")
 
-		assert(t, tt.want.Success, resp.Success)
-		assert(t, tt.want.Count, resp.Count)
+		assert(t, tt.want.Success, &resp.Success)
+		assert(t, tt.want.Count, &resp.Count)
 	}
 }
 func TestLeaveChatroom(t *testing.T) {
@@ -206,8 +208,15 @@ func TestLeaveChatroom(t *testing.T) {
 
 	tests := []struct {
 		req  chatroompb.LeaveChatroomRequest
-		want chatroompb.LeaveChatroomResponse
+		want interface{}
 	}{
+		{
+			req: chatroompb.LeaveChatroomRequest{
+				Id: chatroomIdByAppliNH,
+			},
+			want: status.Error(codes.PermissionDenied, ""),
+		},
+
 		{
 			req: chatroompb.LeaveChatroomRequest{
 				Id: chatroomIdByToto,
@@ -220,10 +229,18 @@ func TestLeaveChatroom(t *testing.T) {
 
 	for _, tt := range tests {
 		resp, err := s.LeaveChatroom(ctx, &tt.req)
+		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
 
-		check(err, "LeaveChatroom got unexpected error")
+			wantedErr, _ := status.FromError(tt.want.(error))
+			actualErr, _ := status.FromError(err)
 
-		assert(t, tt.want.Success, resp.Success)
+			assert(t, wantedErr, actualErr)
+
+		} else if err != nil {
+			check(err, "LeaveChatroom got unexpected error")
+		} else {
+			assert(t, tt.want, &resp)
+		}
 
 	}
 
@@ -236,8 +253,14 @@ func TestDeleteChatroom(t *testing.T) {
 
 	tests := []struct {
 		req  chatroompb.DeleteChatroomRequest
-		want chatroompb.DeleteChatroomResponse
+		want interface{}
 	}{
+		{
+			req: chatroompb.DeleteChatroomRequest{
+				Id: chatroomIdByToto,
+			},
+			want: status.Error(codes.PermissionDenied, ""),
+		},
 		{
 			req: chatroompb.DeleteChatroomRequest{
 				Id: chatroomIdByAppliNH,
@@ -250,9 +273,18 @@ func TestDeleteChatroom(t *testing.T) {
 
 	for _, tt := range tests {
 		resp, err := s.DeleteChatroom(ctx, &tt.req)
-		check(err, "DeleteChatroom got unexpected error")
+		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
 
-		assert(t, tt.want.Success, resp.Success)
+			wantedErr, _ := status.FromError(tt.want.(error))
+			actualErr, _ := status.FromError(err)
+
+			assert(t, wantedErr, actualErr)
+
+		} else if err != nil {
+			check(err, "DeleteChatroom got unexpected error")
+		} else {
+			assert(t, tt.want, &resp)
+		}
 
 	}
 
