@@ -22,4 +22,4 @@ When you are in this directory, just type `go install dogo` and you should be ab
 
 ## Additional notes
 
-Might not work on Windows host yet, I'll push a fix asap.
+Of course, you need evans to be already installed and set in your PATH :)

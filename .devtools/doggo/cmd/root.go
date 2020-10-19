@@ -3,8 +3,12 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
+	"os/exec"
 	authpb "primitivofr/owly/server/auth/authpb"
+	"runtime"
+	"strings"
 	"syscall"
 
 	"github.com/spf13/cobra"
@@ -54,9 +58,27 @@ func loginUserEvans(username string, password string) string {
 
 func RunEvansWithToken(username string, password string, port string) {
 	token := loginUserEvans(username, password)
+	log.Println(token)
+	var whichOrWhere string
+	if runtime.GOOS == "windows" {
+		whichOrWhere = "where"
 
-	err := syscall.Exec("/usr/bin/evans", []string{"", "-r", "repl", "--header", `authorization=` + token, "-p", port}, os.Environ())
+	} else {
+		whichOrWhere = "which"
+	}
+	evansLocationBytes, err := exec.Command(whichOrWhere, "evans").Output()
+
 	if err != nil {
 		panic(err)
 	}
+
+	var evansLocation string = string(evansLocationBytes)
+	evansLocation = strings.ToValidUTF8(evansLocation, "")
+	evansLocation = strings.TrimSuffix(evansLocation, "\n")
+
+	err = syscall.Exec(evansLocation, []string{"", "-r", "repl", "--header", `authorization=` + token, "-p", port}, os.Environ())
+	if err != nil {
+		panic(err)
+	}
+
 }
