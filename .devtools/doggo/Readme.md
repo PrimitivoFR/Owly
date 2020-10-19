@@ -1,6 +1,6 @@
 # Doggo 🐶
 
-*This tool is tied to this project context (for now)*
+*This tool is tied to this project's context (for now)*
 
 Doggo is an helper for Evans CLI.
 It allows you to open an Evans collection to the port of your choice, with an already set header for authorization.
