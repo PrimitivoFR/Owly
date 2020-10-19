@@ -15,6 +15,11 @@ services:
       - ./server:/go/src/owly-server
     working_dir: /go/src/owly-server
     command: bash -c "./runTests.sh"
+    ports:
+      - 50051:50051
+      - 50052:50052
+      - 50053:50053
+      - 50054:50054
     
 
   # client:
