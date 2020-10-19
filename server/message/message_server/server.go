@@ -172,7 +172,7 @@ func (*server) SendMessage(ctx context.Context, req *messagepb.SendMessageReques
 	defer res.Body.Close()
 
 	if res.IsError() {
-		log.Printf("Inserting index failed: ", res.Status())
+		log.Printf("Inserting index failed: %v", res.Status())
 		return nil, status.Errorf(
 			codes.Internal,
 			fmt.Sprintf("Inserting index failed: %v", err),
