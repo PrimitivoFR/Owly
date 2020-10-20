@@ -29,7 +29,8 @@ jobs:
       with:
         github-token:  ${{ secrets.GITHUB_TOKEN }}
         build-context: ./owly-client
-        extract-git-tag: true
+        image-tage: dev
+        extract-git-tag: false
         image-name: owly-client
     
     - name: GithubPkg-Docker-owly-elasticsearch
@@ -37,7 +38,8 @@ jobs:
       with:
         github-token:  ${{ secrets.GITHUB_TOKEN }}
         build-context: ./elasticsearch
-        extract-git-tag: true
+        image-tage: dev
+        extract-git-tag: false
         image-name: owly-elasticsearch
     
     - name: DockerBuild-init_server_image
@@ -48,7 +50,8 @@ jobs:
       with:
         github-token:  ${{ secrets.GITHUB_TOKEN }}
         build-context: ./server/auth
-        extract-git-tag: true
+        image-tage: dev
+        extract-git-tag: false
         image-name: owly-server-auth
   
     - name: GithubPkg-Docker-chatroom_server
@@ -56,7 +59,8 @@ jobs:
       with:
         github-token:  ${{ secrets.GITHUB_TOKEN }}
         build-context: ./server/chatroom
-        extract-git-tag: true
+        image-tage: dev
+        extract-git-tag: false
         image-name: owly-server-chatroom
     
     - name: GithubPkg-Docker-user_server
@@ -64,7 +68,8 @@ jobs:
       with:
         github-token:  ${{ secrets.GITHUB_TOKEN }}
         build-context: ./server/user
-        extract-git-tag: true
+        image-tage: dev
+        extract-git-tag: false
         image-name: owly-server-user
     
     - name: GithubPkg-Docker-message_server
@@ -72,7 +77,8 @@ jobs:
       with:
         github-token:  ${{ secrets.GITHUB_TOKEN }}
         build-context: ./server/message
-        extract-git-tag: true
+        image-tage: dev
+        extract-git-tag: false
         image-name: owly-server-message
       
     - name: DiscordWebHook-CI-FAILURE
