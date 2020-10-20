@@ -51,7 +51,7 @@ jobs:
       with:
         accessToken:  ${{ secrets.GITHUB_TOKEN }}
         context: ./server/chatroom
-        imageName: owly-server-chatrom
+        imageName: owly-server-chatroom
     
     - name: GithubPkg-Docker-user_server
       uses: matootie/github-docker@v3.0.0
