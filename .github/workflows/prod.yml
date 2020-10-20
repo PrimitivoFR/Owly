@@ -1,17 +1,15 @@
 # This is a basic workflow to help you get started with Actions
 
-name: DockerBuild
+name: CI-Test-DockerBuildProd
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
   create:
     tags:
-  push:
-    branches: [ dev ]
 
 jobs:
-  docker-owly-client:
+  docker-test-build-prod:
     runs-on: ubuntu-latest
     steps:
       # Checkout the repo
@@ -25,61 +23,49 @@ jobs:
       run: docker-compose -f docker-compose.yml -f docker-compose.test.yml up --exit-code-from server
       
     - name: GithubPkg-Docker-owly-client
-      uses: VaultVulp/gp-docker-action@1.1.7
+      uses: matootie/github-docker@v3.0.0
       with:
-        github-token:  ${{ secrets.GITHUB_TOKEN }}
-        build-context: ./owly-client
-        image-tage: dev
-        extract-git-tag: false
-        image-name: owly-client
+        accessToken:  ${{ secrets.GITHUB_TOKEN }}
+        context: ./owly-client
+        imageName: owly-client
     
     - name: GithubPkg-Docker-owly-elasticsearch
-      uses: VaultVulp/gp-docker-action@1.1.7
+      uses: matootie/github-docker@v3.0.0
       with:
-        github-token:  ${{ secrets.GITHUB_TOKEN }}
-        build-context: ./elasticsearch
-        image-tage: dev
-        extract-git-tag: false
-        image-name: owly-elasticsearch
+        accessToken:  ${{ secrets.GITHUB_TOKEN }}
+        context: ./elasticsearch
+        imageName: owly-elasticsearch
     
     - name: DockerBuild-init_server_image
       run: docker build -t init_server_image ./server/
       
     - name: GithubPkg-Docker-auth_server
-      uses: VaultVulp/gp-docker-action@1.1.7
+      uses: matootie/github-docker@v3.0.0
       with:
-        github-token:  ${{ secrets.GITHUB_TOKEN }}
-        build-context: ./server/auth
-        image-tage: dev
-        extract-git-tag: false
-        image-name: owly-server-auth
+        accessToken:  ${{ secrets.GITHUB_TOKEN }}
+        context: ./server/auth
+        imageName: owly-server-auth
   
     - name: GithubPkg-Docker-chatroom_server
-      uses: VaultVulp/gp-docker-action@1.1.7
+      uses: matootie/github-docker@v3.0.0
       with:
-        github-token:  ${{ secrets.GITHUB_TOKEN }}
-        build-context: ./server/chatroom
-        image-tage: dev
-        extract-git-tag: false
-        image-name: owly-server-chatroom
+        accessToken:  ${{ secrets.GITHUB_TOKEN }}
+        context: ./server/chatroom
+        imageName: owly-server-chatrom
     
     - name: GithubPkg-Docker-user_server
-      uses: VaultVulp/gp-docker-action@1.1.7
+      uses: matootie/github-docker@v3.0.0
       with:
-        github-token:  ${{ secrets.GITHUB_TOKEN }}
-        build-context: ./server/user
-        image-tage: dev
-        extract-git-tag: false
-        image-name: owly-server-user
+        accessToken:  ${{ secrets.GITHUB_TOKEN }}
+        context: ./server/user
+        imageName: owly-server-user
     
     - name: GithubPkg-Docker-message_server
-      uses: VaultVulp/gp-docker-action@1.1.7
+      uses: matootie/github-docker@v3.0.0
       with:
-        github-token:  ${{ secrets.GITHUB_TOKEN }}
-        build-context: ./server/message
-        image-tage: dev
-        extract-git-tag: false
-        image-name: owly-server-message
+        accessToken:  ${{ secrets.GITHUB_TOKEN }}
+        context: ./server/message
+        imageName: owly-server-message
       
     - name: DiscordWebHook-CI-FAILURE
       uses: sarisia/actions-status-discord@v1
