@@ -1,7 +1,7 @@
 #!/bin/bash
 
 docker build -t init_server_image . && \ 
-docker build -t auth_server ./auth && \
-docker build -t chatroom_server ./chatroom && \
-docker build -t user_server ./user && \
-docker build -t message_server ./message
+docker build -t owly-server-auth ./auth && \
+docker build -t owly-server-chatoom ./chatroom && \
+docker build -t owly-server-user ./user && \
+docker build -t owly-server-message ./message
