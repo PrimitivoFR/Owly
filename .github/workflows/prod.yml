@@ -29,7 +29,7 @@ jobs:
       with:
         github-token:  ${{ secrets.GITHUB_TOKEN }}
         build-context: ./owly-client
-        image-tage: dev
+        image-tag: dev
         extract-git-tag: false
         image-name: owly-client
     
@@ -38,7 +38,7 @@ jobs:
       with:
         github-token:  ${{ secrets.GITHUB_TOKEN }}
         build-context: ./elasticsearch
-        image-tage: dev
+        image-tag: dev
         extract-git-tag: false
         image-name: owly-elasticsearch
     
@@ -50,7 +50,7 @@ jobs:
       with:
         github-token:  ${{ secrets.GITHUB_TOKEN }}
         build-context: ./server/auth
-        image-tage: dev
+        image-tag: dev
         extract-git-tag: false
         image-name: owly-server-auth
   
@@ -59,7 +59,7 @@ jobs:
       with:
         github-token:  ${{ secrets.GITHUB_TOKEN }}
         build-context: ./server/chatroom
-        image-tage: dev
+        image-tag: dev
         extract-git-tag: false
         image-name: owly-server-chatroom
     
@@ -68,7 +68,7 @@ jobs:
       with:
         github-token:  ${{ secrets.GITHUB_TOKEN }}
         build-context: ./server/user
-        image-tage: dev
+        image-tag: dev
         extract-git-tag: false
         image-name: owly-server-user
     
@@ -77,7 +77,7 @@ jobs:
       with:
         github-token:  ${{ secrets.GITHUB_TOKEN }}
         build-context: ./server/message
-        image-tage: dev
+        image-tag: dev
         extract-git-tag: false
         image-name: owly-server-message
       
