@@ -28,7 +28,7 @@ jobs:
       uses: VaultVulp/gp-docker-action@1.1.7
       with:
         github-token:  ${{ secrets.GITHUB_TOKEN }}
-        build-context: ./owly-client
+        build-context: "./owly-client"
         image-tag: dev
         extract-git-tag: false
         image-name: owly-client
@@ -37,7 +37,7 @@ jobs:
       uses: VaultVulp/gp-docker-action@1.1.7
       with:
         github-token:  ${{ secrets.GITHUB_TOKEN }}
-        build-context: ./elasticsearch
+        build-context: "./elasticsearch"
         image-tag: dev
         extract-git-tag: false
         image-name: owly-elasticsearch
@@ -49,7 +49,7 @@ jobs:
       uses: VaultVulp/gp-docker-action@1.1.7
       with:
         github-token:  ${{ secrets.GITHUB_TOKEN }}
-        build-context: ./server/auth
+        build-context: "./server/auth"
         image-tag: dev
         extract-git-tag: false
         image-name: owly-server-auth
@@ -58,7 +58,7 @@ jobs:
       uses: VaultVulp/gp-docker-action@1.1.7
       with:
         github-token:  ${{ secrets.GITHUB_TOKEN }}
-        build-context: ./server/chatroom
+        build-context: "./server/chatroom"
         image-tag: dev
         extract-git-tag: false
         image-name: owly-server-chatroom
@@ -67,7 +67,7 @@ jobs:
       uses: VaultVulp/gp-docker-action@1.1.7
       with:
         github-token:  ${{ secrets.GITHUB_TOKEN }}
-        build-context: ./server/user
+        build-context: "./server/user"
         image-tag: dev
         extract-git-tag: false
         image-name: owly-server-user
@@ -76,7 +76,7 @@ jobs:
       uses: VaultVulp/gp-docker-action@1.1.7
       with:
         github-token:  ${{ secrets.GITHUB_TOKEN }}
-        build-context: ./server/message
+        build-context: "./server/message"
         image-tag: dev
         extract-git-tag: false
         image-name: owly-server-message
