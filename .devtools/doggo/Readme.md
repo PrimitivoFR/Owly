@@ -3,7 +3,7 @@
 *This tool is tied to this project's context (for now)*
 
 Doggo is an helper for Evans CLI.
-It allows you to open an Evans collection to the port of your choice, with an already set header for authorization.
+It allows you to open an Evans connection to the port of your choice, with an already set header for authorization.
 
 
 All you need, is the username and the password of the user you want the token from.
