@@ -855,7 +855,7 @@ export class DeleteChatroomRequest implements GrpcMessage {
    * @param _instance message instance
    */
   static refineValues(_instance: DeleteChatroomRequest) {
-    _instance.id = _instance.id || '';
+    _instance.chatroomId = _instance.chatroomId || '';
   }
 
   /**
@@ -872,7 +872,7 @@ export class DeleteChatroomRequest implements GrpcMessage {
 
       switch (_reader.getFieldNumber()) {
         case 1:
-          _instance.id = _reader.readString();
+          _instance.chatroomId = _reader.readString();
           break;
         default:
           _reader.skipField();
@@ -891,12 +891,12 @@ export class DeleteChatroomRequest implements GrpcMessage {
     _instance: DeleteChatroomRequest,
     _writer: BinaryWriter
   ) {
-    if (_instance.id) {
-      _writer.writeString(1, _instance.id);
+    if (_instance.chatroomId) {
+      _writer.writeString(1, _instance.chatroomId);
     }
   }
 
-  private _id?: string;
+  private _chatroomId?: string;
 
   /**
    * Message constructor. Initializes the properties and applies default Protobuf values if necessary
@@ -904,14 +904,14 @@ export class DeleteChatroomRequest implements GrpcMessage {
    */
   constructor(_value?: RecursivePartial<DeleteChatroomRequest>) {
     _value = _value || {};
-    this.id = _value.id;
+    this.chatroomId = _value.chatroomId;
     DeleteChatroomRequest.refineValues(this);
   }
-  get id(): string | undefined {
-    return this._id;
+  get chatroomId(): string | undefined {
+    return this._chatroomId;
   }
-  set id(value: string | undefined) {
-    this._id = value;
+  set chatroomId(value: string | undefined) {
+    this._chatroomId = value;
   }
 
   /**
@@ -929,7 +929,7 @@ export class DeleteChatroomRequest implements GrpcMessage {
    */
   toObject(): DeleteChatroomRequest.AsObject {
     return {
-      id: this.id
+      chatroomId: this.chatroomId
     };
   }
 
@@ -946,7 +946,7 @@ export module DeleteChatroomRequest {
    * Standard JavaScript object representation for DeleteChatroomRequest
    */
   export interface AsObject {
-    id?: string;
+    chatroomId?: string;
   }
 }
 
@@ -1089,7 +1089,7 @@ export class LeaveChatroomRequest implements GrpcMessage {
    * @param _instance message instance
    */
   static refineValues(_instance: LeaveChatroomRequest) {
-    _instance.id = _instance.id || '';
+    _instance.chatroomId = _instance.chatroomId || '';
   }
 
   /**
@@ -1106,7 +1106,7 @@ export class LeaveChatroomRequest implements GrpcMessage {
 
       switch (_reader.getFieldNumber()) {
         case 1:
-          _instance.id = _reader.readString();
+          _instance.chatroomId = _reader.readString();
           break;
         default:
           _reader.skipField();
@@ -1125,12 +1125,12 @@ export class LeaveChatroomRequest implements GrpcMessage {
     _instance: LeaveChatroomRequest,
     _writer: BinaryWriter
   ) {
-    if (_instance.id) {
-      _writer.writeString(1, _instance.id);
+    if (_instance.chatroomId) {
+      _writer.writeString(1, _instance.chatroomId);
     }
   }
 
-  private _id?: string;
+  private _chatroomId?: string;
 
   /**
    * Message constructor. Initializes the properties and applies default Protobuf values if necessary
@@ -1138,14 +1138,14 @@ export class LeaveChatroomRequest implements GrpcMessage {
    */
   constructor(_value?: RecursivePartial<LeaveChatroomRequest>) {
     _value = _value || {};
-    this.id = _value.id;
+    this.chatroomId = _value.chatroomId;
     LeaveChatroomRequest.refineValues(this);
   }
-  get id(): string | undefined {
-    return this._id;
+  get chatroomId(): string | undefined {
+    return this._chatroomId;
   }
-  set id(value: string | undefined) {
-    this._id = value;
+  set chatroomId(value: string | undefined) {
+    this._chatroomId = value;
   }
 
   /**
@@ -1163,7 +1163,7 @@ export class LeaveChatroomRequest implements GrpcMessage {
    */
   toObject(): LeaveChatroomRequest.AsObject {
     return {
-      id: this.id
+      chatroomId: this.chatroomId
     };
   }
 
@@ -1180,7 +1180,7 @@ export module LeaveChatroomRequest {
    * Standard JavaScript object representation for LeaveChatroomRequest
    */
   export interface AsObject {
-    id?: string;
+    chatroomId?: string;
   }
 }
 

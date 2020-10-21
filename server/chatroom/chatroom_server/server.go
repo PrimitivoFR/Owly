@@ -192,7 +192,7 @@ func (*server) DeleteChatroom(ctx context.Context, req *chatroompb.DeleteChatroo
 		return nil, err
 	}
 
-	targetChatroomID := req.GetId()
+	targetChatroomID := req.ChatroomId
 
 	// check if the current user is the rightful owner
 	currentUserIsOwner, err := common_mongo.IsChatroomOwner(currentUserID, targetChatroomID)
@@ -231,7 +231,7 @@ func (*server) DeleteChatroom(ctx context.Context, req *chatroompb.DeleteChatroo
 
 func (*server) LeaveChatroom(ctx context.Context, req *chatroompb.LeaveChatroomRequest) (*chatroompb.LeaveChatroomResponse, error) {
 
-	chatroomID := req.Id
+	chatroomID := req.ChatroomId
 	userID, err := common_jwt.ReadUUIDFromContext(ctx)
 	if err != nil {
 		return nil, err
