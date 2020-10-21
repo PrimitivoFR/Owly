@@ -1,23 +1,17 @@
 package interceptors
 
 import (
-	"context"
-	"primitivofr/owly/server/common/models"
 	common_mongo "primitivofr/owly/server/common/mongo"
-
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 func IsUserInChatroom(chatroomID string, userID string) (bool, error) {
-	filter := bson.M{"_id": userID}
-	var user_result models.UserMongo
 
-	err := common_mongo.UserCollection.FindOne(context.Background(), filter).Decode(&user_result)
+	userResult, err := common_mongo.FindOneUserCollection(userID)
 	if err != nil {
 		return false, err
 	}
 
-	for _, chatroom := range user_result.Chatrooms {
+	for _, chatroom := range userResult.Chatrooms {
 		if chatroom == chatroomID {
 			return true, nil
 		}

@@ -4,21 +4,23 @@
 
 ## Run it
 
-### Dialing with EVANS CLI
+Take care to run the **test mode** and check that everything runs fine with your new developments before commiting.
+
+### Dev env
+
+Run everything:
+`docker-compose -f docker-compose.yml -f docker-compose.devandtest.yml  -f docker-compose.dev.yml up`
+
+Restart a specific service:
+`docker-compose -f docker-compose.yml -f docker-compose.dev.yml restart SERVICE_NAME`
+
+#### Dialing with EVANS CLI
 
 You first have to pass the token before making any request !
 
 `header set authorization="BLABLA_TOKEN"`
 
 
-
-### Dev env
-
-Run everything:
-`docker-compose -f docker-compose.yml -f docker-compose.dev.yml up`
-
-Restart a specific service:
-`docker-compose -f docker-compose.yml -f docker-compose.dev.yml restart SERVICE_NAME`
 
 #### About the client in dev mod
 
@@ -30,10 +32,17 @@ For now, you'll have to run apart:
 
 `npm i && npm start` to start the client.
 
-Take care to run the **test mode** and check that everything runs fine with your new developments before commiting.
 
 
 ### Test mode
 
 Run everything:
-`docker-compose -f docker-compose.yml -f docker-compose.test.yml up`
+`docker-compose -f docker-compose.yml -f docker-compose.devandtest.yml -f docker-compose.test.yml up`
+
+### Local Prod mode
+
+Allows to simulate in a local something approaching a real production stage.
+
+Please, execute `server/dockerBuildAll.sh` first, it's **needed**.
+
+`docker-compose -f docker-compose.yml -f docker-compose.prod-local.yml up`

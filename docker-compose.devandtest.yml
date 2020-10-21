@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+
+    keycloak:
+      env_file: ./keycloak/.keycloak-env
+      ports:
+        - 8080:8080
+
+    elasticsearch:
+      build: ./elasticsearch
+      ports:
+        - 9200:9200
+        - 9400:9400 #webSocket on ws://localhost:9400/ws/_changes, streams the whole node
+
+    envoy:
+      volumes:
+        - ./envoy/envoy.yaml:/etc/envoy/envoy.yaml
+      depends_on:
+        - server
+      ports:
+        - 8085:8085
+
+    mongo:
+      ports:
+        - 27017:27017
+
+    server:
+      hostname: server
+      environment:
+        MONGO_HOSTNAME: mongo
+      networks: 
+        - back-end
+      depends_on:
+        - keycloak
+        - elasticsearch
+        - mongo

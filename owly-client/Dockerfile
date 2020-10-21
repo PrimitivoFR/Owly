@@ -12,7 +12,7 @@ WORKDIR /owly-client
 COPY . .
 
 # Build the project and copy the files
-RUN npm run ng build --prod
+RUN npm run build:prod
 
 # Stage 2 DEPLOY
 FROM nginx:alpine

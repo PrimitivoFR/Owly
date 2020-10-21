@@ -1,0 +1,88 @@
+version: "3.8"
+
+services:
+    elasticsearch:
+      build: ./elasticsearch
+    
+    keycloak:
+      env_file: ./keycloak/.keycloak-env
+      ports:
+        - 8080:8080
+    
+    envoy:
+      volumes:
+          - ./envoy/envoy.prod.yaml:/etc/envoy/envoy.yaml
+      depends_on:
+        - auth_server
+        - user_server
+        - chatroom_server
+        - message_server
+    
+    auth_server:
+      env_file: ./keycloak/.keycloak-env
+      hostname: auth_server
+      image: owly-server-auth
+      environment:
+        MONGO_HOSTNAME: mongo
+      networks: 
+        - back-end
+      depends_on:
+        - keycloak
+        - elasticsearch
+        - mongo
+      ports:
+          - 50054:50054
+    
+    user_server:
+      env_file: ./keycloak/.keycloak-env
+      hostname: user_server
+      image: owly-server-user
+      environment:
+        MONGO_HOSTNAME: mongo
+      networks: 
+        - back-end
+      depends_on:
+        - keycloak
+        - elasticsearch
+        - mongo
+      ports:
+          - 50051:50051
+
+    chatroom_server:
+      env_file: ./keycloak/.keycloak-env
+      hostname: chatroom_server
+      image: owly-server-chatroom
+      environment:
+        MONGO_HOSTNAME: mongo
+      networks: 
+        - back-end
+      depends_on:
+        - keycloak
+        - elasticsearch
+        - mongo
+      ports:
+          - 50052:50052
+    
+    message_server:
+      env_file: ./keycloak/.keycloak-env
+      hostname: message_server
+      image: owly-server-message
+      environment:
+        MONGO_HOSTNAME: mongo
+      networks: 
+        - back-end
+      depends_on:
+        - keycloak
+        - elasticsearch
+        - mongo
+      ports:
+          - 50053:50053
+  
+    client: 
+      build: ./owly-client
+      ports:
+          - 80:80
+      networks:
+        - front-end
+      depends_on:
+        - envoy

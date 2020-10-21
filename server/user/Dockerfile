@@ -6,7 +6,7 @@ RUN  go build -o ./build/user_server ./user
 
 
 # ---- RELEASE ---- (replace golang with alpine or anything lighter please)
-FROM alpine as release 
+FROM golang as release 
 
 COPY --from=build /server/build .
 
