@@ -20,8 +20,6 @@ You first have to pass the token before making any request !
 
 `header set authorization="BLABLA_TOKEN"`
 
-
-
 #### About the client in dev mod
 
 The owly-client is not included anymore in the dev env stack.
@@ -45,4 +43,8 @@ Allows to simulate in a local something approaching a real production stage.
 
 Please, execute `server/dockerBuildAll.sh` first, it's **needed**.
 
-`docker-compose -f docker-compose.yml -f docker-compose.prod-local.yml up`
+`docker-compose -f docker-compose.yml -f docker-compose.prod-local.yml up`.
+
+### Prod mode
+
+Prod mode is not quite ready yet. We'll pull images from the Github Container Registry.
