@@ -17,7 +17,7 @@ There u (dog)go ! 🐶
 
 ## Install
 
-When you are in this directory, just type `go install dogo` and you should be able to use `doggo` from your command line.
+When you are in this directory, just type `go install doggo` and you should be able to use `doggo` from your command line.
 
 
 ## Additional notes
