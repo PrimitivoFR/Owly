@@ -207,7 +207,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   async leaveChatroom() {
     if(confirm("Are you sure you want to continue ?")) {
       const req = new LeaveChatroomRequest({
-        id: this.currentStoreItem.chatroom.id
+        chatroomId: this.currentStoreItem.chatroom.id
       })
       const chatroomName = this.currentStoreItem.chatroom.name;
       const res = await this.chatroomService.leaveChatroom(req);
@@ -226,7 +226,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   async deleteChatroom() {
     if(confirm("Are you sure you want to continue ?")) {
       const req = new DeleteChatroomRequest({
-        id: this.currentStoreItem.chatroom.id
+        chatroomId: this.currentStoreItem.chatroom.id
       })
       const chatroomName = this.currentStoreItem.chatroom.name;
       const res = await this.chatroomService.deleteChatroom(req);

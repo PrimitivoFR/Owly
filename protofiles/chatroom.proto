@@ -39,7 +39,7 @@ message GetChatroomsByUserResponse {
 }
 
 message DeleteChatroomRequest {
-    string id = 1;
+    string chatroomId = 1;
 }
 
 message DeleteChatroomResponse {
@@ -47,7 +47,7 @@ message DeleteChatroomResponse {
 }
 
 message LeaveChatroomRequest {
-    string id = 1;
+    string chatroomId = 1;
 }
 
 message LeaveChatroomResponse {

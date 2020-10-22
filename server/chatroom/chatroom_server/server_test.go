@@ -212,14 +212,14 @@ func TestLeaveChatroom(t *testing.T) {
 	}{
 		{
 			req: chatroompb.LeaveChatroomRequest{
-				Id: chatroomIdByAppliNH,
+				ChatroomId: chatroomIdByAppliNH,
 			},
 			want: status.Error(codes.PermissionDenied, ""),
 		},
 
 		{
 			req: chatroompb.LeaveChatroomRequest{
-				Id: chatroomIdByToto,
+				ChatroomId: chatroomIdByToto,
 			},
 			want: chatroompb.LeaveChatroomResponse{
 				Success: true,
@@ -258,13 +258,13 @@ func TestDeleteChatroom(t *testing.T) {
 	}{
 		{
 			req: chatroompb.DeleteChatroomRequest{
-				Id: chatroomIdByToto,
+				ChatroomId: chatroomIdByToto,
 			},
 			want: status.Error(codes.PermissionDenied, ""),
 		},
 		{
 			req: chatroompb.DeleteChatroomRequest{
-				Id: chatroomIdByAppliNH,
+				ChatroomId: chatroomIdByAppliNH,
 			},
 			want: chatroompb.DeleteChatroomResponse{
 				Success: true,

@@ -220,7 +220,19 @@ func (*server) GetMessagesByChatroom(ctx context.Context, req *messagepb.GetMess
 		return nil, err
 	}
 
-	res, err := client.Search(client.Search.WithIndex(req.GetChatroomID()))
+	res, err := client.Search(
+		client.Search.WithIndex(req.GetChatroomID()),
+		client.Search.WithSize(10000),
+	)
+
+	if err != nil {
+		log.Printf("Error while searching in ES: %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Error while searching in ES: %v", err),
+		)
+	}
+
 	var messages []*messagepb.Message
 
 	var response map[string]interface{}
