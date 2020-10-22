@@ -58,7 +58,9 @@ func loginUserEvans(username string, password string) string {
 
 func RunEvansWithToken(username string, password string, port string) {
 	token := loginUserEvans(username, password)
+
 	log.Println(token)
+
 	var whichOrWhere string
 	if runtime.GOOS == "windows" {
 		whichOrWhere = "where"
@@ -76,9 +78,17 @@ func RunEvansWithToken(username string, password string, port string) {
 	evansLocation = strings.ToValidUTF8(evansLocation, "")
 	evansLocation = strings.TrimSuffix(evansLocation, "\n")
 
-	err = syscall.Exec(evansLocation, []string{"", "-r", "repl", "--header", `authorization=` + token, "-p", port}, os.Environ())
-	if err != nil {
-		panic(err)
+	if runtime.GOOS != "windows" {
+		// This won't work in windows
+		err = syscall.Exec(evansLocation, []string{"", "-r", "repl", "--header", `authorization=` + token, "-p", port}, os.Environ())
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		cmd := exec.Command("cmd.exe", "/C", "start", evansLocation, "-r", "repl", "--header", `authorization=`+token, "-p", port)
+		if err := cmd.Run(); err != nil {
+			log.Println("Error:", err)
+		}
 	}
 
 }
