@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc"
 )
 
+// LoginUser loginUser grpc call
 func LoginUser(username string, password string) *authpb.LoginUserResponse {
 	conn, err := grpc.Dial("localhost:50054", grpc.WithInsecure())
 	if err != nil {
