@@ -96,8 +96,8 @@ export class CreateChatroomComponent implements OnInit {
     this.spinnerService.hideSpinner()
     
     if(this.chatroomCreationSucess) {
+      this.addedUsers = [];
       this.snackService.showSnack("Chatroom successfully created !");
-      this.navService.updateNavStore("0")
     } else {
       this.snackService.showSnack("An error has occured");
     }
