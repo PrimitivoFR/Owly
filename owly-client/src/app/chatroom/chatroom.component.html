@@ -1,11 +1,11 @@
-<div class="flex flex-col">
+<div *ngIf="currentStoreItem.chatroom" class="flex flex-col">
     <div id="topBar" class="relative">
         <app-top-bar title="{{currentStoreItem.chatroom.name}}"></app-top-bar>
         <div class="absolute w-full z-20">
             <app-snack-alert></app-snack-alert>
         </div>
-        <div class="absolute top-0 right-0 mt-5 mr-5 h-10 w-10 items-center justify-center cursor-pointer text-gray-200 text-xl" (click)="panelOpened = !panelOpened">
-            <entypo name="info"></entypo>
+        <div class="absolute top-0 right-0 mt-5 mr-5 h-10 w-10 items-center justify-center cursor-pointer text-gray-200 text-xl hover:text-gray-400" (click)="panelOpened = !panelOpened">
+            <entypo name="cog"></entypo>
         </div>   
     </div>
     <div class="flex">

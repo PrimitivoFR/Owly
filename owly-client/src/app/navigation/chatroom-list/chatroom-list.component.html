@@ -1,3 +1,4 @@
+leave<span *ngIf="roomStore.length == 0" class="flex font-medium text-sm text-gray-400 px-4 my-4 uppercase">You have not yet joined a chatroom</span>
 <nav *ngFor="let room of roomStore; let i = index " class="mt-2">
     <a (click)="goToChatroom(room.localID)" class="transform flex items-center cursor-pointer py-5 px-8 bg-gray-700 text-gray-100 text-xl rounded-none hover:translate-x-2" >
         <entypo name="chat"></entypo>

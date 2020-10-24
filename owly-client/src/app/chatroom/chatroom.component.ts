@@ -117,13 +117,13 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
       message.answersTo = this.answersTo;
     }
 
-    // Create tempo message
-    var tempoMess = message;
-    tempoMess.id = "TEMPO_" + uuidv4();
-
     const req = new SendMessageRequest({
       message: message
     });
+
+    // Create tempo message
+    var tempoMess = message;
+    tempoMess.id = "TEMPO_" + uuidv4();
 
     try {
 
@@ -214,7 +214,9 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   
       if(res.success) {
         this.snackAlertService.showSnack("You have left the chatroom : " + chatroomName);
-        this.navService.updateNavStore("0");
+        if(!this.navService.updateNavStore("0")) {
+          this.router.navigate(['home']);
+        }
         this.panelOpened = false;
       }
       else {
@@ -233,7 +235,9 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
 
       if(res.success) {
         this.snackAlertService.showSnack("You have deleted the chatroom : " + chatroomName);
-        this.navService.updateNavStore("0");
+        if(!this.navService.updateNavStore("0")) {
+          this.router.navigate(['home']);
+        }
         this.panelOpened = false;
       }
       else {

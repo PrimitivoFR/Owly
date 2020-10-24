@@ -24,7 +24,7 @@ export class NavigationService {
 
     private currentMessageStream = new Subscription();
 
-    updateNavStore(localID: string) {
+    updateNavStore(localID: string): boolean {
         if(this.currentMessageStream != null) {
             // We have to do this, else the subscription will be recreated each time
             // we switch channels, which leads to receive the messages twice in the chat
@@ -34,21 +34,27 @@ export class NavigationService {
         //this.messageService.getMessagesForAllChatrooms()
 
         var currentStoreItem: LocalRoomsAndMessagesStore;
+        var hasChatrooms: boolean;
+
         const currentStore = this.storeService.currentChatroomsAndMessageStore.pipe(
                 map(items => items.find(e => e.localID === localID))
                 );
         
         currentStore.subscribe((v: LocalRoomsAndMessagesStore) => {
             if(v == undefined) {
-            currentStoreItem = new LocalRoomsAndMessagesStore()
+                currentStoreItem = new LocalRoomsAndMessagesStore();
+                hasChatrooms = false;
             } else {
-            currentStoreItem = v
+                currentStoreItem = v;
+                hasChatrooms = true;
             }
             this.navStore.next(currentStoreItem)
         })
         
         // update messages in real time by listening to the gRPC stream server
-        this.currentMessageStream = this.messageService.streamMessagesByChatroom(new StreamMessagesByChatroomRequest({
+        
+        if(currentStoreItem.chatroom) {
+            this.currentMessageStream = this.messageService.streamMessagesByChatroom(new StreamMessagesByChatroomRequest({
                 chatroomID: currentStoreItem.chatroom.id
             })).subscribe((res) => {
                 if(res.operation == "CREATE") {
@@ -59,6 +65,10 @@ export class NavigationService {
                 }
                 
             });
+        }
+
+        return hasChatrooms;
+        
     }
 
 
