@@ -41,7 +41,7 @@ Run everything:
 
 Allows to simulate in a local something approaching a real production stage.
 
-Please, execute `server/dockerBuildAll.sh` first, it's **needed**.
+Please, first, `cd server` and execute `./dockerBuildAll.sh`, it's **needed**.
 
 `docker-compose -f docker-compose.yml -f docker-compose.prod-local.yml up`.
 
