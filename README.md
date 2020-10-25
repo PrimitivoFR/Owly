@@ -12,7 +12,7 @@ Run everything:
 `docker-compose -f docker-compose.yml -f docker-compose.devandtest.yml  -f docker-compose.dev.yml up`
 
 Restart a specific service:
-`docker-compose -f docker-compose.yml -f docker-compose.dev.yml restart SERVICE_NAME`
+`docker-compose -f docker-compose.yml -f docker-compose.devandtest.yml  -f docker-compose.dev.yml restart SERVICE_NAME`
 
 #### Dialing with EVANS CLI
 
