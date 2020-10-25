@@ -3,10 +3,6 @@ version: "3.8"
 
 services:
 
-
-  keycloak:
-    env_file: ./keycloak/.keycloak-env
-  
   # go test
   server:
     image: golang
@@ -20,13 +16,4 @@ services:
       - 50052:50052
       - 50053:50053
       - 50054:50054
-    
-
-  # client:
-  #   hostname: client
-  #   networks:
-  #     - front-end
-  #   build:
-  #     context: ./owly-client
-  #   ports: 
-  #     - 80:80
+  

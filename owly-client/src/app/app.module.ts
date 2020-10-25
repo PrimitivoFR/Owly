@@ -25,6 +25,7 @@ import { TextareaAutosizeModule } from 'ngx-textarea-autosize';
 import { GRPC_MESSAGE_SERVICE_CLIENT_SETTINGS } from 'src/proto/message.pbconf';
 import { ChatroomListComponent } from './navigation/chatroom-list/chatroom-list.component';
 import { GRPC_AUTH_SERVICE_CLIENT_SETTINGS } from 'src/proto/auth.pbconf';
+import { environment } from './../environments/environment';
 
 @NgModule({
   declarations: [
@@ -51,10 +52,10 @@ import { GRPC_AUTH_SERVICE_CLIENT_SETTINGS } from 'src/proto/auth.pbconf';
   ],
   providers: [
     { provide: GRPC_CLIENT_FACTORY, useClass: GrpcWebClientFactory },
-    { provide: GRPC_USER_SERVICE_CLIENT_SETTINGS, useValue: { host: 'http://localhost:8085' } },
-    {provide: GRPC_CHATROOM_SERVICE_CLIENT_SETTINGS, useValue: {host: 'http://localhost:8085'}},
-    { provide: GRPC_MESSAGE_SERVICE_CLIENT_SETTINGS, useValue: {host: 'http://localhost:8085'}},
-    { provide: GRPC_AUTH_SERVICE_CLIENT_SETTINGS, useValue: {host: 'http://localhost:8085'}},
+    { provide: GRPC_USER_SERVICE_CLIENT_SETTINGS, useValue: { host: environment.backendUrl } },
+    {provide: GRPC_CHATROOM_SERVICE_CLIENT_SETTINGS, useValue: {host: environment.backendUrl}},
+    { provide: GRPC_MESSAGE_SERVICE_CLIENT_SETTINGS, useValue: {host: environment.backendUrl}},
+    { provide: GRPC_AUTH_SERVICE_CLIENT_SETTINGS, useValue: {host: environment.backendUrl}},
   ],
   bootstrap: [AppComponent]
 })
