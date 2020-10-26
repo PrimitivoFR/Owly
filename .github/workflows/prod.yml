@@ -8,6 +8,7 @@ name: CI-Test-DockerBuildProd
 on:
   create:
     tags:
+      - "*"
 
 jobs:
   docker-test-build-prod:
