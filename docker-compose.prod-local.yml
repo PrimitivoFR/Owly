@@ -17,6 +17,8 @@ services:
         - user_server
         - chatroom_server
         - message_server
+      external_links:
+          - client
     
     auth_server:
       env_file: ./keycloak/.keycloak-env
@@ -86,3 +88,5 @@ services:
         - front-end
       depends_on:
         - envoy
+      external_links:
+          - envoy
