@@ -106,7 +106,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
       authorNAME: this.currentUser.username,
       chatroomID: this.currentStoreItem.chatroom.id,
       content: this.f.message.value,
-      timestamp: Date.now().toString(),
+      timestamp: "",
       hasFileAttached: false,
       isAnswer: false
     });
@@ -250,8 +250,8 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   }
 
   timestampToReadableDate(timestamp: string) {
-    const tmstp = parseInt(timestamp)
-    const date = new Date(tmstp)
+    const tmstp = parseInt(timestamp + "000")
+    const date = new Date(tmstp);
     return date.getHours()+":"+date.getMinutes() +" - "+ date.getDate() + "/" + (date.getMonth()+1)
   }
 
