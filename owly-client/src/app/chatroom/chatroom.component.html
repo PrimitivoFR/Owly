@@ -1,4 +1,4 @@
-<div *ngIf="currentStoreItem.chatroom" class="flex flex-col">
+<div class="flex flex-col">
     <div id="topBar" class="relative">
         <app-top-bar title="{{currentStoreItem.chatroom.name}}"></app-top-bar>
         <div class="absolute w-full z-20">
@@ -50,7 +50,6 @@
                         {{timestampToReadableDate(message.timestamp)}}
                     </div>
                 </div>
-        
             </div>
         </div>
         <div id="right-panel" [ngClass]="{'h-custom-messages': !isAnswer, 'h-custom-messages-w-reply': isAnswer, 'w-custom-panel-closed': !panelOpened, 'w-custom-panel-opened': panelOpened}"  class="bg-gray-500 border-t-2 border-b-2">
