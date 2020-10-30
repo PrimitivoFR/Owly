@@ -106,7 +106,6 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
       authorNAME: this.currentUser.username,
       chatroomID: this.currentStoreItem.chatroom.id,
       content: this.f.message.value,
-      timestamp: "",
       hasFileAttached: false,
       isAnswer: false
     });
