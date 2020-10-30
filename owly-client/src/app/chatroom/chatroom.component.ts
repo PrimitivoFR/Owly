@@ -101,13 +101,12 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   }
 
   async sendMessage(): Promise<Boolean> {
-
     // True message which goes to the db
     var message = new Message({
       authorNAME: this.currentUser.username,
       chatroomID: this.currentStoreItem.chatroom.id,
       content: this.f.message.value,
-      timestamp: new Date().getTime().toString(),
+      timestamp: Date.now().toString(),
       hasFileAttached: false,
       isAnswer: false
     });
@@ -253,7 +252,6 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   timestampToReadableDate(timestamp: string) {
     const tmstp = parseInt(timestamp)
     const date = new Date(tmstp)
-
     return date.getHours()+":"+date.getMinutes() +" - "+ date.getDate() + "/" + (date.getMonth()+1)
   }
 
