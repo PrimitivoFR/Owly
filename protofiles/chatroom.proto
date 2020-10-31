@@ -54,9 +54,19 @@ message LeaveChatroomResponse {
     bool success = 1;
 }
 
+message TranferOwnershipRequest {
+    string chatroomId = 1;
+    string ownerId = 2;
+}
+
+message TranferOwnershipResponse {
+    bool success = 1;
+}
+
 service ChatroomService {
     rpc CreateChatroom(CreateChatroomRequest) returns(CreateChatroomResponse) {}
     rpc GetChatroomsByUser(GetChatroomsByUserRequest) returns (GetChatroomsByUserResponse) {}
     rpc DeleteChatroom(DeleteChatroomRequest) returns(DeleteChatroomResponse) {}
     rpc LeaveChatroom(LeaveChatroomRequest) returns(LeaveChatroomResponse) {}
+    rpc TransferOwnership(TranferOwnershipRequest) returns (TranferOwnershipResponse) {}
 }
