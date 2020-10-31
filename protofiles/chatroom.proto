@@ -56,7 +56,7 @@ message LeaveChatroomResponse {
 
 message TranferOwnershipRequest {
     string chatroomId = 1;
-    string ownerId = 2;
+    string newOwnerId = 2;
 }
 
 message TranferOwnershipResponse {
