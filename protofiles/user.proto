@@ -24,9 +24,18 @@ message SearchUserByUsernameResponse {
     int64 count = 2;
 }
 
+message GetUserInfosRequest {
+    string id = 1;
+}
 
+message GetUserInfosResponse {
+    string username = 1;
+    string firstname = 2;
+    string lastname = 3;
+    string email = 4;
+}
 
 service UserService {
-
     rpc SearchUserByUsername(SearchUserByUsernameRequest) returns(SearchUserByUsernameResponse) {}
+    rpc GetUserInfos(GetUserInfosRequest) returns(GetUserInfosResponse) {}
 }
