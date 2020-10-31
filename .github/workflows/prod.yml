@@ -6,9 +6,9 @@ name: CI-Test-DockerBuildProd
 # events but only for the master branch
 # Won't run if we don't tag
 on:
-  create:
+  push:
     tags:
-      - "*"
+      - '*'
 
 jobs:
   docker-test-build-prod:
