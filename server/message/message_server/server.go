@@ -375,7 +375,14 @@ func (*server) DeleteMessage(ctx context.Context, req *messagepb.DeleteMessageRe
 	return &response, nil
 }
 
-//
+// UpdateMessageContent updates the content of a message
+// it receives messageId as well as the chatroomId which contains the message
+// it also receives newContent, which contains the content to update the targeted message with
+func (*server) UpdateMessageContent(context.Context, *messagepb.UpdateMessageContentRequest) (*messagepb.UpdateMessageContentResponse, error) {
+	return nil, nil
+}
+
+// StartServer starts the message grpc server on port 50053
 func StartServer() {
 
 	lis, err := net.Listen("tcp", "0.0.0.0:50053")
