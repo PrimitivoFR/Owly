@@ -59,9 +59,21 @@ message DeleteMessageResponse {
     bool success = 1;
 }
 
+message UpdateMessageContentRequest {
+    string messageId = 1;
+    string chatroomId = 2;
+    string newContent = 3;
+}
+
+message UpdateMessageContentResponse {
+    bool success = 1;
+    Message message = 2; 
+}
+
 service MessageService {
     rpc StreamMessagesByChatroom(StreamMessagesByChatroomRequest) returns (stream StreamMessagesByChatroomResponse) {}
     rpc SendMessage(SendMessageRequest) returns (SendMessageResponse) {}
     rpc GetMessagesByChatroom(GetMessagesByChatroomRequest) returns (GetMessagesByChatroomResponse) {}
     rpc DeleteMessage(DeleteMessageRequest) returns (DeleteMessageResponse) {}
+    rpc UpdateMessageContent(UpdateMessageContentRequest) returns (UpdateMessageContentResponse) {}
 }
