@@ -378,8 +378,106 @@ func (*server) DeleteMessage(ctx context.Context, req *messagepb.DeleteMessageRe
 // UpdateMessageContent updates the content of a message
 // it receives messageId as well as the chatroomId which contains the message
 // it also receives newContent, which contains the content to update the targeted message with
-func (*server) UpdateMessageContent(context.Context, *messagepb.UpdateMessageContentRequest) (*messagepb.UpdateMessageContentResponse, error) {
-	return nil, nil
+func (*server) UpdateMessageContent(ctx context.Context, req *messagepb.UpdateMessageContentRequest) (*messagepb.UpdateMessageContentResponse, error) {
+
+	// Retrieve userId from token
+	userId, err := common_jwt.ReadUUIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if user belongs to chatroom
+	if ok, err := interceptors.IsUserInChatroom(req.ChatroomId, userId); !ok || err != nil {
+		if !ok && err == nil {
+			log.Printf("User %v not found in this chatroom: %v", userId, req.ChatroomId)
+			return nil, status.Errorf(
+				codes.Unauthenticated,
+				fmt.Sprintf("User %v not found in this chatroom: %v", userId, req.ChatroomId),
+			)
+		}
+
+		log.Printf("Error while checking if user belong to chatroom: %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Error while checking if user belong to chatroom: %v", err),
+		)
+
+	}
+
+	//Elastic client init with Olivere package
+	client, err := elastic.NewClient(
+		elastic.SetSniff(true),
+		elastic.SetURL("http://elasticsearch:9200"),
+		elastic.SetHealthcheckInterval(5*time.Second),
+	)
+	if err != nil {
+		log.Printf("Elasticsearch connection error %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Elasticsearch connection error %v", err),
+		)
+	}
+
+	// Check if index exists
+	exist, err := client.IndexExists(req.ChatroomId).Do(context.Background())
+	if !exist {
+		log.Printf("Index %v not found", req.ChatroomId)
+		return nil, status.Errorf(
+			codes.NotFound,
+			fmt.Sprintf("Index %v not found", req.ChatroomId),
+		)
+	}
+
+	// CHECK if userId == authorUUID of the message for which an update has been requested
+	doc, err := client.Get().
+		Index(req.ChatroomId).
+		Id(req.MessageId).
+		Type("_doc").
+		Do(context.Background())
+
+	if err != nil {
+		log.Printf("Error while getting message in ES %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Error while getting  message in ES %v", err),
+		)
+	}
+	var message messagepb.Message
+	data := *doc.Source
+	json.Unmarshal(data, &message)
+
+	// Not authorized
+	if message.AuthorUUID != userId {
+		log.Printf("This user %v is not the author of the message %v. He can't delete it", userId, message.Id)
+		return nil, status.Errorf(
+			codes.Unauthenticated,
+			fmt.Sprintf("This user %v is not the author of the message %v. He can't delete it", userId, message.Id),
+		)
+	}
+
+	// Update the message
+	updateService := elastic.NewUpdateService(client)
+	updateService.Index(req.ChatroomId)
+	updateService.Id(req.MessageId)
+	updateService.Type("_doc")
+	updateService.Doc(map[string]string{"content": req.NewContent})
+	updateService.Refresh("true")
+
+	res, err := updateService.Do(context.Background())
+	if err != nil {
+		log.Printf("UpdateMessageContent returned error %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("UpdateMessageContent returned error %v", err),
+		)
+	}
+
+	return &messagepb.UpdateMessageContentResponse{
+		Success: true,
+		Message: &messagepb.Message{
+			Id: res.Id,
+		},
+	}, nil
 }
 
 // StartServer starts the message grpc server on port 50053
