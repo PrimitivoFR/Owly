@@ -31,26 +31,14 @@ type server struct{}
 func (*server) StreamMessagesByChatroom(req *messagepb.StreamMessagesByChatroomRequest, stream messagepb.MessageService_StreamMessagesByChatroomServer) error {
 	chatroomID := req.GetChatroomID()
 
-	user_id, err := common_jwt.ReadUUIDFromContext(stream.Context())
+	userID, err := common_jwt.ReadUUIDFromContext(stream.Context())
 	if err != nil {
 		return err
 	}
 
-	if ok, err := interceptors.IsUserInChatroom(chatroomID, user_id); !ok || err != nil {
-		if !ok && err == nil {
-			log.Printf("User %v not found in this chatroom: %v", user_id, chatroomID)
-			return status.Errorf(
-				codes.Unauthenticated,
-				fmt.Sprintf("User %v not found in this chatroom: %v", user_id, chatroomID),
-			)
-		}
-
-		log.Printf("Error while checking if user belong to chatroom: %v", err)
-		return status.Errorf(
-			codes.Internal,
-			fmt.Sprintf("Error while checking if user belong to chatroom: %v", err),
-		)
-
+	err = interceptors.IsUserInChatroom(chatroomID, userID)
+	if err != nil {
+		return err
 	}
 
 	var wsError error
@@ -115,21 +103,9 @@ func (*server) SendMessage(ctx context.Context, req *messagepb.SendMessageReques
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Message is too long. Req: %v", req))
 	}
 
-	if ok, err := interceptors.IsUserInChatroom(req.Message.GetChatroomID(), user_id); !ok || err != nil {
-		if !ok && err == nil {
-			log.Printf("User %v not found in this chatroom: %v", user_id, req.Message.GetChatroomID())
-			return nil, status.Errorf(
-				codes.Unauthenticated,
-				fmt.Sprintf("User %v not found in this chatroom: %v", user_id, req.Message.GetChatroomID()),
-			)
-		}
-
-		log.Printf("Error while checking if user belong to chatroom: %v", err)
-		return nil, status.Errorf(
-			codes.Internal,
-			fmt.Sprintf("Error while checking if user belong to chatroom: %v", err),
-		)
-
+	err = interceptors.IsUserInChatroom(req.Message.ChatroomID, user_id)
+	if err != nil {
+		return nil, err
 	}
 
 	client, err := common_elastic.Init()
@@ -196,21 +172,9 @@ func (*server) GetMessagesByChatroom(ctx context.Context, req *messagepb.GetMess
 		return nil, err
 	}
 
-	if ok, err := interceptors.IsUserInChatroom(req.GetChatroomID(), user_id); !ok || err != nil {
-		if !ok && err == nil {
-			log.Printf("User %v not found in this chatroom: %v", user_id, req.GetChatroomID())
-			return nil, status.Errorf(
-				codes.Unauthenticated,
-				fmt.Sprintf("User %v not found in this chatroom: %v", user_id, req.GetChatroomID()),
-			)
-		}
-
-		log.Printf("Error while checking if user belong to chatroom: %v", err)
-		return nil, status.Errorf(
-			codes.Internal,
-			fmt.Sprintf("Error while checking if user belong to chatroom: %v", err),
-		)
-
+	err = interceptors.IsUserInChatroom(req.ChatroomID, user_id)
+	if err != nil {
+		return nil, err
 	}
 
 	client, err := common_elastic.Init()
@@ -284,74 +248,29 @@ func (*server) DeleteMessage(ctx context.Context, req *messagepb.DeleteMessageRe
 		return nil, err
 	}
 
-	if ok, err := interceptors.IsUserInChatroom(req.ChatroomID, userId); !ok || err != nil {
-		if !ok && err == nil {
-			log.Printf("User %v not found in this chatroom: %v", userId, req.ChatroomID)
-			return nil, status.Errorf(
-				codes.Unauthenticated,
-				fmt.Sprintf("User %v not found in this chatroom: %v", userId, req.ChatroomID),
-			)
-		}
-
-		log.Printf("Error while checking if user belong to chatroom: %v", err)
-		return nil, status.Errorf(
-			codes.Internal,
-			fmt.Sprintf("Error while checking if user belong to chatroom: %v", err),
-		)
-
+	err = interceptors.IsUserInChatroom(req.ChatroomID, userId)
+	if err != nil {
+		return nil, err
 	}
 
 	//Elastic client init with Olivere package
-	client, err := elastic.NewClient(
-		elastic.SetSniff(true),
-		elastic.SetURL("http://elasticsearch:9200"),
-		elastic.SetHealthcheckInterval(5*time.Second),
-	)
+	client, err := common_elastic.InitOlivereES()
 	if err != nil {
-		log.Printf("Elasticsearch connection error %v", err)
-		return nil, status.Errorf(
-			codes.Internal,
-			fmt.Sprintf("Elasticsearch connection error %v", err),
-		)
+		return nil, err
 	}
 
-	exist, err := client.IndexExists(req.ChatroomID).Do(context.Background())
-	if !exist {
-		log.Printf("Index %v not found", req.ChatroomID)
-		return nil, status.Errorf(
-			codes.NotFound,
-			fmt.Sprintf("Index %v not found", req.ChatroomID),
-		)
+	err = common_elastic.DoesChatroomIndexExist(client, req.ChatroomID)
+	if err != nil {
+		return nil, err
 	}
 
 	// CHECK if userId == authorUUID of the message for which a deletion has been requested
-	doc, err := client.Get().
-		Index(req.ChatroomID).
-		Id(req.MessageID).
-		Type("_doc").
-		Do(context.Background())
-
+	err = interceptors.IsUserAuthorOfMessage(client, req.ChatroomID, req.MessageID, userId)
 	if err != nil {
-		log.Printf("Error while getting message in ES %v", err)
-		return nil, status.Errorf(
-			codes.Internal,
-			fmt.Sprintf("Error while getting  message in ES %v", err),
-		)
+		return nil, err
 	}
-	var message messagepb.Message
-	data := *doc.Source
-	json.Unmarshal(data, &message)
 
-	// Not authorized
-	if message.AuthorUUID != userId {
-		log.Printf("This user %v is not the author of the message %v. He can't delete it", userId, message.Id)
-		return nil, status.Errorf(
-			codes.Unauthenticated,
-			fmt.Sprintf("This user %v is not the author of the message %v. He can't delete it", userId, message.Id),
-		)
-	}
-	//
-
+	// Delete the message
 	deleteService := elastic.NewDeleteService(client)
 	deleteService.Index(req.ChatroomID)
 	deleteService.Id(req.MessageID)
@@ -387,72 +306,27 @@ func (*server) UpdateMessageContent(ctx context.Context, req *messagepb.UpdateMe
 	}
 
 	// Check if user belongs to chatroom
-	if ok, err := interceptors.IsUserInChatroom(req.ChatroomId, userId); !ok || err != nil {
-		if !ok && err == nil {
-			log.Printf("User %v not found in this chatroom: %v", userId, req.ChatroomId)
-			return nil, status.Errorf(
-				codes.Unauthenticated,
-				fmt.Sprintf("User %v not found in this chatroom: %v", userId, req.ChatroomId),
-			)
-		}
-
-		log.Printf("Error while checking if user belong to chatroom: %v", err)
-		return nil, status.Errorf(
-			codes.Internal,
-			fmt.Sprintf("Error while checking if user belong to chatroom: %v", err),
-		)
-
+	err = interceptors.IsUserInChatroom(req.ChatroomId, userId)
+	if err != nil {
+		return nil, err
 	}
 
 	//Elastic client init with Olivere package
-	client, err := elastic.NewClient(
-		elastic.SetSniff(true),
-		elastic.SetURL("http://elasticsearch:9200"),
-		elastic.SetHealthcheckInterval(5*time.Second),
-	)
+	client, err := common_elastic.InitOlivereES()
 	if err != nil {
-		log.Printf("Elasticsearch connection error %v", err)
-		return nil, status.Errorf(
-			codes.Internal,
-			fmt.Sprintf("Elasticsearch connection error %v", err),
-		)
+		return nil, err
 	}
 
 	// Check if index exists
-	exist, err := client.IndexExists(req.ChatroomId).Do(context.Background())
-	if !exist {
-		log.Printf("Index %v not found", req.ChatroomId)
-		return nil, status.Errorf(
-			codes.NotFound,
-			fmt.Sprintf("Index %v not found", req.ChatroomId),
-		)
+	err = common_elastic.DoesChatroomIndexExist(client, req.ChatroomId)
+	if err != nil {
+		return nil, err
 	}
 
 	// CHECK if userId == authorUUID of the message for which an update has been requested
-	doc, err := client.Get().
-		Index(req.ChatroomId).
-		Id(req.MessageId).
-		Type("_doc").
-		Do(context.Background())
-
+	err = interceptors.IsUserAuthorOfMessage(client, req.ChatroomId, req.MessageId, userId)
 	if err != nil {
-		log.Printf("Error while getting message in ES %v", err)
-		return nil, status.Errorf(
-			codes.Internal,
-			fmt.Sprintf("Error while getting  message in ES %v", err),
-		)
-	}
-	var message messagepb.Message
-	data := *doc.Source
-	json.Unmarshal(data, &message)
-
-	// Not authorized
-	if message.AuthorUUID != userId {
-		log.Printf("This user %v is not the author of the message %v. He can't delete it", userId, message.Id)
-		return nil, status.Errorf(
-			codes.Unauthenticated,
-			fmt.Sprintf("This user %v is not the author of the message %v. He can't delete it", userId, message.Id),
-		)
+		return nil, err
 	}
 
 	// Update the message
