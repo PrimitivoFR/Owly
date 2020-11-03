@@ -102,4 +102,10 @@ export class AuthService {
         this.cookieService.remove("owly_user_cookies");
         this.storeService.emptyStore()
     }
+
+    matchUUIDvsTOKEN(token: string, uuid: string): boolean {
+        const info = this.jwtHelper.decodeToken(token);
+        const {sub} = info;
+        return sub == uuid;
+    }
 }

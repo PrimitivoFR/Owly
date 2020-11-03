@@ -159,4 +159,43 @@ export class MessageServiceClient {
       responseClass: thisProto.GetMessagesByChatroomResponse
     });
   }
+
+  /**
+   * Unary RPC for /message.MessageService/DeleteMessage
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<thisProto.DeleteMessageResponse>
+   */
+  deleteMessage(
+    requestData: thisProto.DeleteMessageRequest,
+    requestMetadata: Metadata = {}
+  ): Observable<thisProto.DeleteMessageResponse> {
+    return this.deleteMessage$eventStream(requestData, requestMetadata).pipe(
+      throwStatusErrors(),
+      takeMessages()
+    );
+  }
+
+  /**
+   * Unary RPC for /message.MessageService/DeleteMessage
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<GrpcEvent<thisProto.DeleteMessageResponse>>
+   */
+  deleteMessage$eventStream(
+    requestData: thisProto.DeleteMessageRequest,
+    requestMetadata: Metadata = {}
+  ): Observable<GrpcEvent<thisProto.DeleteMessageResponse>> {
+    return this.handler.handle({
+      type: GrpcCallType.unary,
+      client: this.client,
+      path: '/message.MessageService/DeleteMessage',
+      requestData,
+      requestMetadata,
+      requestClass: thisProto.DeleteMessageRequest,
+      responseClass: thisProto.DeleteMessageResponse
+    });
+  }
 }

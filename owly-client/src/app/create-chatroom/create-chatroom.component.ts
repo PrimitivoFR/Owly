@@ -6,6 +6,7 @@ import { ChatroomService } from 'src/_services/chatroom.service';
 import { UserService } from 'src/_services/user.service';
 import { LoadingSpinnerService } from '../common/components/loading-spinner/loading-spinner.service';
 import { SnackAlertService } from '../common/components/snack-alert/snack-alert.service';
+import { NavigationService } from '../navigation/navigation.service';
 
 @Component({
   selector: 'app-create-chatroom',
@@ -29,7 +30,8 @@ export class CreateChatroomComponent implements OnInit {
     private userService: UserService,
     private chatroomService: ChatroomService,
     private snackService: SnackAlertService,
-    private spinnerService: LoadingSpinnerService
+    private spinnerService: LoadingSpinnerService,
+    private navService: NavigationService,
   ) { }
 
   ngOnInit(): void {
@@ -94,9 +96,10 @@ export class CreateChatroomComponent implements OnInit {
     this.spinnerService.hideSpinner()
     
     if(this.chatroomCreationSucess) {
-      this.snackService.showSnack("Chatroom successfully created !")
+      this.addedUsers = [];
+      this.snackService.showSnack("Chatroom successfully created !");
     } else {
-      this.snackService.showSnack("An error has occured")
+      this.snackService.showSnack("An error has occured");
     }
 
   }

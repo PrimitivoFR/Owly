@@ -549,6 +549,7 @@ export class StreamMessagesByChatroomResponse implements GrpcMessage {
    * @param _instance message instance
    */
   static refineValues(_instance: StreamMessagesByChatroomResponse) {
+    _instance.operation = _instance.operation || '';
     _instance.message = _instance.message || undefined;
   }
 
@@ -566,6 +567,9 @@ export class StreamMessagesByChatroomResponse implements GrpcMessage {
 
       switch (_reader.getFieldNumber()) {
         case 1:
+          _instance.operation = _reader.readString();
+          break;
+        case 2:
           _instance.message = new Message();
           _reader.readMessage(
             _instance.message,
@@ -589,15 +593,19 @@ export class StreamMessagesByChatroomResponse implements GrpcMessage {
     _instance: StreamMessagesByChatroomResponse,
     _writer: BinaryWriter
   ) {
+    if (_instance.operation) {
+      _writer.writeString(1, _instance.operation);
+    }
     if (_instance.message) {
       _writer.writeMessage(
-        1,
+        2,
         _instance.message as any,
         Message.serializeBinaryToWriter
       );
     }
   }
 
+  private _operation?: string;
   private _message?: Message;
 
   /**
@@ -606,8 +614,15 @@ export class StreamMessagesByChatroomResponse implements GrpcMessage {
    */
   constructor(_value?: RecursivePartial<StreamMessagesByChatroomResponse>) {
     _value = _value || {};
+    this.operation = _value.operation;
     this.message = _value.message ? new Message(_value.message) : undefined;
     StreamMessagesByChatroomResponse.refineValues(this);
+  }
+  get operation(): string | undefined {
+    return this._operation;
+  }
+  set operation(value: string | undefined) {
+    this._operation = value;
   }
   get message(): Message | undefined {
     return this._message;
@@ -631,6 +646,7 @@ export class StreamMessagesByChatroomResponse implements GrpcMessage {
    */
   toObject(): StreamMessagesByChatroomResponse.AsObject {
     return {
+      operation: this.operation,
       message: this.message ? this.message.toObject() : undefined
     };
   }
@@ -648,6 +664,7 @@ export module StreamMessagesByChatroomResponse {
    * Standard JavaScript object representation for StreamMessagesByChatroomResponse
    */
   export interface AsObject {
+    operation?: string;
     message?: Message.AsObject;
   }
 }
@@ -1136,5 +1153,256 @@ export module GetMessagesByChatroomResponse {
    */
   export interface AsObject {
     messages?: Message.AsObject[];
+  }
+}
+
+/**
+ * Message implementation for message.DeleteMessageRequest
+ */
+export class DeleteMessageRequest implements GrpcMessage {
+  /**
+   * Deserialize binary data to message
+   * @param instance message instance
+   */
+  static deserializeBinary(bytes: ByteSource) {
+    const instance = new DeleteMessageRequest();
+    DeleteMessageRequest.deserializeBinaryFromReader(
+      instance,
+      new BinaryReader(bytes)
+    );
+    return instance;
+  }
+
+  /**
+   * Check all the properties and set default protobuf values if necessary
+   * @param _instance message instance
+   */
+  static refineValues(_instance: DeleteMessageRequest) {
+    _instance.messageID = _instance.messageID || '';
+    _instance.chatroomID = _instance.chatroomID || '';
+  }
+
+  /**
+   * Deserializes / reads binary message into message instance using provided binary reader
+   * @param _instance message instance
+   * @param _reader binary reader instance
+   */
+  static deserializeBinaryFromReader(
+    _instance: DeleteMessageRequest,
+    _reader: BinaryReader
+  ) {
+    while (_reader.nextField()) {
+      if (_reader.isEndGroup()) break;
+
+      switch (_reader.getFieldNumber()) {
+        case 1:
+          _instance.messageID = _reader.readString();
+          break;
+        case 2:
+          _instance.chatroomID = _reader.readString();
+          break;
+        default:
+          _reader.skipField();
+      }
+    }
+
+    DeleteMessageRequest.refineValues(_instance);
+  }
+
+  /**
+   * Serializes a message to binary format using provided binary reader
+   * @param _instance message instance
+   * @param _writer binary writer instance
+   */
+  static serializeBinaryToWriter(
+    _instance: DeleteMessageRequest,
+    _writer: BinaryWriter
+  ) {
+    if (_instance.messageID) {
+      _writer.writeString(1, _instance.messageID);
+    }
+    if (_instance.chatroomID) {
+      _writer.writeString(2, _instance.chatroomID);
+    }
+  }
+
+  private _messageID?: string;
+  private _chatroomID?: string;
+
+  /**
+   * Message constructor. Initializes the properties and applies default Protobuf values if necessary
+   * @param _value initial values object or instance of DeleteMessageRequest to deeply clone from
+   */
+  constructor(_value?: RecursivePartial<DeleteMessageRequest>) {
+    _value = _value || {};
+    this.messageID = _value.messageID;
+    this.chatroomID = _value.chatroomID;
+    DeleteMessageRequest.refineValues(this);
+  }
+  get messageID(): string | undefined {
+    return this._messageID;
+  }
+  set messageID(value: string | undefined) {
+    this._messageID = value;
+  }
+  get chatroomID(): string | undefined {
+    return this._chatroomID;
+  }
+  set chatroomID(value: string | undefined) {
+    this._chatroomID = value;
+  }
+
+  /**
+   * Serialize message to binary data
+   * @param instance message instance
+   */
+  serializeBinary() {
+    const writer = new BinaryWriter();
+    DeleteMessageRequest.serializeBinaryToWriter(this, writer);
+    return writer.getResultBuffer();
+  }
+
+  /**
+   * Cast message to standard JavaScript object (all non-primitive values are deeply cloned)
+   */
+  toObject(): DeleteMessageRequest.AsObject {
+    return {
+      messageID: this.messageID,
+      chatroomID: this.chatroomID
+    };
+  }
+
+  /**
+   * JSON serializer
+   * Only intended to be used by `JSON.stringify` function. If you want to cast message to standard JavaScript object, use `toObject()` instead
+   */
+  toJSON() {
+    return this.toObject();
+  }
+}
+export module DeleteMessageRequest {
+  /**
+   * Standard JavaScript object representation for DeleteMessageRequest
+   */
+  export interface AsObject {
+    messageID?: string;
+    chatroomID?: string;
+  }
+}
+
+/**
+ * Message implementation for message.DeleteMessageResponse
+ */
+export class DeleteMessageResponse implements GrpcMessage {
+  /**
+   * Deserialize binary data to message
+   * @param instance message instance
+   */
+  static deserializeBinary(bytes: ByteSource) {
+    const instance = new DeleteMessageResponse();
+    DeleteMessageResponse.deserializeBinaryFromReader(
+      instance,
+      new BinaryReader(bytes)
+    );
+    return instance;
+  }
+
+  /**
+   * Check all the properties and set default protobuf values if necessary
+   * @param _instance message instance
+   */
+  static refineValues(_instance: DeleteMessageResponse) {
+    _instance.success = _instance.success || false;
+  }
+
+  /**
+   * Deserializes / reads binary message into message instance using provided binary reader
+   * @param _instance message instance
+   * @param _reader binary reader instance
+   */
+  static deserializeBinaryFromReader(
+    _instance: DeleteMessageResponse,
+    _reader: BinaryReader
+  ) {
+    while (_reader.nextField()) {
+      if (_reader.isEndGroup()) break;
+
+      switch (_reader.getFieldNumber()) {
+        case 1:
+          _instance.success = _reader.readBool();
+          break;
+        default:
+          _reader.skipField();
+      }
+    }
+
+    DeleteMessageResponse.refineValues(_instance);
+  }
+
+  /**
+   * Serializes a message to binary format using provided binary reader
+   * @param _instance message instance
+   * @param _writer binary writer instance
+   */
+  static serializeBinaryToWriter(
+    _instance: DeleteMessageResponse,
+    _writer: BinaryWriter
+  ) {
+    if (_instance.success) {
+      _writer.writeBool(1, _instance.success);
+    }
+  }
+
+  private _success?: boolean;
+
+  /**
+   * Message constructor. Initializes the properties and applies default Protobuf values if necessary
+   * @param _value initial values object or instance of DeleteMessageResponse to deeply clone from
+   */
+  constructor(_value?: RecursivePartial<DeleteMessageResponse>) {
+    _value = _value || {};
+    this.success = _value.success;
+    DeleteMessageResponse.refineValues(this);
+  }
+  get success(): boolean | undefined {
+    return this._success;
+  }
+  set success(value: boolean | undefined) {
+    this._success = value;
+  }
+
+  /**
+   * Serialize message to binary data
+   * @param instance message instance
+   */
+  serializeBinary() {
+    const writer = new BinaryWriter();
+    DeleteMessageResponse.serializeBinaryToWriter(this, writer);
+    return writer.getResultBuffer();
+  }
+
+  /**
+   * Cast message to standard JavaScript object (all non-primitive values are deeply cloned)
+   */
+  toObject(): DeleteMessageResponse.AsObject {
+    return {
+      success: this.success
+    };
+  }
+
+  /**
+   * JSON serializer
+   * Only intended to be used by `JSON.stringify` function. If you want to cast message to standard JavaScript object, use `toObject()` instead
+   */
+  toJSON() {
+    return this.toObject();
+  }
+}
+export module DeleteMessageResponse {
+  /**
+   * Standard JavaScript object representation for DeleteMessageResponse
+   */
+  export interface AsObject {
+    success?: boolean;
   }
 }

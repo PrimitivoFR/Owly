@@ -2,9 +2,6 @@ version: "3.8"
 
 
 services:
-
-  keycloak:
-    env_file: ./keycloak/.keycloak-env
   
   # go dev
   server:

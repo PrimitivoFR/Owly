@@ -120,4 +120,82 @@ export class ChatroomServiceClient {
       responseClass: thisProto.GetChatroomsByUserResponse
     });
   }
+
+  /**
+   * Unary RPC for /chatroom.ChatroomService/DeleteChatroom
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<thisProto.DeleteChatroomResponse>
+   */
+  deleteChatroom(
+    requestData: thisProto.DeleteChatroomRequest,
+    requestMetadata: Metadata = {}
+  ): Observable<thisProto.DeleteChatroomResponse> {
+    return this.deleteChatroom$eventStream(requestData, requestMetadata).pipe(
+      throwStatusErrors(),
+      takeMessages()
+    );
+  }
+
+  /**
+   * Unary RPC for /chatroom.ChatroomService/DeleteChatroom
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<GrpcEvent<thisProto.DeleteChatroomResponse>>
+   */
+  deleteChatroom$eventStream(
+    requestData: thisProto.DeleteChatroomRequest,
+    requestMetadata: Metadata = {}
+  ): Observable<GrpcEvent<thisProto.DeleteChatroomResponse>> {
+    return this.handler.handle({
+      type: GrpcCallType.unary,
+      client: this.client,
+      path: '/chatroom.ChatroomService/DeleteChatroom',
+      requestData,
+      requestMetadata,
+      requestClass: thisProto.DeleteChatroomRequest,
+      responseClass: thisProto.DeleteChatroomResponse
+    });
+  }
+
+  /**
+   * Unary RPC for /chatroom.ChatroomService/LeaveChatroom
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<thisProto.LeaveChatroomResponse>
+   */
+  leaveChatroom(
+    requestData: thisProto.LeaveChatroomRequest,
+    requestMetadata: Metadata = {}
+  ): Observable<thisProto.LeaveChatroomResponse> {
+    return this.leaveChatroom$eventStream(requestData, requestMetadata).pipe(
+      throwStatusErrors(),
+      takeMessages()
+    );
+  }
+
+  /**
+   * Unary RPC for /chatroom.ChatroomService/LeaveChatroom
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<GrpcEvent<thisProto.LeaveChatroomResponse>>
+   */
+  leaveChatroom$eventStream(
+    requestData: thisProto.LeaveChatroomRequest,
+    requestMetadata: Metadata = {}
+  ): Observable<GrpcEvent<thisProto.LeaveChatroomResponse>> {
+    return this.handler.handle({
+      type: GrpcCallType.unary,
+      client: this.client,
+      path: '/chatroom.ChatroomService/LeaveChatroom',
+      requestData,
+      requestMetadata,
+      requestClass: thisProto.LeaveChatroomRequest,
+      responseClass: thisProto.LeaveChatroomResponse
+    });
+  }
 }

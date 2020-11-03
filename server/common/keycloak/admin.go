@@ -104,3 +104,9 @@ func (adminGuy *AdminGuy) ExtractUUIDfromToken(token string) string {
 	claims := *decoded.Claims.(*jwt.MapClaims)
 	return claims["sub"].(string)
 }
+
+func (adminGuy *AdminGuy) GetUserByUUID(uuid string) (*gocloak.User, error) {
+
+	return adminGuy.Client.GetUserByID(context.Background(), adminGuy.Token, "OWLY", uuid)
+
+}

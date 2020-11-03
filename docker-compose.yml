@@ -2,26 +2,8 @@ version: "3.8"
 
 services:
 
-  # logstash:
-  #   image: logstash:7.9.1
-  #   volumes:
-  #     - ./logstash/pipeline:/usr/share/logstash/pipeline
-  #   environment:
-  #     - "discovery.type=single-node"
-  #     - "bootstrap.memory_lock=true"
-  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-  #   links:
-  #     - elasticsearch
-  #   ports:
-  #     - 5044:5044
-  #     - 9600:9600
-  #   networks:
-  #     - back-end
-      
-
   elasticsearch:
     hostname: elasticsearch
-    build: ./elasticsearch
     environment:
       - "discovery.type=single-node"
       - "bootstrap.memory_lock=true"
@@ -30,17 +12,12 @@ services:
        memlock:
          soft: -1
          hard: -1
-    ports:
-      - 9200:9200
-      - 9400:9400 #webSocket on ws://localhost:9400/ws/_changes, streams the whole node
     networks:
       - back-end
   
   mongo:
     hostname: mongo
     image: mongo
-    ports:
-      - 27017:27017
     volumes:
       - mongodbdata:/data/db
     networks:
@@ -49,8 +26,6 @@ services:
   keycloak:
     hostname: keycloak
     image: quay.io/keycloak/keycloak:11.0.1
-    ports:
-      - 8080:8080
     environment:
       KEYCLOAK_IMPORT: /tmp/owly-realm.json 
     volumes: 
@@ -58,30 +33,14 @@ services:
     networks: 
       - back-end
   
-  server:
-    hostname: server
-    environment:
-      MONGO_HOSTNAME: mongo
-    networks: 
-      - back-end
-    depends_on:
-      - keycloak
-      - elasticsearch
-      - mongo
-  
   envoy:
     hostname: envoy
     image: envoyproxy/envoy-alpine:v1.13.0
-    volumes:
-      - ./envoy/envoy.yaml:/etc/envoy/envoy.yaml
     command: /usr/local/bin/envoy -c /etc/envoy/envoy.yaml -l trace --log-path /tmp/envoy_info.log
     networks: 
       - back-end
       - front-end
-    ports:
-      - 8085:8085
-    depends_on:
-      - server
+    
     
 volumes: 
   mongodbdata:

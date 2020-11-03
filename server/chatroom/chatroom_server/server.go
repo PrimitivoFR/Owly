@@ -8,6 +8,7 @@ import (
 	"primitivofr/owly/server/chatroom/chatroompb"
 	"primitivofr/owly/server/common/interceptors"
 	common_jwt "primitivofr/owly/server/common/jwt"
+	common_keycloak "primitivofr/owly/server/common/keycloak"
 	"primitivofr/owly/server/common/models"
 	common_mongo "primitivofr/owly/server/common/mongo"
 
@@ -24,6 +25,9 @@ type server struct{}
 //
 func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroomRequest) (*chatroompb.CreateChatroomResponse, error) {
 	currentUserID, err := common_jwt.ReadUUIDFromContext(ctx)
+
+	log.Println(currentUserID)
+
 	if err != nil {
 		return nil, err
 	}
@@ -54,11 +58,13 @@ func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroo
 
 	chatroom := models.Chatroom{
 		ID:    primitive.NewObjectID(),
+		Owner: currentUserID,
 		Name:  name,
 		Users: user_ids,
 	}
 
-	res, err := common_mongo.ChatroomCollection.InsertOne(context.Background(), chatroom)
+	res, err := common_mongo.InsertOneChatroomCollection(chatroom)
+
 	if err != nil {
 		log.Printf("Error while creating chatroom: %v. Error is: %v", chatroom, err)
 		return nil, status.Errorf(
@@ -105,10 +111,7 @@ func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatro
 		return nil, err
 	}
 
-	filter := bson.M{"_id": user_id}
-	var user_result models.UserMongo
-
-	err = common_mongo.UserCollection.FindOne(context.Background(), filter).Decode(&user_result)
+	user_result, err := common_mongo.FindOneUserCollection(user_id)
 
 	if err != nil { //err typically is "no documents in result"
 		log.Printf("Error while getting chatrooms for user %v. Error is: %v", user_result.Username, err)
@@ -121,35 +124,55 @@ func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatro
 	// build the list of chatroom objects
 	users_chatrooms := []*chatroompb.Chatroom{}
 
-	for _, chatroom_oid := range user_result.Chatrooms {
+	for _, chatroomOid := range user_result.Chatrooms {
 
-		oid, err_oid := primitive.ObjectIDFromHex(chatroom_oid)
+		// No need to convert to object ID, it's done in the function, since we know we use
+		// objectID as value for _id for a chatroom object in chatroom collection
+		chatroomResult, chatroomErr := common_mongo.FindOneChatroomCollection(chatroomOid)
 
-		if err_oid != nil {
-			log.Printf("Error while gathering chatrooms (oid). Chatroom: %v. Error: %v", chatroom_oid, err_oid)
+		if chatroomErr != nil {
+			log.Printf("Error while gathering chatrooms. Chatroom: %v. Error: %v", chatroomOid, chatroomErr)
 			return nil, status.Errorf(
 				codes.Internal,
-				fmt.Sprintf("Error while gathering chatrooms (oid). Chatroom: %v. Error: %v", chatroom_oid, err_oid),
+				fmt.Sprintf("Error while gathering chatrooms. Chatroom: %v. Error: %v", chatroomOid, chatroomErr),
 			)
 		}
 
-		var chatroom_result models.Chatroom
-		chatroom_err := common_mongo.ChatroomCollection.FindOne(context.Background(), bson.M{"_id": oid}).Decode(&chatroom_result)
+		// Retrieve usernames from userIds
+		adminGuy, err := common_keycloak.InitAdmin()
+		var usersList []*chatroompb.ChatroomUser
 
-		if chatroom_err != nil {
-			log.Printf("Error while gathering chatrooms. Chatroom: %v. Error: %v", chatroom_oid, chatroom_err)
+		if err != nil {
+			log.Printf("Error while intialiazing connection to keycloak. Error: %v", err)
 			return nil, status.Errorf(
 				codes.Internal,
-				fmt.Sprintf("Error while gathering chatrooms. Chatroom: %v. Error: %v", chatroom_oid, chatroom_err),
+				fmt.Sprintf("Error while intialiazing connection to keycloak. Error: %v", err),
 			)
 		}
+
+		for _, uuid := range chatroomResult.Users {
+			res, err := adminGuy.GetUserByUUID(uuid)
+			chatroomUser := &chatroompb.ChatroomUser{Uuid: uuid}
+			if err == nil {
+				username := *res.Username
+				chatroomUser.Username = username
+			} else {
+				chatroomUser.Username = "Unknown"
+			}
+
+			usersList = append(usersList, chatroomUser)
+		}
+
+		//
 
 		// TODO : we may also want the chatroom ID ?
 		users_chatrooms = append(
 			users_chatrooms,
 			&chatroompb.Chatroom{
-				Name: chatroom_result.Name,
-				Id:   chatroom_result.ID.Hex(),
+				Name:  chatroomResult.Name,
+				Id:    chatroomResult.ID.Hex(),
+				Owner: chatroomResult.Owner,
+				Users: usersList,
 			},
 		)
 	}
@@ -159,6 +182,89 @@ func (*server) GetChatroomsByUser(ctx context.Context, req *chatroompb.GetChatro
 		Count:     int64(len(users_chatrooms)),
 		Success:   true,
 	}, nil
+}
+
+func (*server) DeleteChatroom(ctx context.Context, req *chatroompb.DeleteChatroomRequest) (*chatroompb.DeleteChatroomResponse, error) {
+
+	// get ID of current user
+	currentUserID, err := common_jwt.ReadUUIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	targetChatroomID := req.ChatroomId
+
+	// check if the current user is the rightful owner
+	currentUserIsOwner, err := common_mongo.IsChatroomOwner(currentUserID, targetChatroomID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !currentUserIsOwner {
+		return nil, status.Error(
+			codes.PermissionDenied,
+			fmt.Sprintf(
+				"Current user is not the rightful owner of this"+
+					"chatroom, and thus cannot delete it."),
+		)
+	}
+
+	// get targetChatroom from targetChatroomID
+	targetChatroom, errGetChatroom := common_mongo.FindOneChatroomCollection(targetChatroomID)
+	if errGetChatroom != nil {
+		return nil, errGetChatroom
+	}
+
+	// make all users leave the targetChatroom
+	for _, userID := range targetChatroom.Users {
+		common_mongo.PopChatroomInUserCollection(userID, targetChatroomID)
+	}
+
+	// delete chatroom object from database
+	deleteErr := common_mongo.DeleteOneChatroomCollection(targetChatroomID)
+	if deleteErr != nil {
+		return nil, deleteErr
+	}
+
+	return &chatroompb.DeleteChatroomResponse{Success: true}, nil
+}
+
+func (*server) LeaveChatroom(ctx context.Context, req *chatroompb.LeaveChatroomRequest) (*chatroompb.LeaveChatroomResponse, error) {
+
+	chatroomID := req.ChatroomId
+	userID, err := common_jwt.ReadUUIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// check if the current user is the rightful owner
+	userIsOwner, ownerErr := common_mongo.IsChatroomOwner(userID, chatroomID)
+	if ownerErr != nil {
+		return nil, ownerErr
+	}
+
+	if userIsOwner {
+		return nil, status.Error(
+			codes.PermissionDenied,
+			fmt.Sprintf(
+				"Current user is the rightful owner of this"+
+					"chatroom, and thus cannot leave it."),
+		)
+	}
+
+	// pop user from the user list in the chatroom object
+	// and vice versa
+	popUserChatroomErr := common_mongo.PopUserInChatroomCollection(userID, chatroomID)
+	popChatroomUserErr := common_mongo.PopChatroomInUserCollection(userID, chatroomID)
+
+	if popUserChatroomErr != nil {
+		return nil, popUserChatroomErr
+	}
+	if popChatroomUserErr != nil {
+		return nil, popChatroomUserErr
+	}
+
+	return &chatroompb.LeaveChatroomResponse{Success: true}, nil
 }
 
 //
