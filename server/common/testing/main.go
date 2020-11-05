@@ -1,4 +1,4 @@
-package commontesting
+package common_testing
 
 import (
 	"context"
