@@ -41,6 +41,8 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   public answersTo: string = "";
   public messageToReply: Message;
   public panelOpened: boolean = false;
+  public isEditing: boolean = false;
+  private messageEdited: Message;
 
   @ViewChild('scrollframe', {static: true}) scrollFrame: ElementRef;
   @ViewChildren('item') itemElements: QueryList<any>;
@@ -89,14 +91,32 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const res = await this.sendMessage();
-
-    if (res) {
-      this.sendMsgForm.reset();
+    if(this.isEditing) {
+      // const req = new UpdateMessageContentRequest({
+      //   messageId: this.messageEdited.id,
+      //   chatroomId: this.currentStoreItem.chatroom.id,
+      //   newContent: this.f.message.value
+      // });
+      // const res = await this.messageService.updateMessageContent(req);
+      
+      // if (res.success) {
+      //   this.cancelEditing();
+      // }
+      // else {
+      //   console.log("something went wrong");
+      //   console.error(this.sendMsgForm.errors)
+      // }
     }
     else {
-      console.log("something went wrong");
-      console.error(this.sendMsgForm.errors)
+      const res = await this.sendMessage();
+
+      if (res) {
+        this.sendMsgForm.reset();
+      }
+      else {
+        console.log("something went wrong");
+        console.error(this.sendMsgForm.errors)
+      }
     }
   }
 
@@ -267,6 +287,19 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     return false;
   }
 
+  startEditing(message: Message) {
+    this.sendMsgForm.setValue({message: message.content});
+    this.isEditing = true;
+    this.dropdownOpen = false;
+    this.messageEdited = message;
+  }
+
+  cancelEditing() {
+    this.sendMsgForm.reset();
+    this.isEditing = false;
+    this.messageEdited = null;
+  }
+
   private onItemElementsChanged(): void {
     if (this.isNearBottom) {
       this.scrollToBottom();
@@ -274,7 +307,6 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   }
 
   private scrollToBottom(): void {
-    console.log(this.scrollContainer);
     this.scrollContainer.scroll({
       top: this.scrollContainer.scrollHeight,
       behavior: 'smooth'
@@ -282,7 +314,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   }
 
   private isUserNearBottom(): boolean {
-    const threshold = 150;
+    const threshold = 50;
     const position = this.scrollContainer.scrollTop + this.scrollContainer.offsetHeight;
     const height = this.scrollContainer.scrollHeight;
     return position > height - threshold;
