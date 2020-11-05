@@ -3,30 +3,37 @@ package commontesting
 import (
 	"context"
 
-	//evgrpc "github.com/ktr0731/evans/grpc"
-	"google.golang.org/grpc"
-	//rpb "google.golang.org/grpc/reflection/grpc_reflection_v1alpha"
+	evgrpc "github.com/ktr0731/evans/grpc"
 )
 
-type server struct{}
+// ContextGenerator aims to create a testing context (ONLY FOR DEV AND TEST MODE)
+// ctx is the context, it can contain attached metadatas
+// service is the name of the service, but the value has often the format "package.Service" => auth.AuthService for example.
+// method is the name of the method.
+// port is the port at which the services is exposed.
+// req is the request, but declared like req := &authpb.CreateNewUserRequest{Username:..., Email: ...} the & is really important
+// res is the response, must be like res := &authpb.CreateNewUserResponse{}, the & is really important.
+// The res variable will be modified by reference !
+func ContextGenerator(ctx context.Context, service, method, port string, req interface{}, res interface{}) (interface{}, error) {
 
-type ServiceClientFunc func(grpc.ClientConnInterface) interface{}
+	cli, err := evgrpc.NewClient("server:"+port, "server", true, false, "", "", "")
+	if err != nil {
+		return nil, err
+	}
 
-func ContextGenerator(sClient ServiceClientFunc, methodName string, in *struct{}, ctx context.Context) {
-
-	// conn, _ := grpc.Dial("server:50054", grpc.WithInsecure())
-
-	// cli := grpcreflect.NewClient(context.Background(), rpb.NewServerReflectionClient(conn))
-
-	// b, _ := cli.ResolveService("AuthService")
-	// evgrpc.NewClient()
-
-	// c := b.GetMethods()
-	// for _, kk := range c {
-	// 	kk.AsProto
+	// req := &authpb.CreateNewUserRequest{
+	// 	Email:     "toto",
+	// 	FirstName: "toto",
+	// 	LastName:  "toto",
+	// 	Username:  "toto",
+	// 	Password:  "toto",
 	// }
-	// c := sClient(conn)
-	// ret := reflect.ValueOf(c).MethodByName(methodName).Call([]reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(in)})
 
-	// fmt.Println(ret)
+	// res := &authpb.CreateNewUserResponse{}
+
+	_, _, err = cli.Invoke(ctx, service+"."+method, req, res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
