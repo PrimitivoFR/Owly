@@ -143,6 +143,38 @@ func TestGetMessagesByChatroom(t *testing.T) {
 		currentMessageId = res.Messages[0].Id
 	}
 }
+
+func TestUpdateMessageContent(t *testing.T) {
+	tests := []struct {
+		req		messagepb.UpdateMessageContentRequest
+		want	messagepb.UpdateMessageContentResponse
+	}{
+		{
+			req: messagepb.UpdateMessageContentRequest{
+			MessageId: currentMessageId,
+			ChatroomId: currentChatroomId,
+			NewContent: "Slt test",
+		},
+		want: messagepb.UpdateMessageContentResponse{
+			Success: true,
+			Message: &messagepb.Message{
+				Content: "Slt test",
+				AuthorNAME: "AppliNH",
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		res, err := cMessage.UpdateMessageContent(currentContext, &tt.req)
+		check(err, "Error while trying to update message")
+		assert(t, tt.want.Success, res.Success)
+		assert(t, tt.want.Message.Content, res.Message.Content)
+		assert(t, tt.want.Message.AuthorNAME, res.Message.AuthorNAME)
+	}
+}
+
+
 func TestDeleteMessage(t *testing.T) {
 
 	tests := []struct {
