@@ -37,7 +37,7 @@ func IsUserAuthorOfMessage(client *elastic.Client, chatroomID string, messageID 
 	if message.AuthorUUID != userID {
 		log.Printf("This user %v is not the author of the message %v. He can't do anything it", userID, messageID)
 		return status.Errorf(
-			codes.Unauthenticated,
+			codes.PermissionDenied,
 			fmt.Sprintf("This user %v is not the author of the message %v. He can't do anything with it", userID, messageID),
 		)
 	}
