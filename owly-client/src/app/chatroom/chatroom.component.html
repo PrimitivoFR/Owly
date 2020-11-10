@@ -9,7 +9,7 @@
         </div>   
     </div>
     <div class="flex">
-        <div id="messages" [ngClass]="{'h-custom-messages': !isAnswer, 'h-custom-messages-w-reply': isAnswer, 'w-custom-messages': !panelOpened, 'w-custom-message-w-panel': panelOpened}" class="overflow-scroll objects-center m-auto items-center" #scrollframe>
+        <div id="messages" [ngClass]="{'h-custom-messages': !isAnswer, 'h-custom-messages-w-reply': isAnswer, 'w-custom-messages': !panelOpened, 'w-custom-message-w-panel': panelOpened}" class="overflow-scroll objects-center m-auto items-center" (scroll)="scrolled($event)" #scrollframe>
             <div *ngFor="let message of currentStoreItem.messages; let i = index" #item>
         
                 <div [ngClass]="{'float-right': currentUser.username == message.authorNAME,'float-left': currentUser.username != message.authorNAME, 'bg-blue-200': checkTempoMsg(message.id), 'bg-blue-700': !checkTempoMsg(message.id) }" class="w-7/12 text-gray-100 mt-6 px-4 py-2 rounded-lg">
@@ -33,6 +33,10 @@
                             </a>
         
                             <div *ngIf="dropdownOpen && currentIndex == i && currentUser.username == message.authorNAME">
+                                <a (click)="startEditing(message)" class="block px-4 py-2 text-sm capitalize text-gray-700 hover:text-red-500 cursor-pointer">
+                                    <entypo class="mr-1" name="pencil"></entypo>
+                                    Edit
+                                </a>
                                 <a (click)="deleteMessage(message.id)" class="block px-4 py-2 text-sm capitalize text-red-700 hover:text-red-500 cursor-pointer">
                                     <entypo class="mr-1" name="trash"></entypo>
                                     Delete
@@ -43,8 +47,23 @@
                     <div class="font-bold text-base">
                         {{message.authorNAME}}
                     </div>
-                    <div class="w-full text-sm">
+                    <div *ngIf="!isEditing || (isEditing && currentIndex != i)" class="w-full text-sm">
                         {{message.content}}
+                    </div>
+                    
+                    <div *ngIf="isEditing && currentIndex == i" class="flex mt-2">
+                        <textarea 
+                        autosize
+                        class="flex w-10/12 py-2 px-4 rounded-sm border-2 border-gray-500 bg-blue-300 text-gray-700 resize-none outline-none max-h-custom-2 overflow-custom"
+                        rows="1"
+                        [value]="updatedMessageContent" 
+                        (input)="updatedMessageContent=$event.target.value"
+                        (keydown)="EnterSubmit($event)"
+                        ></textarea>
+                        <div class="flex ml-3">
+                            <entypo class="flex items-center justify-center text-gray-300 cursor-pointer text-3xl mr-2 hover:text-gray-100" (click)="cancelEditing()" name="cancel"></entypo>
+                            <entypo class="flex items-center justify-center text-gray-300 cursor-pointer text-3xl ml-2 hover:text-gray-100" (click)="onSubmit()" name="check"></entypo>
+                        </div>
                     </div>
                     <div class="float-right mr-4 mt-2 text-xs">
                         {{timestampToReadableDate(message.timestamp)}}
@@ -77,7 +96,7 @@
     </div>
     
     <div id="textInput" [ngClass]="{'h-custom-textInput': !isAnswer, 'h-custom-textInput-w-reply': isAnswer}" class="shadow-custom-textInput bg-gray-600">
-        <div *ngIf="isAnswer" class="flex ml-10">
+        <div *ngIf="isAnswer" class="flex  ml-10">
             <div class="flex items-center justify-center text-gray-300 cursor-pointer text-2xl mr-5" (click)="cancelReplyTo()">
                 <entypo name="cancel"></entypo>
             </div>
@@ -93,18 +112,21 @@
                 <entypo name="reply"></entypo>
             </div>
         </div>
-        <form [formGroup]="sendMsgForm" [ngClass]="{'mt-custom': !isAnswer}" class="flex bottom-custom">
-            <textarea 
+        
+        <form [formGroup]="sendMsgForm" [ngClass]="{'mt-custom': !isAnswer}" class="flex-col bottom-custom ml-10">
+            <div class="flex">
+                <textarea 
                 autosize
                 #inputbox
-                class="flex w-10/12 ml-10 py-2 px-4 rounded-lg border border-gray-500 bg-gray-200 resize-none outline-none max-h-custom-2 overflow-custom"
+                class="flex w-10/12 py-2 px-4 rounded-lg border-2 border-gray-500 bg-gray-200 resize-none outline-none max-h-custom-2 overflow-custom"
                 rows="1"
                 placeholder="Message..."
                 formControlName="message"
                 (keydown)="EnterSubmit($event)"
-            ></textarea>
-            <div class="flex transition transform rounded-full ml-5 h-12 w-12 items-center justify-center cursor-pointer border-4 border-gray-200 text-gray-200 text-3xl duration-200 hover:-rotate-90" (click)="onSubmit()">
-                <entypo name="right-open"></entypo>
+                ></textarea>
+                <div class="flex transition transform rounded-full ml-5 h-12 w-12 items-center justify-center cursor-pointer border-4 border-gray-200 text-gray-200 text-3xl duration-200 hover:-rotate-90" (click)="onSubmit()">
+                    <entypo name="right-open"></entypo>
+                </div>
             </div>
         </form>
     </div>
