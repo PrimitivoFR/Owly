@@ -1406,3 +1406,296 @@ export module DeleteMessageResponse {
     success?: boolean;
   }
 }
+
+/**
+ * Message implementation for message.UpdateMessageContentRequest
+ */
+export class UpdateMessageContentRequest implements GrpcMessage {
+  /**
+   * Deserialize binary data to message
+   * @param instance message instance
+   */
+  static deserializeBinary(bytes: ByteSource) {
+    const instance = new UpdateMessageContentRequest();
+    UpdateMessageContentRequest.deserializeBinaryFromReader(
+      instance,
+      new BinaryReader(bytes)
+    );
+    return instance;
+  }
+
+  /**
+   * Check all the properties and set default protobuf values if necessary
+   * @param _instance message instance
+   */
+  static refineValues(_instance: UpdateMessageContentRequest) {
+    _instance.messageId = _instance.messageId || '';
+    _instance.chatroomId = _instance.chatroomId || '';
+    _instance.newContent = _instance.newContent || '';
+  }
+
+  /**
+   * Deserializes / reads binary message into message instance using provided binary reader
+   * @param _instance message instance
+   * @param _reader binary reader instance
+   */
+  static deserializeBinaryFromReader(
+    _instance: UpdateMessageContentRequest,
+    _reader: BinaryReader
+  ) {
+    while (_reader.nextField()) {
+      if (_reader.isEndGroup()) break;
+
+      switch (_reader.getFieldNumber()) {
+        case 1:
+          _instance.messageId = _reader.readString();
+          break;
+        case 2:
+          _instance.chatroomId = _reader.readString();
+          break;
+        case 3:
+          _instance.newContent = _reader.readString();
+          break;
+        default:
+          _reader.skipField();
+      }
+    }
+
+    UpdateMessageContentRequest.refineValues(_instance);
+  }
+
+  /**
+   * Serializes a message to binary format using provided binary reader
+   * @param _instance message instance
+   * @param _writer binary writer instance
+   */
+  static serializeBinaryToWriter(
+    _instance: UpdateMessageContentRequest,
+    _writer: BinaryWriter
+  ) {
+    if (_instance.messageId) {
+      _writer.writeString(1, _instance.messageId);
+    }
+    if (_instance.chatroomId) {
+      _writer.writeString(2, _instance.chatroomId);
+    }
+    if (_instance.newContent) {
+      _writer.writeString(3, _instance.newContent);
+    }
+  }
+
+  private _messageId?: string;
+  private _chatroomId?: string;
+  private _newContent?: string;
+
+  /**
+   * Message constructor. Initializes the properties and applies default Protobuf values if necessary
+   * @param _value initial values object or instance of UpdateMessageContentRequest to deeply clone from
+   */
+  constructor(_value?: RecursivePartial<UpdateMessageContentRequest>) {
+    _value = _value || {};
+    this.messageId = _value.messageId;
+    this.chatroomId = _value.chatroomId;
+    this.newContent = _value.newContent;
+    UpdateMessageContentRequest.refineValues(this);
+  }
+  get messageId(): string | undefined {
+    return this._messageId;
+  }
+  set messageId(value: string | undefined) {
+    this._messageId = value;
+  }
+  get chatroomId(): string | undefined {
+    return this._chatroomId;
+  }
+  set chatroomId(value: string | undefined) {
+    this._chatroomId = value;
+  }
+  get newContent(): string | undefined {
+    return this._newContent;
+  }
+  set newContent(value: string | undefined) {
+    this._newContent = value;
+  }
+
+  /**
+   * Serialize message to binary data
+   * @param instance message instance
+   */
+  serializeBinary() {
+    const writer = new BinaryWriter();
+    UpdateMessageContentRequest.serializeBinaryToWriter(this, writer);
+    return writer.getResultBuffer();
+  }
+
+  /**
+   * Cast message to standard JavaScript object (all non-primitive values are deeply cloned)
+   */
+  toObject(): UpdateMessageContentRequest.AsObject {
+    return {
+      messageId: this.messageId,
+      chatroomId: this.chatroomId,
+      newContent: this.newContent
+    };
+  }
+
+  /**
+   * JSON serializer
+   * Only intended to be used by `JSON.stringify` function. If you want to cast message to standard JavaScript object, use `toObject()` instead
+   */
+  toJSON() {
+    return this.toObject();
+  }
+}
+export module UpdateMessageContentRequest {
+  /**
+   * Standard JavaScript object representation for UpdateMessageContentRequest
+   */
+  export interface AsObject {
+    messageId?: string;
+    chatroomId?: string;
+    newContent?: string;
+  }
+}
+
+/**
+ * Message implementation for message.UpdateMessageContentResponse
+ */
+export class UpdateMessageContentResponse implements GrpcMessage {
+  /**
+   * Deserialize binary data to message
+   * @param instance message instance
+   */
+  static deserializeBinary(bytes: ByteSource) {
+    const instance = new UpdateMessageContentResponse();
+    UpdateMessageContentResponse.deserializeBinaryFromReader(
+      instance,
+      new BinaryReader(bytes)
+    );
+    return instance;
+  }
+
+  /**
+   * Check all the properties and set default protobuf values if necessary
+   * @param _instance message instance
+   */
+  static refineValues(_instance: UpdateMessageContentResponse) {
+    _instance.success = _instance.success || false;
+    _instance.message = _instance.message || undefined;
+  }
+
+  /**
+   * Deserializes / reads binary message into message instance using provided binary reader
+   * @param _instance message instance
+   * @param _reader binary reader instance
+   */
+  static deserializeBinaryFromReader(
+    _instance: UpdateMessageContentResponse,
+    _reader: BinaryReader
+  ) {
+    while (_reader.nextField()) {
+      if (_reader.isEndGroup()) break;
+
+      switch (_reader.getFieldNumber()) {
+        case 1:
+          _instance.success = _reader.readBool();
+          break;
+        case 2:
+          _instance.message = new Message();
+          _reader.readMessage(
+            _instance.message,
+            Message.deserializeBinaryFromReader
+          );
+          break;
+        default:
+          _reader.skipField();
+      }
+    }
+
+    UpdateMessageContentResponse.refineValues(_instance);
+  }
+
+  /**
+   * Serializes a message to binary format using provided binary reader
+   * @param _instance message instance
+   * @param _writer binary writer instance
+   */
+  static serializeBinaryToWriter(
+    _instance: UpdateMessageContentResponse,
+    _writer: BinaryWriter
+  ) {
+    if (_instance.success) {
+      _writer.writeBool(1, _instance.success);
+    }
+    if (_instance.message) {
+      _writer.writeMessage(
+        2,
+        _instance.message as any,
+        Message.serializeBinaryToWriter
+      );
+    }
+  }
+
+  private _success?: boolean;
+  private _message?: Message;
+
+  /**
+   * Message constructor. Initializes the properties and applies default Protobuf values if necessary
+   * @param _value initial values object or instance of UpdateMessageContentResponse to deeply clone from
+   */
+  constructor(_value?: RecursivePartial<UpdateMessageContentResponse>) {
+    _value = _value || {};
+    this.success = _value.success;
+    this.message = _value.message ? new Message(_value.message) : undefined;
+    UpdateMessageContentResponse.refineValues(this);
+  }
+  get success(): boolean | undefined {
+    return this._success;
+  }
+  set success(value: boolean | undefined) {
+    this._success = value;
+  }
+  get message(): Message | undefined {
+    return this._message;
+  }
+  set message(value: Message | undefined) {
+    this._message = value;
+  }
+
+  /**
+   * Serialize message to binary data
+   * @param instance message instance
+   */
+  serializeBinary() {
+    const writer = new BinaryWriter();
+    UpdateMessageContentResponse.serializeBinaryToWriter(this, writer);
+    return writer.getResultBuffer();
+  }
+
+  /**
+   * Cast message to standard JavaScript object (all non-primitive values are deeply cloned)
+   */
+  toObject(): UpdateMessageContentResponse.AsObject {
+    return {
+      success: this.success,
+      message: this.message ? this.message.toObject() : undefined
+    };
+  }
+
+  /**
+   * JSON serializer
+   * Only intended to be used by `JSON.stringify` function. If you want to cast message to standard JavaScript object, use `toObject()` instead
+   */
+  toJSON() {
+    return this.toObject();
+  }
+}
+export module UpdateMessageContentResponse {
+  /**
+   * Standard JavaScript object representation for UpdateMessageContentResponse
+   */
+  export interface AsObject {
+    success?: boolean;
+    message?: Message.AsObject;
+  }
+}
