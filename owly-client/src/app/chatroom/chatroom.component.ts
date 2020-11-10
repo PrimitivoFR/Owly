@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Chatroom, DeleteChatroomRequest, LeaveChatroomRequest } from 'src/proto/chatroom.pb';
-import { DeleteMessageRequest, GetMessagesByChatroomRequest, Message, SendMessageRequest } from 'src/proto/message.pb';
+import { DeleteMessageRequest, GetMessagesByChatroomRequest, Message, SendMessageRequest, UpdateMessageContentRequest } from 'src/proto/message.pb';
 import { LocalChatroom } from 'src/_models/localChatroom';
 import { LocalMessages } from 'src/_models/localMessages';
 import { LocalRoomsAndMessagesStore } from 'src/_models/localRoomsAndMessagesStore';
@@ -87,28 +87,33 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   get f() { return this.sendMsgForm.controls; }
 
   async onSubmit() {
-    // stop here if form is invalid
-    if (this.sendMsgForm.invalid) {
-      return;
-    }
 
     if(this.isEditing) {
-      // const req = new UpdateMessageContentRequest({
-      //   messageId: this.messageEdited.id,
-      //   chatroomId: this.currentStoreItem.chatroom.id,
-      //   newContent: this.f.message.value
-      // });
-      // const res = await this.messageService.updateMessageContent(req);
+      if(!this.updatedMessageContent || this.updatedMessageContent == "") {
+        return;
+      }
+
+      const req = new UpdateMessageContentRequest({
+        messageId: this.messageEdited.id,
+        chatroomId: this.currentStoreItem.chatroom.id,
+        newContent: this.updatedMessageContent
+      });
+      const res = await this.messageService.updateMessageContent(req);
       
-      // if (res.success) {
-      //   this.cancelEditing();
-      // }
-      // else {
-      //   console.log("something went wrong");
-      //   console.error(this.sendMsgForm.errors)
-      // }
+      if (res.success) {
+        this.cancelEditing();
+      }
+      else {
+        console.log("something went wrong");
+        console.error(this.sendMsgForm.errors)
+      }
     }
     else {
+      // stop here if form is invalid
+      if (this.sendMsgForm.invalid) {
+        return;
+      }
+
       const res = await this.sendMessage();
 
       if (res) {

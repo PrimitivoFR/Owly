@@ -51,7 +51,7 @@
                         {{message.content}}
                     </div>
                     
-                    <div *ngIf="isEditing && currentIndex == i" class="flex mt-2">
+                    <div *ngIf="isEditing && messageEdited.id == message.id" class="flex mt-2">
                         <textarea 
                         autosize
                         class="flex w-10/12 py-2 px-4 rounded-sm border-2 border-gray-500 bg-blue-300 text-gray-700 resize-none outline-none max-h-custom-2 overflow-custom"
