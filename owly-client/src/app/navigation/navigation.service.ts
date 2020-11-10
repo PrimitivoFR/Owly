@@ -31,7 +31,7 @@ export class NavigationService {
             this.currentMessageStream.unsubscribe();
         }
 
-        //this.messageService.getMessagesForAllChatrooms()
+        this.messageService.getMessagesForAllChatrooms()
 
         var currentStoreItem: LocalRoomsAndMessagesStore;
         var hasChatrooms: boolean;
@@ -60,9 +60,18 @@ export class NavigationService {
                 if(res.operation == "CREATE") {
                     currentStoreItem.messages.push(res.message)
                 }
-                if(res.operation == "DELETE") {
+                else if(res.operation == "DELETE") {
                     currentStoreItem.messages = currentStoreItem.messages.filter((mess: Message) => mess.id != res.message.id) // Deletes the message: return every 
                 }
+                else if (res.operation == "INDEX") {
+                    currentStoreItem.messages = currentStoreItem.messages.map((mess: Message) => {
+                        if (mess.id == res.message.id) {
+                            mess.content = res.message.content
+                        }
+                        return mess
+                    });
+                }
+                
                 
             });
         }
@@ -76,7 +85,10 @@ export class NavigationService {
     // Params: message
     // currentStoreItem.messages.push
     addTempoMsg(message: Message) {
-        this.navStore.value.messages.push(message);
+        console.log(this.navStore)
+        const nextNavStore = this.navStore.value;
+        nextNavStore.messages.push(message)
+        this.navStore.next(nextNavStore);
     }
 
 
@@ -84,7 +96,6 @@ export class NavigationService {
     // Params: tempo uuid of the message
     // currentStoreItem.messages.filter or find then remove
     // Do NOT USE pop() !!
-
     deleteTempoMsg(id) {
         this.navStore.value.messages.splice(this.navStore.value.messages.findIndex(message => message.id == id), 1);
     }

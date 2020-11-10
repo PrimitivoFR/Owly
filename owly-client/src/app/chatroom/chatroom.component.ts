@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Chatroom, DeleteChatroomRequest, LeaveChatroomRequest } from 'src/proto/chatroom.pb';
-import { DeleteMessageRequest, GetMessagesByChatroomRequest, Message, SendMessageRequest } from 'src/proto/message.pb';
+import { DeleteMessageRequest, GetMessagesByChatroomRequest, Message, SendMessageRequest, UpdateMessageContentRequest } from 'src/proto/message.pb';
 import { LocalChatroom } from 'src/_models/localChatroom';
 import { LocalMessages } from 'src/_models/localMessages';
 import { LocalRoomsAndMessagesStore } from 'src/_models/localRoomsAndMessagesStore';
@@ -41,6 +41,9 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   public answersTo: string = "";
   public messageToReply: Message;
   public panelOpened: boolean = false;
+  public isEditing: boolean = false;
+  private messageEdited: Message;
+  private updatedMessageContent: string = null;
 
   @ViewChild('scrollframe', {static: true}) scrollFrame: ElementRef;
   @ViewChildren('item') itemElements: QueryList<any>;
@@ -84,19 +87,42 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   get f() { return this.sendMsgForm.controls; }
 
   async onSubmit() {
-    // stop here if form is invalid
-    if (this.sendMsgForm.invalid) {
-      return;
-    }
 
-    const res = await this.sendMessage();
+    if(this.isEditing) {
+      if(!this.updatedMessageContent || this.updatedMessageContent == "") {
+        return;
+      }
 
-    if (res) {
-      this.sendMsgForm.reset();
+      const req = new UpdateMessageContentRequest({
+        messageId: this.messageEdited.id,
+        chatroomId: this.currentStoreItem.chatroom.id,
+        newContent: this.updatedMessageContent
+      });
+      const res = await this.messageService.updateMessageContent(req);
+      
+      if (res.success) {
+        this.cancelEditing();
+      }
+      else {
+        console.log("something went wrong");
+        console.error(this.sendMsgForm.errors)
+      }
     }
     else {
-      console.log("something went wrong");
-      console.error(this.sendMsgForm.errors)
+      // stop here if form is invalid
+      if (this.sendMsgForm.invalid) {
+        return;
+      }
+
+      const res = await this.sendMessage();
+
+      if (res) {
+        this.sendMsgForm.reset();
+      }
+      else {
+        console.log("something went wrong");
+        console.error(this.sendMsgForm.errors)
+      }
     }
   }
 
@@ -267,6 +293,19 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     return false;
   }
 
+  startEditing(message: Message) {
+    this.updatedMessageContent = message.content;
+    this.isEditing = true;
+    this.dropdownOpen = false;
+    this.messageEdited = message;
+  }
+
+  cancelEditing() {
+    this.updatedMessageContent = null;
+    this.isEditing = false;
+    this.messageEdited = null;
+  }
+
   private onItemElementsChanged(): void {
     if (this.isNearBottom) {
       this.scrollToBottom();
@@ -274,7 +313,6 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   }
 
   private scrollToBottom(): void {
-    console.log(this.scrollContainer);
     this.scrollContainer.scroll({
       top: this.scrollContainer.scrollHeight,
       behavior: 'smooth'
@@ -282,7 +320,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   }
 
   private isUserNearBottom(): boolean {
-    const threshold = 150;
+    const threshold = 50;
     const position = this.scrollContainer.scrollTop + this.scrollContainer.offsetHeight;
     const height = this.scrollContainer.scrollHeight;
     return position > height - threshold;
