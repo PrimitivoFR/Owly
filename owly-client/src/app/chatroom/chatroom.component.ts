@@ -43,6 +43,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   public panelOpened: boolean = false;
   public isEditing: boolean = false;
   private messageEdited: Message;
+  private updatedMessageContent: string = null;
 
   @ViewChild('scrollframe', {static: true}) scrollFrame: ElementRef;
   @ViewChildren('item') itemElements: QueryList<any>;
@@ -288,14 +289,14 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   }
 
   startEditing(message: Message) {
-    this.sendMsgForm.setValue({message: message.content});
+    this.updatedMessageContent = message.content;
     this.isEditing = true;
     this.dropdownOpen = false;
     this.messageEdited = message;
   }
 
   cancelEditing() {
-    this.sendMsgForm.reset();
+    this.updatedMessageContent = null;
     this.isEditing = false;
     this.messageEdited = null;
   }
