@@ -60,6 +60,9 @@
                 <div id="leaveChatroom" class="mx-4 my-2 px-2 py-2 rounded-md text-center text-gray-800 bg-gray-300 cursor-pointer hover:text-gray-500" (click)="leaveChatroom()">
                     Leave the chatroom
                 </div>
+                <div *ngIf="isChatroomOwner()" id="tranfertOwnershipChatroom" class="mx-4 my-2 px-2 py-2 rounded-md text-center text-gray-800 bg-gray-300 cursor-pointer hover:text-gray-500" (click)="openModal()">
+                    Transfer ownership
+                </div>
                 <div *ngIf="isChatroomOwner()" id="deleteChatroom" class="mx-4 my-2 px-2 py-2 rounded-md text-center text-gray-800 bg-gray-300 cursor-pointer hover:text-gray-500" (click)="deleteChatroom()">
                     Delete the chatroom
                 </div>
@@ -108,4 +111,11 @@
             </div>
         </form>
     </div>
+</div>
+
+<div 
+    id="transfermodal" 
+    class="main-modal fixed w-full h-100 inset-0 z-50 overflow-hidden hidden justify-center items-center animated fadeIn faster" 
+    style="background: rgba(0,0,0,.7);">
+    <app-transfer-owner-modal [listUsers]="eligibleOwnerUser" (idUserChosen)="transferOwnership($event)" (cancelAction)="closeModal()" ></app-transfer-owner-modal>
 </div>

@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Chatroom, DeleteChatroomRequest, LeaveChatroomRequest } from 'src/proto/chatroom.pb';
+import { Chatroom, ChatroomUser, DeleteChatroomRequest, LeaveChatroomRequest, TranferOwnershipRequest } from 'src/proto/chatroom.pb';
 import { DeleteMessageRequest, GetMessagesByChatroomRequest, Message, SendMessageRequest } from 'src/proto/message.pb';
 import { LocalChatroom } from 'src/_models/localChatroom';
 import { LocalMessages } from 'src/_models/localMessages';
@@ -41,6 +41,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   public answersTo: string = "";
   public messageToReply: Message;
   public panelOpened: boolean = false;
+  public eligibleOwnerUser: ChatroomUser[] = [];
 
   @ViewChild('scrollframe', {static: true}) scrollFrame: ElementRef;
   @ViewChildren('item') itemElements: QueryList<any>;
@@ -60,6 +61,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     this.navService.currentNavStore.subscribe(v => {
       this.currentStoreItem = v;
       this.cancelReplyTo();
+      this.closeModal();
       this.panelOpened = false;
     })
 
@@ -242,6 +244,48 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
         this.snackAlertService.showSnack("Something went wrong, you can't leave the chatroom");
       }
     }
+  }
+
+  async transferOwnership(idUserChosen: string) {
+    if(!idUserChosen || idUserChosen == "") {
+      return;
+    }
+    
+    const req = new TranferOwnershipRequest({
+      chatroomId: this.currentStoreItem.chatroom.id,
+      newOwnerId: idUserChosen
+    })
+
+    const res = await this.chatroomService.transfertOwnershipChatroom(req);
+
+    if(res.success) {
+      this.closeModal();
+    }
+    else {
+      this.closeModal();
+      this.snackAlertService.showSnack("Something went wrong.");
+    }
+  }
+
+  
+  openModal() {
+    this.eligibleOwnerUser = this.currentStoreItem.chatroom.users.slice()
+    this.eligibleOwnerUser.splice(this.eligibleOwnerUser.findIndex(user => user.uuid == this.currentStoreItem.chatroom.owner),1);
+
+    let modal = document.getElementById('transfermodal');
+    modal.classList.remove('fadeOut');
+    modal.classList.add('fadeIn');
+    modal.style.display = "flex";
+  }
+
+  closeModal() {
+    let modal = document.getElementById('transfermodal');
+    modal.classList.remove('fadeIn');
+    modal.classList.add('fadeOut');
+    setTimeout(() => {
+      modal.style.display = 'none';
+      this.eligibleOwnerUser = [];
+    }, 500);
   }
 
   isChatroomOwner(): boolean {
