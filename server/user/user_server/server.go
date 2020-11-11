@@ -57,6 +57,27 @@ func (*server) SearchUserByUsername(ctx context.Context, req *userpb.SearchUserB
 	}, nil
 }
 
+func (*server) GetUserInfos(ctx context.Context, req *userpb.GetUserInfosRequest) (*userpb.GetUserInfosResponse, error) {
+
+	adminGuy, err := common_keycloak.InitAdmin()
+	if err != nil {
+		return nil, status.Error(codes.Internal, fmt.Sprintf("Error: %v", err))
+	}
+
+	userInfos, err := adminGuy.GetUserByUUID(req.Id);
+	if err != nil {
+		return nil, status.Error(codes.Internal, fmt.Sprintf("Error: %v", err))
+	}
+
+	return &userpb.GetUserInfosResponse{
+		Username: *userInfos.Username,
+		Firstname: *userInfos.FirstName,
+		Lastname: *userInfos.LastName,
+		Email: *userInfos.Email,
+	}, nil
+}
+
+
 //
 func StartServer() {
 
