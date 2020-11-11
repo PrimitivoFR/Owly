@@ -42,6 +42,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   public messageToReply: Message;
   public panelOpened: boolean = false;
   public eligibleOwnerUser: ChatroomUser[] = [];
+  public wantToLeave: boolean = false;
 
   @ViewChild('scrollframe', {static: true}) scrollFrame: ElementRef;
   @ViewChildren('item') itemElements: QueryList<any>;
@@ -204,23 +205,31 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     
   }
 
+
   async leaveChatroom() {
-    if(confirm("Are you sure you want to continue ?")) {
-      const req = new LeaveChatroomRequest({
-        chatroomId: this.currentStoreItem.chatroom.id
-      })
-      const chatroomName = this.currentStoreItem.chatroom.name;
-      const res = await this.chatroomService.leaveChatroom(req);
-  
-      if(res.success) {
-        this.snackAlertService.showSnack("You have left the chatroom : " + chatroomName);
-        if(!this.navService.updateNavStore("0")) {
-          this.router.navigate(['home']);
+    if(this.isChatroomOwner()) {
+      this.wantToLeave = true;
+      this.openModal();
+    }
+    else {
+      if(confirm("Are you sure you want to continue ?")) {
+        const req = new LeaveChatroomRequest({
+          chatroomId: this.currentStoreItem.chatroom.id
+        })
+        const chatroomName = this.currentStoreItem.chatroom.name;
+        
+        const res = await this.chatroomService.leaveChatroom(req);
+    
+        if(res.success) {
+          this.snackAlertService.showSnack("You have left the chatroom : " + chatroomName);
+          if(!this.navService.updateNavStore("0")) {
+            this.router.navigate(['home']);
+          }
+          this.panelOpened = false;
         }
-        this.panelOpened = false;
-      }
-      else {
-        this.snackAlertService.showSnack("You can't leave the chatroom when you are the owner");
+        else {
+          this.snackAlertService.showSnack("You can't leave the chatroom when you are the owner");
+        }
       }
     }
   }
@@ -247,23 +256,28 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   }
 
   async transferOwnership(idUserChosen: string) {
-    if(!idUserChosen || idUserChosen == "") {
-      return;
-    }
-    
-    const req = new TranferOwnershipRequest({
-      chatroomId: this.currentStoreItem.chatroom.id,
-      newOwnerId: idUserChosen
-    })
+    if(confirm("Are you sure you want to continue ?")) {
+      if(!idUserChosen || idUserChosen == "") {
+        return;
+      }
+      
+      const req = new TranferOwnershipRequest({
+        chatroomId: this.currentStoreItem.chatroom.id,
+        newOwnerId: idUserChosen
+      })
 
-    const res = await this.chatroomService.transfertOwnershipChatroom(req);
+      const res = await this.chatroomService.transfertOwnershipChatroom(req);
 
-    if(res.success) {
-      this.closeModal();
-    }
-    else {
-      this.closeModal();
-      this.snackAlertService.showSnack("Something went wrong.");
+      if(res.success) {
+        this.closeModal();
+        if(this.wantToLeave) {
+          this.leaveChatroom();
+        }
+      }
+      else {
+        this.closeModal();
+        this.snackAlertService.showSnack("Something went wrong.");
+      }
     }
   }
 
@@ -279,6 +293,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   }
 
   closeModal() {
+    this.wantToLeave = false;
     let modal = document.getElementById('transfermodal');
     modal.classList.remove('fadeIn');
     modal.classList.add('fadeOut');
