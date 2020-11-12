@@ -18,6 +18,7 @@ import { SignInFormComponent } from './sign-in-form/sign-in-form.component';
 import { TopBarComponent } from './common/components/top-bar/top-bar.component';
 import { HomeComponent } from './home/home.component';
 import { ChatroomComponent } from './chatroom/chatroom.component';
+import { TransferOwnerModalComponent } from './chatroom/modals/transferOwnerModal.component'
 
 import { JwtModule } from '@auth0/angular-jwt';
 import { CookieModule } from 'ngx-cookie';
@@ -40,6 +41,7 @@ import { environment } from './../environments/environment';
     HomeComponent,
     ChatroomComponent,
     ChatroomListComponent,
+    TransferOwnerModalComponent,
   ],
   imports: [
     BrowserModule,

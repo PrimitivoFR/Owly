@@ -56,13 +56,22 @@ func assert(t *testing.T, expected interface{}, test interface{}) {
 var chatroomIdByToto string
 var chatroomIdByAppliNH string
 
-func prepareLeaveAndDeleteChatroomTestCtx() {
-	log.Println("prepareLeaveAndDeleteChatroomTestCtx")
-	//---- CREATE ANOTHER USER
+var uuidAppliNH string
+var uuidToto string
+
+func init() {
 
 	// Starting auth MS
 	go authserver.StartServer()
-	time.Sleep(2 * time.Second)
+	time.Sleep(1 * time.Second)
+
+	// Starting chatroom MS
+	go StartServer()
+	time.Sleep(1 * time.Second)
+
+}
+func createUserToto() {
+	//---- CREATE ANOTHER USER
 
 	// Init client
 	conn, err := grpc.Dial("server:50054", grpc.WithInsecure())
@@ -79,6 +88,16 @@ func prepareLeaveAndDeleteChatroomTestCtx() {
 
 	_, err = c.CreateNewUser(context.Background(), reqCreateUser)
 	check(err, "Error while creating user toto")
+
+	conn.Close()
+
+}
+
+func prepareLeaveAndDeleteChatroomTestCtx() {
+	// Init client
+	conn, err := grpc.Dial("server:50054", grpc.WithInsecure())
+	check(err, "Error while trying to dial auth MS")
+	c := authpb.NewAuthServiceClient(conn)
 
 	// Login
 	reqLogin := &authpb.LoginUserRequest{
@@ -104,10 +123,6 @@ func prepareLeaveAndDeleteChatroomTestCtx() {
 
 	//---- CREATE NEW CHATROOM
 
-	// Starting chatroom MS
-	go StartServer()
-	time.Sleep(2 * time.Second)
-
 	// Init client
 	conn2, err := grpc.Dial("server:50052", grpc.WithInsecure())
 	check(err, "Error whil trying to dial chatroom MS")
@@ -116,7 +131,7 @@ func prepareLeaveAndDeleteChatroomTestCtx() {
 	// ___ TOTO ___
 
 	// Create Chatroom with Toto
-	uuidAppliNH, err := common_jwt.ExtractUUIDfromJWT(string(accessTokenAppliNH))
+	uuidAppliNH, err = common_jwt.ExtractUUIDfromJWT(string(accessTokenAppliNH))
 	check(err, "Err while reading uuid from applinh token")
 
 	reqCreateChatroom := &chatroompb.CreateChatroomRequest{
@@ -131,7 +146,7 @@ func prepareLeaveAndDeleteChatroomTestCtx() {
 	// ___ AppliNH ___
 
 	// Create Chatroom with AppliNH
-	uuidToto, err := common_jwt.ExtractUUIDfromJWT(string(totoAccessToken))
+	uuidToto, err = common_jwt.ExtractUUIDfromJWT(string(totoAccessToken))
 	check(err, "Err while reading uuid from toto token")
 
 	reqCreateChatroom2 := &chatroompb.CreateChatroomRequest{
@@ -143,6 +158,14 @@ func prepareLeaveAndDeleteChatroomTestCtx() {
 	check(err, "Err while creating chatroom for owner AppliNH")
 
 	chatroomIdByAppliNH = resCreateChatroom2.ID
+
+	if err := conn.Close(); err != nil {
+		panic(err)
+	}
+
+	if err := conn2.Close(); err != nil {
+		panic(err)
+	}
 
 }
 
@@ -199,6 +222,59 @@ func TestGetChatroomsByUser(t *testing.T) {
 		assert(t, tt.want.Count, &resp.Count)
 	}
 }
+
+func TestTransferOwnership(t *testing.T) {
+	// Basically creates a chatroom by Toto with applinh inside, and also the opposite
+	// and fills the chatroomIdByAppliNH and chatroomIdByToto
+	// so this is useful here, I felt like reusing it :)
+	// ... omg we need to upgrade our testing model, cause it makes us do so much shit.. Can't wait for rd-testing-model to be done, approved, merged and applied everywhere
+	createUserToto()
+	prepareLeaveAndDeleteChatroomTestCtx()
+
+	s := server{}
+
+	ctx := prepareTestingCtx()
+
+	tests := []struct {
+		req  chatroompb.TranferOwnershipRequest
+		want interface{}
+	}{
+		{
+			req: chatroompb.TranferOwnershipRequest{
+				ChatroomId: chatroomIdByAppliNH,
+				NewOwnerId: uuidToto,
+			},
+			want: chatroompb.TranferOwnershipResponse{
+				Success: true,
+			},
+		},
+
+		{
+			req: chatroompb.TranferOwnershipRequest{
+				ChatroomId: chatroomIdByToto,
+				NewOwnerId: uuidAppliNH,
+			},
+			want: status.Error(codes.PermissionDenied, ""),
+		},
+	}
+
+	for _, tt := range tests {
+		resp, err := s.TransferOwnership(ctx, &tt.req)
+		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
+			// We're expecting an error
+
+			assert(t, tt.want, err)
+
+		} else if err != nil {
+			check(err, "TransferOwnership got unexpected error")
+		} else {
+			assert(t, tt.want, &resp)
+		}
+
+	}
+
+}
+
 func TestLeaveChatroom(t *testing.T) {
 	prepareLeaveAndDeleteChatroomTestCtx()
 
