@@ -117,6 +117,7 @@ func (*server) SendMessage(ctx context.Context, req *messagepb.SendMessageReques
 	var docMap map[string]interface{}
 
 	req.Message.AuthorUUID = user_id
+	req.Message.History = []*messagepb.MessageHistory{} // Init history as empty array
 	// TODO: Read authorNAME too from token
 
 	req.Message.Timestamp = int64(time.Nanosecond) * time.Now().UnixNano() / int64(time.Millisecond)
@@ -329,12 +330,41 @@ func (*server) UpdateMessageContent(ctx context.Context, req *messagepb.UpdateMe
 		return nil, err
 	}
 
+	// Get the message
+	getService := elastic.NewGetService(client)
+	getService.Index(req.ChatroomId)
+	getService.Id(req.MessageId)
+	getService.Type("_doc")
+	getService.Refresh("true")
+
+	resGet, err := getService.Do(context.Background())
+	if err != nil {
+		log.Printf("UpdateMessageContent returned error %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("UpdateMessageContent returned error %v", err),
+		)
+	}
+
+	var message *messagepb.Message
+
+	if err := json.Unmarshal(*resGet.Source, &message); err != nil {
+		log.Printf("Error while parsing body: %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Error while parsing body: %v", err),
+		)
+	}
+
+	// Update the history
+	message.History = append(message.History, &messagepb.MessageHistory{Timestamp: int64(time.Nanosecond) * time.Now().UnixNano() / int64(time.Millisecond), Content: message.Content})
+
 	// Update the message
 	updateService := elastic.NewUpdateService(client)
 	updateService.Index(req.ChatroomId)
 	updateService.Id(req.MessageId)
 	updateService.Type("_doc")
-	updateService.Doc(map[string]string{"content": req.NewContent})
+	updateService.Doc(map[string]interface{}{"content": req.NewContent, "history": message.History})
 	updateService.Refresh("true")
 
 	res, err := updateService.Do(context.Background())
