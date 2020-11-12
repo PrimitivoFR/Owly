@@ -12,6 +12,11 @@ message Attachments {
     string bucket = 2;
 }
 
+message messageHistory {
+    int64 timestamp = 1;
+    string content = 2;
+}
+
 message Message {
     string authorUUID = 1;
     string chatroomID = 2;
@@ -23,6 +28,7 @@ message Message {
     bool isAnswer = 8;
     string answersTo = 9;
     string id = 10;
+    repeated messageHistory history = 11;
 }
 
 message StreamMessagesByChatroomRequest {
