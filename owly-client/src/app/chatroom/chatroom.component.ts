@@ -62,7 +62,6 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     this.navService.currentNavStore.subscribe(v => {
       this.currentStoreItem = v;
       this.cancelReplyTo();
-      this.closeModal();
       this.panelOpened = false;
     })
 
@@ -212,7 +211,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
       this.openModal();
     }
     else {
-      if(confirm("Are you sure you want to continue ?")) {
+      if(confirm("Are you sure you want to leave the chatroom ?")) {
         const req = new LeaveChatroomRequest({
           chatroomId: this.currentStoreItem.chatroom.id
         })
@@ -269,10 +268,11 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
       const res = await this.chatroomService.transfertOwnershipChatroom(req);
 
       if(res.success) {
-        this.closeModal();
+        await this.chatroomService.getChatrooms();
         if(this.wantToLeave) {
           this.leaveChatroom();
         }
+        this.closeModal();
       }
       else {
         this.closeModal();
