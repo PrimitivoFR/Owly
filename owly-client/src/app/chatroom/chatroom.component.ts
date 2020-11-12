@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Chatroom, DeleteChatroomRequest, LeaveChatroomRequest } from 'src/proto/chatroom.pb';
-import { DeleteMessageRequest, GetMessagesByChatroomRequest, Message, SendMessageRequest, UpdateMessageContentRequest } from 'src/proto/message.pb';
+import { DeleteMessageRequest, GetMessagesByChatroomRequest, Message, messageHistory, SendMessageRequest, UpdateMessageContentRequest } from 'src/proto/message.pb';
 import { LocalChatroom } from 'src/_models/localChatroom';
 import { LocalMessages } from 'src/_models/localMessages';
 import { LocalRoomsAndMessagesStore } from 'src/_models/localRoomsAndMessagesStore';
@@ -328,6 +328,18 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
 
   scrolled(event: any): void {
     this.isNearBottom = this.isUserNearBottom();
+  }
+
+  lastUpdate(history: messageHistory[]): string {
+    let lastMessage: string = "0";
+
+    history.forEach(hist => {
+      if(parseInt(lastMessage) < parseInt(hist.timestamp)) {
+        lastMessage = hist.timestamp
+      }
+    });
+
+    return this.timestampToReadableDate(lastMessage);
   }
 
 }

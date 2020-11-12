@@ -64,3 +64,12 @@
 ::-webkit-scrollbar {
     display: none;
 }
+
+.popup {
+    display: none;
+    bottom: 110%;
+}
+
+.tooltip:hover + .popup {
+    display: flex;
+}
