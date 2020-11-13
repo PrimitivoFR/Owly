@@ -44,6 +44,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   public isEditing: boolean = false;
   private messageEdited: Message;
   private updatedMessageContent: string = null;
+  public currentMessageHistory: messageHistory[] = [];
 
   @ViewChild('scrollframe', {static: true}) scrollFrame: ElementRef;
   @ViewChildren('item') itemElements: QueryList<any>;
@@ -102,6 +103,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
       
       if (res.success) {
         this.cancelEditing();
+        this.messageService.getMessagesForAllChatrooms();
       }
       else {
         console.log("something went wrong");
@@ -268,6 +270,24 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
         this.snackAlertService.showSnack("Something went wrong, you can't leave the chatroom");
       }
     }
+  }
+
+  openModal(modal: string, messageHistory?: messageHistory[]) {
+    this.currentMessageHistory = messageHistory;
+    let modalEl = document.getElementById(modal);
+    modalEl.classList.remove('fadeOut');
+    modalEl.classList.add('fadeIn');
+    modalEl.style.display = "flex";
+  }
+
+  closeModal(modal: string) {
+    let modalEl = document.getElementById(modal);
+    modalEl.classList.remove('fadeIn');
+    modalEl.classList.add('fadeOut');
+    setTimeout(() => {
+      modalEl.style.display = 'none';
+      this.currentMessageHistory = [];
+    }, 500);
   }
 
   isChatroomOwner(): boolean {
