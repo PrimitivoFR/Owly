@@ -17,6 +17,7 @@ import { StoreService } from 'src/_services/store.service';
 import {v4 as uuidv4} from 'uuid';
 import { SnackAlertService } from '../common/components/snack-alert/snack-alert.service';
 import { Router } from '@angular/router';
+import { GetUserInfosResponse } from 'src/proto/user.pb';
 
 @Component({
   selector: 'app-chatroom',
@@ -41,7 +42,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   public answersTo: string = "";
   public messageToReply: Message;
   public panelOpened: boolean = false;
-  public userInfo: any/*GetUserInfosResponse*/ = {username: "", firstname: "", lastname: "", email: ""};
+  public userInfo: GetUserInfosResponse;
 
   @ViewChild('scrollframe', {static: true}) scrollFrame: ElementRef;
   @ViewChildren('item') itemElements: QueryList<any>;
@@ -247,7 +248,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
 
   async getUserInfo(userID: string) {
 
-    this.userInfo = {username: "Capi", firstname: "John", lastname: "Doe", email: "test.test@test.com"};
+    this.userInfo = new GetUserInfosResponse({username: "Capi", firstname: "John", lastname: "Doe", email: "test.test@test.com"});
     this.openModal('userInfoModal');
   }
 
@@ -265,7 +266,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     modalEl.classList.add('fadeOut');
     setTimeout(() => {
       modalEl.style.display = 'none';
-      this.userInfo = {username: "", firstname: "", lastname: "", email: ""};
+      this.userInfo = null;
     }, 500);
   }
 

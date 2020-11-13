@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
+import { GetUserInfosResponse } from 'src/proto/user.pb';
 
 @Component({
   selector: 'app-user-info-modal',
   template: `
   <div class="border border-teal-500 shadow-lg modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
-    <div class="modal-content py-4 text-left px-6">
+    <div *ngIf="userInfo" class="modal-content py-4 text-left px-6">
         <!--Title-->
         <div class="flex justify-between items-center pb-3">
             <p class="text-2xl font-bold">
@@ -37,7 +38,7 @@ import { fromEvent, Observable } from 'rxjs';
 })
 export class UserInfoComponent implements OnInit {
 
-  @Input() userInfo: any/*GetUserInfosResponse*/;
+  @Input() userInfo: GetUserInfosResponse;
   @Output() closeModal = new EventEmitter();
   clickObservable: Observable<Event> = fromEvent(document,'click');
   
