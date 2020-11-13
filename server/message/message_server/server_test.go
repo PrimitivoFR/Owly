@@ -2,6 +2,7 @@ package message_server
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -34,10 +35,33 @@ var currentChatroomId string
 var currentMessageId string
 var totoMessageId string
 
+var uuidAppliNH string
+
 var cMessage messagepb.MessageServiceClient
 
 func assert(t *testing.T, expected interface{}, test interface{}) {
-	if reflect.DeepEqual(expected, test) {
+	fmt.Println(expected, test)
+	// v is the interface{}
+	// v := reflect.ValueOf(&test).Elem()
+
+	// // Allocate a temporary variable with type of the struct.
+	// //    v.Elem() is the vale contained in the interface.
+	// tmp := reflect.New(v.Elem().Type()).Elem()
+
+	// // Copy the struct value contained in interface to
+	// // the temporary variable.
+	// tmp.Set(v.Elem())
+
+	// // Set the field.
+	// state := tmp.FieldByName("state")
+	// ptrToY := unsafe.Pointer(state.UnsafeAddr())
+
+	// realPtrToY := (*interface{})(ptrToY)
+	// *realPtrToY = nil
+	// // Set the interface to the modified struct value.
+	// v.Set(tmp)
+
+	if !(reflect.DeepEqual(expected, test)) {
 		t.Errorf(
 			"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
 			expected, reflect.TypeOf(expected), test, reflect.TypeOf(test),
@@ -96,7 +120,7 @@ func init() {
 	check(openErr, "Could not open token file")
 	accessToken, err := ioutil.ReadAll(f)
 	check(err, "Error while reading token file")
-	uuidAppliNH, err := common_jwt.ExtractUUIDfromJWT(string(accessToken))
+	uuidAppliNH, err = common_jwt.ExtractUUIDfromJWT(string(accessToken))
 	check(err, "Err while reading uuid from applinh token")
 
 	// Login toto
@@ -139,7 +163,7 @@ func TestSendMessage(t *testing.T) {
 
 	tests := []struct {
 		req  messagepb.SendMessageRequest
-		want messagepb.SendMessageResponse
+		want *messagepb.SendMessageResponse
 	}{
 		{
 			req: messagepb.SendMessageRequest{
@@ -149,7 +173,7 @@ func TestSendMessage(t *testing.T) {
 					AuthorNAME: "AppliNH",
 				},
 			},
-			want: messagepb.SendMessageResponse{
+			want: &messagepb.SendMessageResponse{
 				Success: true,
 			},
 		},
@@ -157,8 +181,14 @@ func TestSendMessage(t *testing.T) {
 
 	for _, tt := range tests {
 		res, err := cMessage.SendMessage(currentContext, &tt.req)
-		check(err, "Error while trying to send a message")
-		assert(t, tt.want.Success, &res.Success)
+		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
+			// We're expecting an error
+
+			assert(t, tt.want, err)
+
+		} else {
+			assert(t, tt.want, res)
+		}
 
 	}
 
@@ -168,13 +198,13 @@ func TestGetMessagesByChatroom(t *testing.T) {
 
 	tests := []struct {
 		req  messagepb.GetMessagesByChatroomRequest
-		want messagepb.GetMessagesByChatroomResponse
+		want *messagepb.GetMessagesByChatroomResponse
 	}{
 		{
 			req: messagepb.GetMessagesByChatroomRequest{
 				ChatroomID: currentChatroomId,
 			},
-			want: messagepb.GetMessagesByChatroomResponse{
+			want: &messagepb.GetMessagesByChatroomResponse{
 				Messages: []*messagepb.Message{
 					&messagepb.Message{
 						Content:    "test",
@@ -187,9 +217,13 @@ func TestGetMessagesByChatroom(t *testing.T) {
 
 	for _, tt := range tests {
 		res, err := cMessage.GetMessagesByChatroom(currentContext, &tt.req)
+
+		fmt.Println(res.Messages[0])
+		fmt.Println(res.Messages[1])
+
 		check(err, "Error while trying to get messages by chatroom")
-		assert(t, tt.want.Messages[0].Content, &res.Messages[1].Content)
-		assert(t, tt.want.Messages[0].AuthorNAME, &res.Messages[1].AuthorNAME)
+		assert(t, tt.want.Messages[0].Content, res.Messages[1].Content)
+		assert(t, tt.want.Messages[0].AuthorNAME, res.Messages[1].AuthorNAME)
 
 		currentMessageId = res.Messages[1].Id
 		totoMessageId = res.Messages[0].Id
@@ -207,7 +241,7 @@ func TestUpdateMessageContent(t *testing.T) {
 				ChatroomId: currentChatroomId,
 				NewContent: "Slt test",
 			},
-			want: messagepb.UpdateMessageContentResponse{
+			want: &messagepb.UpdateMessageContentResponse{
 				Success: true,
 				Message: &messagepb.Message{
 					Id: currentMessageId,
@@ -220,21 +254,20 @@ func TestUpdateMessageContent(t *testing.T) {
 				MessageId:  totoMessageId,
 				NewContent: "ah ben nn enfait",
 			},
-			want: status.Error(codes.PermissionDenied, ""),
+			want: status.Error(codes.PermissionDenied, "This user "+uuidAppliNH+" is not the author of the message "+totoMessageId+". He can't do anything with it"),
 		},
 	}
 
 	for _, tt := range tests {
 		res, err := cMessage.UpdateMessageContent(currentContext, &tt.req)
-
 		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
 			// We're expecting an error
+
 			assert(t, tt.want, err)
 
-		} else if err != nil {
-			check(err, "Error while trying to update message")
 		} else {
-			assert(t, tt.want, &res)
+
+			assert(t, tt.want, res)
 		}
 
 	}
@@ -244,14 +277,14 @@ func TestDeleteMessage(t *testing.T) {
 
 	tests := []struct {
 		req  messagepb.DeleteMessageRequest
-		want messagepb.DeleteMessageResponse
+		want *messagepb.DeleteMessageResponse
 	}{
 		{
 			req: messagepb.DeleteMessageRequest{
 				ChatroomID: currentChatroomId,
 				MessageID:  currentMessageId,
 			},
-			want: messagepb.DeleteMessageResponse{
+			want: &messagepb.DeleteMessageResponse{
 				Success: true,
 			},
 		},
@@ -259,7 +292,13 @@ func TestDeleteMessage(t *testing.T) {
 
 	for _, tt := range tests {
 		res, err := cMessage.DeleteMessage(currentContext, &tt.req)
-		check(err, "Error while trying to delete a message")
-		assert(t, tt.want.Success, &res.Success)
+		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
+			// We're expecting an error
+
+			assert(t, tt.want, err)
+
+		} else {
+			assert(t, tt.want, res)
+		}
 	}
 }
