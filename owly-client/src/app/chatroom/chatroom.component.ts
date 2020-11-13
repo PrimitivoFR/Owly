@@ -41,6 +41,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   public answersTo: string = "";
   public messageToReply: Message;
   public panelOpened: boolean = false;
+  public userInfo: any/*GetUserInfosResponse*/ = {username: "", firstname: "", lastname: "", email: ""};
 
   @ViewChild('scrollframe', {static: true}) scrollFrame: ElementRef;
   @ViewChildren('item') itemElements: QueryList<any>;
@@ -242,6 +243,30 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
         this.snackAlertService.showSnack("Something went wrong, you can't leave the chatroom");
       }
     }
+  }
+
+  async getUserInfo(userID: string) {
+
+    this.userInfo = {username: "Capi", firstname: "John", lastname: "Doe", email: "test.test@test.com"};
+    this.openModal('userInfoModal');
+  }
+
+  openModal(modal: string) {
+    
+    let modalEl = document.getElementById(modal);
+    modalEl.classList.remove('fadeOut');
+    modalEl.classList.add('fadeIn');
+    modalEl.style.display = "flex";
+  }
+
+  closeModal(modal: string) {
+    let modalEl = document.getElementById(modal);
+    modalEl.classList.remove('fadeIn');
+    modalEl.classList.add('fadeOut');
+    setTimeout(() => {
+      modalEl.style.display = 'none';
+      this.userInfo = {username: "", firstname: "", lastname: "", email: ""};
+    }, 500);
   }
 
   isChatroomOwner(): boolean {
