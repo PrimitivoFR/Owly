@@ -18,6 +18,9 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       
+      - name: CleanDockerCache
+        run: docker volume prune -f && docker system prune -f && docker container prune -f
+
       - name: BuildCompose
         run: docker-compose -f docker-compose.yml -f docker-compose.devandtest.yml -f docker-compose.test.yml build
         

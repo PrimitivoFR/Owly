@@ -138,6 +138,140 @@ export module Attachments {
 }
 
 /**
+ * Message implementation for message.messageHistory
+ */
+export class messageHistory implements GrpcMessage {
+  /**
+   * Deserialize binary data to message
+   * @param instance message instance
+   */
+  static deserializeBinary(bytes: ByteSource) {
+    const instance = new messageHistory();
+    messageHistory.deserializeBinaryFromReader(
+      instance,
+      new BinaryReader(bytes)
+    );
+    return instance;
+  }
+
+  /**
+   * Check all the properties and set default protobuf values if necessary
+   * @param _instance message instance
+   */
+  static refineValues(_instance: messageHistory) {
+    _instance.timestamp = _instance.timestamp || '0';
+    _instance.content = _instance.content || '';
+  }
+
+  /**
+   * Deserializes / reads binary message into message instance using provided binary reader
+   * @param _instance message instance
+   * @param _reader binary reader instance
+   */
+  static deserializeBinaryFromReader(
+    _instance: messageHistory,
+    _reader: BinaryReader
+  ) {
+    while (_reader.nextField()) {
+      if (_reader.isEndGroup()) break;
+
+      switch (_reader.getFieldNumber()) {
+        case 1:
+          _instance.timestamp = _reader.readInt64String();
+          break;
+        case 2:
+          _instance.content = _reader.readString();
+          break;
+        default:
+          _reader.skipField();
+      }
+    }
+
+    messageHistory.refineValues(_instance);
+  }
+
+  /**
+   * Serializes a message to binary format using provided binary reader
+   * @param _instance message instance
+   * @param _writer binary writer instance
+   */
+  static serializeBinaryToWriter(
+    _instance: messageHistory,
+    _writer: BinaryWriter
+  ) {
+    if (_instance.timestamp) {
+      _writer.writeInt64String(1, _instance.timestamp);
+    }
+    if (_instance.content) {
+      _writer.writeString(2, _instance.content);
+    }
+  }
+
+  private _timestamp?: string;
+  private _content?: string;
+
+  /**
+   * Message constructor. Initializes the properties and applies default Protobuf values if necessary
+   * @param _value initial values object or instance of messageHistory to deeply clone from
+   */
+  constructor(_value?: RecursivePartial<messageHistory>) {
+    _value = _value || {};
+    this.timestamp = _value.timestamp;
+    this.content = _value.content;
+    messageHistory.refineValues(this);
+  }
+  get timestamp(): string | undefined {
+    return this._timestamp;
+  }
+  set timestamp(value: string | undefined) {
+    this._timestamp = value;
+  }
+  get content(): string | undefined {
+    return this._content;
+  }
+  set content(value: string | undefined) {
+    this._content = value;
+  }
+
+  /**
+   * Serialize message to binary data
+   * @param instance message instance
+   */
+  serializeBinary() {
+    const writer = new BinaryWriter();
+    messageHistory.serializeBinaryToWriter(this, writer);
+    return writer.getResultBuffer();
+  }
+
+  /**
+   * Cast message to standard JavaScript object (all non-primitive values are deeply cloned)
+   */
+  toObject(): messageHistory.AsObject {
+    return {
+      timestamp: this.timestamp,
+      content: this.content
+    };
+  }
+
+  /**
+   * JSON serializer
+   * Only intended to be used by `JSON.stringify` function. If you want to cast message to standard JavaScript object, use `toObject()` instead
+   */
+  toJSON() {
+    return this.toObject();
+  }
+}
+export module messageHistory {
+  /**
+   * Standard JavaScript object representation for messageHistory
+   */
+  export interface AsObject {
+    timestamp?: string;
+    content?: string;
+  }
+}
+
+/**
  * Message implementation for message.Message
  */
 export class Message implements GrpcMessage {
@@ -166,6 +300,7 @@ export class Message implements GrpcMessage {
     _instance.isAnswer = _instance.isAnswer || false;
     _instance.answersTo = _instance.answersTo || '';
     _instance.id = _instance.id || '';
+    _instance.history = _instance.history || [];
   }
 
   /**
@@ -216,6 +351,16 @@ export class Message implements GrpcMessage {
         case 10:
           _instance.id = _reader.readString();
           break;
+        case 11:
+          const messageInitializer11 = new messageHistory();
+          _reader.readMessage(
+            messageInitializer11,
+            messageHistory.deserializeBinaryFromReader
+          );
+          (_instance.history = _instance.history || []).push(
+            messageInitializer11
+          );
+          break;
         default:
           _reader.skipField();
       }
@@ -264,6 +409,13 @@ export class Message implements GrpcMessage {
     if (_instance.id) {
       _writer.writeString(10, _instance.id);
     }
+    if (_instance.history && _instance.history.length) {
+      _writer.writeRepeatedMessage(
+        11,
+        _instance.history as any,
+        messageHistory.serializeBinaryToWriter
+      );
+    }
   }
 
   private _authorUUID?: string;
@@ -276,6 +428,7 @@ export class Message implements GrpcMessage {
   private _isAnswer?: boolean;
   private _answersTo?: string;
   private _id?: string;
+  private _history?: messageHistory[];
 
   /**
    * Message constructor. Initializes the properties and applies default Protobuf values if necessary
@@ -293,6 +446,7 @@ export class Message implements GrpcMessage {
     this.isAnswer = _value.isAnswer;
     this.answersTo = _value.answersTo;
     this.id = _value.id;
+    this.history = (_value.history || []).map(m => new messageHistory(m));
     Message.refineValues(this);
   }
   get authorUUID(): string | undefined {
@@ -355,6 +509,12 @@ export class Message implements GrpcMessage {
   set id(value: string | undefined) {
     this._id = value;
   }
+  get history(): messageHistory[] | undefined {
+    return this._history;
+  }
+  set history(value: messageHistory[] | undefined) {
+    this._history = value;
+  }
 
   /**
    * Serialize message to binary data
@@ -380,7 +540,8 @@ export class Message implements GrpcMessage {
       attach: (this.attach || []).map(m => m.toObject()),
       isAnswer: this.isAnswer,
       answersTo: this.answersTo,
-      id: this.id
+      id: this.id,
+      history: (this.history || []).map(m => m.toObject())
     };
   }
 
@@ -407,6 +568,7 @@ export module Message {
     isAnswer?: boolean;
     answersTo?: string;
     id?: string;
+    history?: messageHistory.AsObject[];
   }
 }
 
