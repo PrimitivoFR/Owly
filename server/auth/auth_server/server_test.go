@@ -8,7 +8,8 @@ import (
 	"primitivofr/owly/server/auth/authpb"
 	"reflect"
 	"testing"
-  	"github.com/stretchr/testify/assert"
+
+	"github.com/stretchr/testify/assert"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -74,22 +75,18 @@ func TestLoginUser(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		req := &tt.req
 
-		log.Println(req)
+		resp, err := s.LoginUser(context.Background(), &tt.req)
 
-		resp, err := s.LoginUser(context.Background(), req)
+		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
+			// We're expecting an error
 
-		if err != nil {
 			assert.Equal(t, reflect.TypeOf(tt.want), reflect.TypeOf(err), "LoginUser got unexpected error")
-		}
-		
-		if resp != nil {
+
+		} else {
 			assert.Equal(t, reflect.TypeOf(resp), reflect.TypeOf(tt.want))
 		}
 
-		log.Println("[Successfully passed TestLoginUser]")
-		
 		if resp != nil {
 			f, err := os.Create("../../token.txt")
 			if err != nil {
