@@ -2,11 +2,13 @@ package message_server
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	authserver "primitivofr/owly/server/auth/auth_server"
 	"primitivofr/owly/server/auth/authpb"
+	"sort"
 
 	"primitivofr/owly/server/chatroom/chatroom_server"
 	"primitivofr/owly/server/chatroom/chatroompb"
@@ -17,6 +19,8 @@ import (
 
 	"time"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -34,10 +38,33 @@ var currentChatroomId string
 var currentMessageId string
 var totoMessageId string
 
+var uuidAppliNH string
+
 var cMessage messagepb.MessageServiceClient
 
 func assert(t *testing.T, expected interface{}, test interface{}) {
-	if reflect.DeepEqual(expected, test) {
+	fmt.Println(expected, test)
+	// v is the interface{}
+	// v := reflect.ValueOf(&test).Elem()
+
+	// // Allocate a temporary variable with type of the struct.
+	// //    v.Elem() is the vale contained in the interface.
+	// tmp := reflect.New(v.Elem().Type()).Elem()
+
+	// // Copy the struct value contained in interface to
+	// // the temporary variable.
+	// tmp.Set(v.Elem())
+
+	// // Set the field.
+	// state := tmp.FieldByName("state")
+	// ptrToY := unsafe.Pointer(state.UnsafeAddr())
+
+	// realPtrToY := (*interface{})(ptrToY)
+	// *realPtrToY = nil
+	// // Set the interface to the modified struct value.
+	// v.Set(tmp)
+
+	if !(reflect.DeepEqual(expected, test)) {
 		t.Errorf(
 			"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
 			expected, reflect.TypeOf(expected), test, reflect.TypeOf(test),
@@ -96,7 +123,7 @@ func init() {
 	check(openErr, "Could not open token file")
 	accessToken, err := ioutil.ReadAll(f)
 	check(err, "Error while reading token file")
-	uuidAppliNH, err := common_jwt.ExtractUUIDfromJWT(string(accessToken))
+	uuidAppliNH, err = common_jwt.ExtractUUIDfromJWT(string(accessToken))
 	check(err, "Err while reading uuid from applinh token")
 
 	// Login toto
@@ -157,10 +184,24 @@ func TestSendMessage(t *testing.T) {
 
 	for _, tt := range tests {
 		res, err := cMessage.SendMessage(currentContext, &tt.req)
-		check(err, "Error while trying to send a message")
-		assert(t, tt.want.Success, &res.Success)
+		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
+			// We're expecting an error
+
+			assert(t, tt.want, err)
+
+		} else {
+			if o := cmp.Equal(tt.want, *res, cmpopts.IgnoreUnexported(*res)); o == false {
+				t.Errorf(
+					"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
+					tt.want, reflect.TypeOf(tt.want), res, reflect.TypeOf(res),
+				)
+			}
+
+			//assert(t, tt.want, res)
+		}
 
 	}
+	time.Sleep(2 * time.Second)
 
 }
 
@@ -187,9 +228,19 @@ func TestGetMessagesByChatroom(t *testing.T) {
 
 	for _, tt := range tests {
 		res, err := cMessage.GetMessagesByChatroom(currentContext, &tt.req)
+
+		fmt.Println(res.Messages[0])
+		fmt.Println(res.Messages[1])
+
+		// Sorting messages list from old to new
+		sort.SliceStable(res.Messages, func(i, j int) bool {
+			return res.Messages[i].Timestamp < res.Messages[j].Timestamp
+		})
+
 		check(err, "Error while trying to get messages by chatroom")
-		assert(t, tt.want.Messages[0].Content, &res.Messages[1].Content)
-		assert(t, tt.want.Messages[0].AuthorNAME, &res.Messages[1].AuthorNAME)
+
+		assert(t, tt.want.Messages[0].Content, res.Messages[1].Content)
+		assert(t, tt.want.Messages[0].AuthorNAME, res.Messages[1].AuthorNAME)
 
 		currentMessageId = res.Messages[1].Id
 		totoMessageId = res.Messages[0].Id
@@ -220,21 +271,28 @@ func TestUpdateMessageContent(t *testing.T) {
 				MessageId:  totoMessageId,
 				NewContent: "ah ben nn enfait",
 			},
-			want: status.Error(codes.PermissionDenied, ""),
+			want: status.Error(codes.PermissionDenied, "This user "+uuidAppliNH+" is not the author of the message "+totoMessageId+". He can't do anything with it"),
 		},
 	}
 
 	for _, tt := range tests {
 		res, err := cMessage.UpdateMessageContent(currentContext, &tt.req)
-
 		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
 			// We're expecting an error
+
 			assert(t, tt.want, err)
 
-		} else if err != nil {
-			check(err, "Error while trying to update message")
 		} else {
-			assert(t, tt.want, &res)
+
+			// assert(t, tt.want, res)
+
+			if o := cmp.Equal(tt.want, *res, cmpopts.IgnoreUnexported(*res, *res.Message)); o == false {
+				t.Errorf(
+					"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
+					tt.want, reflect.TypeOf(tt.want), res, reflect.TypeOf(res),
+				)
+			}
+
 		}
 
 	}
@@ -259,7 +317,19 @@ func TestDeleteMessage(t *testing.T) {
 
 	for _, tt := range tests {
 		res, err := cMessage.DeleteMessage(currentContext, &tt.req)
-		check(err, "Error while trying to delete a message")
-		assert(t, tt.want.Success, &res.Success)
+		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
+			// We're expecting an error
+
+			assert(t, tt.want, err)
+
+		} else {
+			//assert(t, tt.want, res)
+			if o := cmp.Equal(tt.want, *res, cmpopts.IgnoreUnexported(*res)); o == false {
+				t.Errorf(
+					"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
+					tt.want, reflect.TypeOf(tt.want), res, reflect.TypeOf(res),
+				)
+			}
+		}
 	}
 }
