@@ -8,6 +8,7 @@ import (
 	"os"
 	authserver "primitivofr/owly/server/auth/auth_server"
 	"primitivofr/owly/server/auth/authpb"
+	"sort"
 
 	"primitivofr/owly/server/chatroom/chatroom_server"
 	"primitivofr/owly/server/chatroom/chatroompb"
@@ -18,6 +19,8 @@ import (
 
 	"time"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -163,7 +166,7 @@ func TestSendMessage(t *testing.T) {
 
 	tests := []struct {
 		req  messagepb.SendMessageRequest
-		want *messagepb.SendMessageResponse
+		want messagepb.SendMessageResponse
 	}{
 		{
 			req: messagepb.SendMessageRequest{
@@ -173,7 +176,7 @@ func TestSendMessage(t *testing.T) {
 					AuthorNAME: "AppliNH",
 				},
 			},
-			want: &messagepb.SendMessageResponse{
+			want: messagepb.SendMessageResponse{
 				Success: true,
 			},
 		},
@@ -187,10 +190,18 @@ func TestSendMessage(t *testing.T) {
 			assert(t, tt.want, err)
 
 		} else {
-			assert(t, tt.want, res)
+			if o := cmp.Equal(tt.want, *res, cmpopts.IgnoreUnexported(*res)); o == false {
+				t.Errorf(
+					"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
+					tt.want, reflect.TypeOf(tt.want), res, reflect.TypeOf(res),
+				)
+			}
+
+			//assert(t, tt.want, res)
 		}
 
 	}
+	time.Sleep(2 * time.Second)
 
 }
 
@@ -198,13 +209,13 @@ func TestGetMessagesByChatroom(t *testing.T) {
 
 	tests := []struct {
 		req  messagepb.GetMessagesByChatroomRequest
-		want *messagepb.GetMessagesByChatroomResponse
+		want messagepb.GetMessagesByChatroomResponse
 	}{
 		{
 			req: messagepb.GetMessagesByChatroomRequest{
 				ChatroomID: currentChatroomId,
 			},
-			want: &messagepb.GetMessagesByChatroomResponse{
+			want: messagepb.GetMessagesByChatroomResponse{
 				Messages: []*messagepb.Message{
 					&messagepb.Message{
 						Content:    "test",
@@ -220,6 +231,11 @@ func TestGetMessagesByChatroom(t *testing.T) {
 
 		fmt.Println(res.Messages[0])
 		fmt.Println(res.Messages[1])
+
+		// Sorting messages list from old to new
+		sort.SliceStable(res.Messages, func(i, j int) bool {
+			return res.Messages[i].Timestamp < res.Messages[j].Timestamp
+		})
 
 		check(err, "Error while trying to get messages by chatroom")
 		assert(t, tt.want.Messages[0].Content, res.Messages[1].Content)
