@@ -238,6 +238,7 @@ func TestGetMessagesByChatroom(t *testing.T) {
 		})
 
 		check(err, "Error while trying to get messages by chatroom")
+
 		assert(t, tt.want.Messages[0].Content, res.Messages[1].Content)
 		assert(t, tt.want.Messages[0].AuthorNAME, res.Messages[1].AuthorNAME)
 
@@ -257,7 +258,7 @@ func TestUpdateMessageContent(t *testing.T) {
 				ChatroomId: currentChatroomId,
 				NewContent: "Slt test",
 			},
-			want: &messagepb.UpdateMessageContentResponse{
+			want: messagepb.UpdateMessageContentResponse{
 				Success: true,
 				Message: &messagepb.Message{
 					Id: currentMessageId,
@@ -283,7 +284,15 @@ func TestUpdateMessageContent(t *testing.T) {
 
 		} else {
 
-			assert(t, tt.want, res)
+			// assert(t, tt.want, res)
+
+			if o := cmp.Equal(tt.want, *res, cmpopts.IgnoreUnexported(*res, *res.Message)); o == false {
+				t.Errorf(
+					"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
+					tt.want, reflect.TypeOf(tt.want), res, reflect.TypeOf(res),
+				)
+			}
+
 		}
 
 	}
@@ -293,14 +302,14 @@ func TestDeleteMessage(t *testing.T) {
 
 	tests := []struct {
 		req  messagepb.DeleteMessageRequest
-		want *messagepb.DeleteMessageResponse
+		want messagepb.DeleteMessageResponse
 	}{
 		{
 			req: messagepb.DeleteMessageRequest{
 				ChatroomID: currentChatroomId,
 				MessageID:  currentMessageId,
 			},
-			want: &messagepb.DeleteMessageResponse{
+			want: messagepb.DeleteMessageResponse{
 				Success: true,
 			},
 		},
@@ -314,7 +323,13 @@ func TestDeleteMessage(t *testing.T) {
 			assert(t, tt.want, err)
 
 		} else {
-			assert(t, tt.want, res)
+			//assert(t, tt.want, res)
+			if o := cmp.Equal(tt.want, *res, cmpopts.IgnoreUnexported(*res)); o == false {
+				t.Errorf(
+					"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
+					tt.want, reflect.TypeOf(tt.want), res, reflect.TypeOf(res),
+				)
+			}
 		}
 	}
 }
