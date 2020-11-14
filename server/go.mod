@@ -16,6 +16,7 @@ require (
 	github.com/olivere/elastic v6.2.35+incompatible
 	github.com/pkg/errors v0.9.1
 	github.com/rgamba/evtwebsocket v0.0.0-20181029234908-48b8cd9f8616
+	github.com/stretchr/testify v1.6.1
 	go.mongodb.org/mongo-driver v1.4.1
 	golang.org/x/net v0.0.0-20200904194848-62affa334b73 // indirect
 	google.golang.org/grpc v1.31.1

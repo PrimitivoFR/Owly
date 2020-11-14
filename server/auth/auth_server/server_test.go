@@ -8,6 +8,7 @@ import (
 	"primitivofr/owly/server/auth/authpb"
 	"reflect"
 	"testing"
+  	"github.com/stretchr/testify/assert"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -42,15 +43,11 @@ func TestCreateNewUser(t *testing.T) {
 
 		resp, err := s.CreateNewUser(context.Background(), req)
 
-		if err != nil {
-			t.Errorf("CreateNewUser got unexpected error %v", err)
-		} else if resp.Success != tt.want.Success {
-			t.Errorf("CreateNewUser(%v)=%v, wanted %v", req, resp, tt.want)
-		} else {
-			log.Println("[Successfully passed TestCreateNewUser]")
-		}
-
+		assert.Nil(t, err, "CreateNewUser got unexpected error")
+		assert.Equal(t, resp.Success, tt.want.Success, "Created user does not correspond to the wanted user")
 	}
+
+	log.Println("[Successfully passed TestCreateNewUser]")
 }
 
 func TestLoginUser(t *testing.T) {
@@ -83,25 +80,23 @@ func TestLoginUser(t *testing.T) {
 
 		resp, err := s.LoginUser(context.Background(), req)
 
-		if err != nil && reflect.TypeOf(tt.want) != reflect.TypeOf(err) {
-			t.Errorf("LoginUser got unexpected error %v", err)
-		} else if resp != nil && reflect.TypeOf(resp) != reflect.TypeOf(tt.want) {
-			t.Errorf("LoginUser(%v)=%v, wanted %v", req, resp, reflect.TypeOf(tt.want).String())
-		} else {
-			log.Println("[Successfully passed TestLoginUser]")
-
-			if resp != nil {
-
-				f, err := os.Create("../../token.txt")
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-				f.WriteString(resp.Result.GetAccessToken())
-			}
-
+		if err != nil {
+			assert.Equal(t, reflect.TypeOf(tt.want), reflect.TypeOf(err), "LoginUser got unexpected error")
+		}
+		
+		if resp != nil {
+			assert.Equal(t, reflect.TypeOf(resp), reflect.TypeOf(tt.want))
 		}
 
+		log.Println("[Successfully passed TestLoginUser]")
+		
+		if resp != nil {
+			f, err := os.Create("../../token.txt")
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			f.WriteString(resp.Result.GetAccessToken())
+		}
 	}
-
 }
