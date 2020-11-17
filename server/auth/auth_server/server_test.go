@@ -2,16 +2,31 @@ package authserver
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"log"
 	"os"
 	"primitivofr/owly/server/auth/authpb"
 	"reflect"
 	"testing"
 
+	kvdb "primitivofr/owly/server/common/kvdb"
+
+	"github.com/boltdb/bolt"
+	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
+
+var db *bolt.DB
+
+func init() {
+	var err error
+	db, err = kvdb.InitDB("testingdb", "common")
+	if err != nil {
+		panic(err)
+	}
+
+}
 
 func TestCreateNewUser(t *testing.T) {
 
@@ -38,19 +53,24 @@ func TestCreateNewUser(t *testing.T) {
 	for _, tt := range tests {
 		req := &tt.req
 
-		log.Println(req)
-
 		resp, err := s.CreateNewUser(context.Background(), req)
 
-		if err != nil {
-			t.Errorf("CreateNewUser got unexpected error %v", err)
-		} else if resp.Success != tt.want.Success {
-			t.Errorf("CreateNewUser(%v)=%v, wanted %v", req, resp, tt.want)
-		} else {
-			log.Println("[Successfully passed TestCreateNewUser]")
-		}
+		assert.Nil(t, err, "CreateNewUser got unexpected error")
+		if o := assert.Equal(t, resp.Success, tt.want.Success, "Created user does not correspond to the wanted user"); o {
+			b, err := json.Marshal(tests[0].req.Username)
+			if err != nil {
+				panic(err)
+			}
 
+			err = kvdb.WriteData(db, "users", tests[0].req.Username, string(b))
+			if err != nil {
+				panic(err)
+			}
+		}
 	}
+
+	log.Println("[Successfully passed TestCreateNewUser]")
+
 }
 
 func TestLoginUser(t *testing.T) {
@@ -77,31 +97,32 @@ func TestLoginUser(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		req := &tt.req
 
-		log.Println(req)
+		resp, err := s.LoginUser(context.Background(), &tt.req)
 
-		resp, err := s.LoginUser(context.Background(), req)
+		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
+			// We're expecting an error
 
-		if err != nil && reflect.TypeOf(tt.want) != reflect.TypeOf(err) {
-			t.Errorf("LoginUser got unexpected error %v", err)
-		} else if resp != nil && reflect.TypeOf(resp) != reflect.TypeOf(tt.want) {
-			t.Errorf("LoginUser(%v)=%v, wanted %v", req, resp, reflect.TypeOf(tt.want).String())
+			assert.Equal(t, reflect.TypeOf(tt.want), reflect.TypeOf(err), "LoginUser got unexpected error")
+
 		} else {
-			log.Println("[Successfully passed TestLoginUser]")
-
-			if resp != nil {
-
-				f, err := os.Create("../../token.txt")
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-				f.WriteString(resp.Result.GetAccessToken())
-			}
-
+			assert.Equal(t, reflect.TypeOf(resp), reflect.TypeOf(tt.want))
 		}
 
-	}
+		if resp != nil {
 
+			err := kvdb.WriteData(db, "tokens", "applinh", resp.Result.AccessToken)
+			if err != nil {
+				panic(err)
+			}
+
+			// This needs to be removed
+			f, err := os.Create("../../token.txt")
+			if err != nil {
+				panic(err)
+			}
+			f.WriteString(resp.Result.GetAccessToken())
+
+		}
+	}
 }

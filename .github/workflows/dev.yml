@@ -5,7 +5,19 @@ name: CI-DockerCompose-Test-devbranch
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the dev branch
 
-on: [push, pull_request]
+on: 
+  push:
+    branches-ignore:
+      - "master"
+      - "rd-**"
+    tags-ignore:
+      - "*"
+  pull_request:
+    branches-ignore:
+      - "master"
+      - "rd-**"
+    tags-ignore:
+      - "*"
 
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
