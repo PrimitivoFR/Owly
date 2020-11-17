@@ -17,7 +17,8 @@ import { StoreService } from 'src/_services/store.service';
 import {v4 as uuidv4} from 'uuid';
 import { SnackAlertService } from '../common/components/snack-alert/snack-alert.service';
 import { Router } from '@angular/router';
-import { GetUserInfosResponse } from 'src/proto/user.pb';
+import { GetUserInfosRequest, GetUserInfosResponse } from 'src/proto/user.pb';
+import { UserService } from 'src/_services/user.service';
 
 @Component({
   selector: 'app-chatroom',
@@ -52,6 +53,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private messageService: MessageService,
+    private userService: UserService,
     private storeService: StoreService,
     private snackAlertService: SnackAlertService,
     private chatroomService: ChatroomService,
@@ -247,8 +249,11 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   }
 
   async getUserInfo(userID: string) {
+    const req = new GetUserInfosRequest({
+      id: userID
+    });
 
-    this.userInfo = new GetUserInfosResponse({username: "Capi", firstname: "John", lastname: "Doe", email: "test.test@test.com"});
+    this.userInfo = await this.userService.getUserInfo(req);
     this.openModal('userInfoModal');
   }
 
