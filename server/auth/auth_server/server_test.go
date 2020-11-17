@@ -2,18 +2,31 @@ package authserver
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"log"
 	"os"
 	"primitivofr/owly/server/auth/authpb"
 	"reflect"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	kvdb "primitivofr/owly/server/common/kvdb"
 
+	"github.com/boltdb/bolt"
+	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
+
+var db *bolt.DB
+
+func init() {
+	var err error
+	db, err = kvdb.InitDB("testingdb", "common")
+	if err != nil {
+		panic(err)
+	}
+
+}
 
 func TestCreateNewUser(t *testing.T) {
 
@@ -40,15 +53,24 @@ func TestCreateNewUser(t *testing.T) {
 	for _, tt := range tests {
 		req := &tt.req
 
-		log.Println(req)
-
 		resp, err := s.CreateNewUser(context.Background(), req)
 
 		assert.Nil(t, err, "CreateNewUser got unexpected error")
-		assert.Equal(t, resp.Success, tt.want.Success, "Created user does not correspond to the wanted user")
+		if o := assert.Equal(t, resp.Success, tt.want.Success, "Created user does not correspond to the wanted user"); o {
+			b, err := json.Marshal(tests[0].req.Username)
+			if err != nil {
+				panic(err)
+			}
+
+			err = kvdb.WriteData(db, "users", tests[0].req.Username, string(b))
+			if err != nil {
+				panic(err)
+			}
+		}
 	}
 
 	log.Println("[Successfully passed TestCreateNewUser]")
+
 }
 
 func TestLoginUser(t *testing.T) {
@@ -88,12 +110,19 @@ func TestLoginUser(t *testing.T) {
 		}
 
 		if resp != nil {
+
+			err := kvdb.WriteData(db, "tokens", "applinh", resp.Result.AccessToken)
+			if err != nil {
+				panic(err)
+			}
+
+			// This needs to be removed
 			f, err := os.Create("../../token.txt")
 			if err != nil {
-				fmt.Println(err)
-				return
+				panic(err)
 			}
 			f.WriteString(resp.Result.GetAccessToken())
+
 		}
 	}
 }

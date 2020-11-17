@@ -9,7 +9,7 @@ import (
 func WriteData(db *bolt.DB, bucketName string, key string, value string) error {
 
 	err := db.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(bucketName))
+		bucket, _ := tx.CreateBucketIfNotExists([]byte(bucketName))
 
 		bucket.Put([]byte(key), []byte(value))
 
