@@ -40,7 +40,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="font-bold text-base">
+                    <div class="font-bold text-base hover:underline cursor-pointer" (click)="getUserInfo(message.authorUUID)">
                         {{message.authorNAME}}
                     </div>
                     <div class="w-full text-sm">
@@ -112,6 +112,7 @@
 
 <div 
     id="userInfoModal" 
-    class="main-modal fixed w-full h-100 inset-0 z-50 overflow-hidden hidden justify-center items-center animated fadeIn faster">
+    class="main-modal fixed w-full h-100 inset-0 z-50 overflow-hidden hidden justify-center items-center animated fadeIn faster"
+    style="background: rgba(0,0,0,.7);">
     <app-user-info-modal [userInfo]="userInfo" (closeModal)="closeModal('userInfoModal')"></app-user-info-modal>
 </div>
