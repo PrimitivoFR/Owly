@@ -17,6 +17,7 @@ import { StoreService } from 'src/_services/store.service';
 import {v4 as uuidv4} from 'uuid';
 import { SnackAlertService } from '../common/components/snack-alert/snack-alert.service';
 import { Router } from '@angular/router';
+import { GetUserInfosResponse } from 'src/proto/user.pb';
 
 @Component({
   selector: 'app-chatroom',
@@ -41,6 +42,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   public answersTo: string = "";
   public messageToReply: Message;
   public panelOpened: boolean = false;
+  public userInfo: GetUserInfosResponse;
 
   @ViewChild('scrollframe', {static: true}) scrollFrame: ElementRef;
   @ViewChildren('item') itemElements: QueryList<any>;
@@ -242,6 +244,30 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
         this.snackAlertService.showSnack("Something went wrong, you can't leave the chatroom");
       }
     }
+  }
+
+  async getUserInfo(userID: string) {
+
+    this.userInfo = new GetUserInfosResponse({username: "Capi", firstname: "John", lastname: "Doe", email: "test.test@test.com"});
+    this.openModal('userInfoModal');
+  }
+
+  openModal(modal: string) {
+    
+    let modalEl = document.getElementById(modal);
+    modalEl.classList.remove('fadeOut');
+    modalEl.classList.add('fadeIn');
+    modalEl.style.display = "flex";
+  }
+
+  closeModal(modal: string) {
+    let modalEl = document.getElementById(modal);
+    modalEl.classList.remove('fadeIn');
+    modalEl.classList.add('fadeOut');
+    setTimeout(() => {
+      modalEl.style.display = 'none';
+      this.userInfo = null;
+    }, 500);
   }
 
   isChatroomOwner(): boolean {

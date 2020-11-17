@@ -78,4 +78,43 @@ export class UserServiceClient {
       responseClass: thisProto.SearchUserByUsernameResponse
     });
   }
+
+  /**
+   * Unary RPC for /user.UserService/GetUserInfos
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<thisProto.GetUserInfosResponse>
+   */
+  getUserInfos(
+    requestData: thisProto.GetUserInfosRequest,
+    requestMetadata: Metadata = {}
+  ): Observable<thisProto.GetUserInfosResponse> {
+    return this.getUserInfos$eventStream(requestData, requestMetadata).pipe(
+      throwStatusErrors(),
+      takeMessages()
+    );
+  }
+
+  /**
+   * Unary RPC for /user.UserService/GetUserInfos
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<GrpcEvent<thisProto.GetUserInfosResponse>>
+   */
+  getUserInfos$eventStream(
+    requestData: thisProto.GetUserInfosRequest,
+    requestMetadata: Metadata = {}
+  ): Observable<GrpcEvent<thisProto.GetUserInfosResponse>> {
+    return this.handler.handle({
+      type: GrpcCallType.unary,
+      client: this.client,
+      path: '/user.UserService/GetUserInfos',
+      requestData,
+      requestMetadata,
+      requestClass: thisProto.GetUserInfosRequest,
+      responseClass: thisProto.GetUserInfosResponse
+    });
+  }
 }
