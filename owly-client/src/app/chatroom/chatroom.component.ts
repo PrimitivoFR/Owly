@@ -103,7 +103,6 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
       
       if (res.success) {
         this.cancelEditing();
-        this.messageService.getMessagesForAllChatrooms();
       }
       else {
         console.log("something went wrong");

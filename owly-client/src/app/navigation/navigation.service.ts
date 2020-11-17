@@ -67,6 +67,7 @@ export class NavigationService {
                     currentStoreItem.messages = currentStoreItem.messages.map((mess: Message) => {
                         if (mess.id == res.message.id) {
                             mess.content = res.message.content
+                            mess.history = res.message.history
                         }
                         return mess
                     });
