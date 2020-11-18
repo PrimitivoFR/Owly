@@ -198,4 +198,43 @@ export class ChatroomServiceClient {
       responseClass: thisProto.LeaveChatroomResponse
     });
   }
+
+  /**
+   * Unary RPC for /chatroom.ChatroomService/TransferOwnership
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<thisProto.TranferOwnershipResponse>
+   */
+  transferOwnership(
+    requestData: thisProto.TranferOwnershipRequest,
+    requestMetadata: Metadata = {}
+  ): Observable<thisProto.TranferOwnershipResponse> {
+    return this.transferOwnership$eventStream(
+      requestData,
+      requestMetadata
+    ).pipe(throwStatusErrors(), takeMessages());
+  }
+
+  /**
+   * Unary RPC for /chatroom.ChatroomService/TransferOwnership
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<GrpcEvent<thisProto.TranferOwnershipResponse>>
+   */
+  transferOwnership$eventStream(
+    requestData: thisProto.TranferOwnershipRequest,
+    requestMetadata: Metadata = {}
+  ): Observable<GrpcEvent<thisProto.TranferOwnershipResponse>> {
+    return this.handler.handle({
+      type: GrpcCallType.unary,
+      client: this.client,
+      path: '/chatroom.ChatroomService/TransferOwnership',
+      requestData,
+      requestMetadata,
+      requestClass: thisProto.TranferOwnershipRequest,
+      responseClass: thisProto.TranferOwnershipResponse
+    });
+  }
 }

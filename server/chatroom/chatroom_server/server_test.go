@@ -36,6 +36,7 @@ func init() {
 
 	appliNHCtxInc, appliNHCtxOut = common_testing.PrepareCtxWithToken("applinh")
 
+
 	//---- CREATE ANOTHER USER
 	// Starting auth MS
 	go authserver.StartServer()
@@ -67,6 +68,16 @@ func init() {
 
 	common_testing.SaveToKvdb("users", reqCreateUser.Username, string(b))
 
+	conn.Close()
+
+}
+
+func prepareLeaveAndDeleteChatroomTestCtx() {
+	// Init client
+	conn, err := grpc.Dial("server:50054", grpc.WithInsecure())
+	check(err, "Error while trying to dial auth MS")
+	c := authpb.NewAuthServiceClient(conn)
+
 	// Login
 	reqLogin := &authpb.LoginUserRequest{
 		Username: "toto",
@@ -90,6 +101,7 @@ func init() {
 
 	//---- CREATE NEW CHATROOMS
 
+
 	// Starting chatroom MS
 	go StartServer()
 	time.Sleep(1 * time.Second)
@@ -97,6 +109,7 @@ func init() {
 	// Retrieving AppliNH uuid
 	uuidAppliNH, err = common_jwt.ReadUUIDFromContext(appliNHCtxInc)
 	common_testing.CheckErr(err, "Err while reading uuid from applinh token")
+
 
 	// Create Chatroom with Toto, and AppliNH inside
 	reqCreateChatroom := &chatroompb.CreateChatroomRequest{
@@ -114,6 +127,7 @@ func init() {
 		resCreateChatroom)
 
 	common_testing.CheckErr(err, "")
+
 
 	chatroomIdByToto = resCreateChatroom.ID
 
@@ -139,6 +153,14 @@ func init() {
 	common_testing.CheckErr(err, "")
 
 	chatroomIdByAppliNH = resCreateChatroom2.ID
+
+	if err := conn.Close(); err != nil {
+		panic(err)
+	}
+
+	if err := conn2.Close(); err != nil {
+		panic(err)
+	}
 
 }
 
@@ -202,6 +224,59 @@ func TestGetChatroomsByUser(t *testing.T) {
 		assert.Equal(t, tt.want.Count, resp.Count, "GetChatroomsByUser got unexpected response")
 	}
 }
+
+func TestTransferOwnership(t *testing.T) {
+	// Basically creates a chatroom by Toto with applinh inside, and also the opposite
+	// and fills the chatroomIdByAppliNH and chatroomIdByToto
+	// so this is useful here, I felt like reusing it :)
+	// ... omg we need to upgrade our testing model, cause it makes us do so much shit.. Can't wait for rd-testing-model to be done, approved, merged and applied everywhere
+	createUserToto()
+	prepareLeaveAndDeleteChatroomTestCtx()
+
+	s := server{}
+
+	ctx := prepareTestingCtx()
+
+	tests := []struct {
+		req  chatroompb.TranferOwnershipRequest
+		want interface{}
+	}{
+		{
+			req: chatroompb.TranferOwnershipRequest{
+				ChatroomId: chatroomIdByAppliNH,
+				NewOwnerId: uuidToto,
+			},
+			want: chatroompb.TranferOwnershipResponse{
+				Success: true,
+			},
+		},
+
+		{
+			req: chatroompb.TranferOwnershipRequest{
+				ChatroomId: chatroomIdByToto,
+				NewOwnerId: uuidAppliNH,
+			},
+			want: status.Error(codes.PermissionDenied, ""),
+		},
+	}
+
+	for _, tt := range tests {
+		resp, err := s.TransferOwnership(ctx, &tt.req)
+		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
+			// We're expecting an error
+
+			assert(t, tt.want, err)
+
+		} else if err != nil {
+			check(err, "TransferOwnership got unexpected error")
+		} else {
+			assert(t, tt.want, &resp)
+		}
+
+	}
+
+}
+
 func TestLeaveChatroom(t *testing.T) {
 
 	s := server{}
