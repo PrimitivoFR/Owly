@@ -204,8 +204,7 @@ func (*server) DeleteChatroom(ctx context.Context, req *chatroompb.DeleteChatroo
 		return nil, status.Error(
 			codes.PermissionDenied,
 			fmt.Sprintf(
-				"Current user is not the rightful owner of this"+
-					"chatroom, and thus cannot delete it."),
+				"Current user is not the rightful owner of this chatroom, and thus cannot delete it."),
 		)
 	}
 
@@ -246,9 +245,7 @@ func (*server) LeaveChatroom(ctx context.Context, req *chatroompb.LeaveChatroomR
 	if userIsOwner {
 		return nil, status.Error(
 			codes.PermissionDenied,
-			fmt.Sprintf(
-				"Current user is the rightful owner of this"+
-					"chatroom, and thus cannot leave it."),
+			fmt.Sprintf("Current user is the rightful owner of this chatroom, and thus cannot leave it."),
 		)
 	}
 
@@ -268,18 +265,10 @@ func (*server) LeaveChatroom(ctx context.Context, req *chatroompb.LeaveChatroomR
 }
 
 func (*server) TransferOwnership(ctx context.Context, req *chatroompb.TranferOwnershipRequest) (*chatroompb.TranferOwnershipResponse, error) {
-	
+
 	userId, err := common_jwt.ReadUUIDFromContext(ctx)
 	if err != nil {
 		return nil, err
-	}
-
-	if userId == req.NewOwnerId {
-		return nil, status.Error(
-			codes.InvalidArgument,
-			fmt.Sprintf(
-				"It's not really useful to transfer ownership to yourself."),
-		)
 	}
 
 	// check if the current user is the rightful owner
@@ -291,9 +280,15 @@ func (*server) TransferOwnership(ctx context.Context, req *chatroompb.TranferOwn
 	if !userIsOwner {
 		return nil, status.Error(
 			codes.PermissionDenied,
+			fmt.Sprintf("Current user is not the rightful owner of this chatroom, and thus cannot transfer its ownership."),
+		)
+	}
+
+	if userId == req.NewOwnerId {
+		return nil, status.Error(
+			codes.InvalidArgument,
 			fmt.Sprintf(
-				"Current user is not the rightful owner of this"+
-					"chatroom, and thus cannot transfer its ownership."),
+				"It's not really useful to transfer ownership to yourself."),
 		)
 	}
 
@@ -318,7 +313,7 @@ func (*server) TransferOwnership(ctx context.Context, req *chatroompb.TranferOwn
 			fmt.Sprintf("New owner is not found in the chatroom"),
 		)
 	}
-	
+
 	changeOwnerErr := common_mongo.ChangeChatroomOwner(req.NewOwnerId, req.ChatroomId)
 	if changeOwnerErr != nil {
 		return nil, changeOwnerErr
@@ -326,6 +321,7 @@ func (*server) TransferOwnership(ctx context.Context, req *chatroompb.TranferOwn
 
 	return &chatroompb.TranferOwnershipResponse{Success: true}, nil
 }
+
 //
 
 func StartServer() {

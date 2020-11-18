@@ -6,7 +6,4 @@
 # bash: ./runTests.sh: /bin/bash^M: bad interpreter: No such file or directory
 
 go mod download
-go test ./auth/auth_server
-go test ./user/user_server
-go test ./chatroom/chatroom_server
-go test ./message/message_server
+go test ./auth/auth_server && go test ./user/user_server && go test ./chatroom/chatroom_server && go test ./message/message_server
