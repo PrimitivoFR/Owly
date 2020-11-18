@@ -17,3 +17,7 @@ token.txt
 
 # Python
 __pycache__/
+
+
+# Testing
+server/testingdb/

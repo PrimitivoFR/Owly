@@ -20,18 +20,21 @@ func InitDB(dbName string, bucketName string) (*bolt.DB, error) {
 		os.Mkdir("../../"+dbName, 0700)
 	}
 
-	db, err := bolt.Open("../../"+dbName+"/"+dbName+".db", 0644, nil)
+	db, err := bolt.Open("../../"+dbName+"/"+dbName+".db", 0700, nil)
 	if err != nil {
 		panic(err)
 	}
 
-	err = db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte(bucketName))
-		if err != nil {
-			return err
-		}
-		return nil
-	})
+	if bucketName != "" {
+
+		err = db.Update(func(tx *bolt.Tx) error {
+			_, err := tx.CreateBucketIfNotExists([]byte(bucketName))
+			if err != nil {
+				return err
+			}
+			return nil
+		})
+	}
 
 	return db, err
 
