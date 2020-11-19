@@ -27,6 +27,7 @@ import { GRPC_MESSAGE_SERVICE_CLIENT_SETTINGS } from 'src/proto/message.pbconf';
 import { ChatroomListComponent } from './navigation/chatroom-list/chatroom-list.component';
 import { GRPC_AUTH_SERVICE_CLIENT_SETTINGS } from 'src/proto/auth.pbconf';
 import { environment } from './../environments/environment';
+import { ConfirmModalComponent } from './common/components/confirm-modal/confirm-modal.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import { environment } from './../environments/environment';
     ChatroomComponent,
     ChatroomListComponent,
     TransferOwnerModalComponent,
+    ConfirmModalComponent,
   ],
   imports: [
     BrowserModule,
