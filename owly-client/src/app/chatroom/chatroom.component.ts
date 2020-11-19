@@ -17,6 +17,7 @@ import { StoreService } from 'src/_services/store.service';
 import {v4 as uuidv4} from 'uuid';
 import { SnackAlertService } from '../common/components/snack-alert/snack-alert.service';
 import { Router } from '@angular/router';
+import { ConfirmModalService } from '../common/components/confirm-modal/confirm-modal.service';
 
 @Component({
   selector: 'app-chatroom',
@@ -56,6 +57,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     private snackAlertService: SnackAlertService,
     private chatroomService: ChatroomService,
     private router: Router,
+    private confirmModalService: ConfirmModalService,
   ) { }
 
   ngOnInit() {
@@ -152,7 +154,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   }
 
   async deleteMessage(messageID) {
-    if(confirm("Are you sure you want to continue ?")) {
+    if(await this.confirmModalService.confirm("Are you sure you want to continue ?")) {
       this.dropdownOpen = false;
       const req = new DeleteMessageRequest({
         chatroomID: this.currentStoreItem.chatroom.id,
@@ -211,7 +213,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
       this.openModal();
     }
     else {
-      if(confirm("Are you sure you want to leave the chatroom ?")) {
+      if(await this.confirmModalService.confirm("Are you sure you want to leave the chatroom ?")) {
         const req = new LeaveChatroomRequest({
           chatroomId: this.currentStoreItem.chatroom.id
         })
@@ -234,7 +236,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   }
 
   async deleteChatroom() {
-    if(confirm("Are you sure you want to continue ?")) {
+    if(await this.confirmModalService.confirm("Are you sure you want to continue ?")) {
       const req = new DeleteChatroomRequest({
         chatroomId: this.currentStoreItem.chatroom.id
       })
@@ -255,7 +257,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   }
 
   async transferOwnership(idUserChosen: string) {
-    if(confirm("Are you sure you want to continue ?")) {
+    if(await this.confirmModalService.confirm("Are you sure you want to continue ?")) {
       if(!idUserChosen || idUserChosen == "") {
         return;
       }
