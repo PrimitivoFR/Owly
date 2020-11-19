@@ -198,4 +198,43 @@ export class MessageServiceClient {
       responseClass: thisProto.DeleteMessageResponse
     });
   }
+
+  /**
+   * Unary RPC for /message.MessageService/UpdateMessageContent
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<thisProto.UpdateMessageContentResponse>
+   */
+  updateMessageContent(
+    requestData: thisProto.UpdateMessageContentRequest,
+    requestMetadata: Metadata = {}
+  ): Observable<thisProto.UpdateMessageContentResponse> {
+    return this.updateMessageContent$eventStream(
+      requestData,
+      requestMetadata
+    ).pipe(throwStatusErrors(), takeMessages());
+  }
+
+  /**
+   * Unary RPC for /message.MessageService/UpdateMessageContent
+   *
+   * @param requestMessage Request message
+   * @param requestMetadata Request metadata
+   * @returns Observable<GrpcEvent<thisProto.UpdateMessageContentResponse>>
+   */
+  updateMessageContent$eventStream(
+    requestData: thisProto.UpdateMessageContentRequest,
+    requestMetadata: Metadata = {}
+  ): Observable<GrpcEvent<thisProto.UpdateMessageContentResponse>> {
+    return this.handler.handle({
+      type: GrpcCallType.unary,
+      client: this.client,
+      path: '/message.MessageService/UpdateMessageContent',
+      requestData,
+      requestMetadata,
+      requestClass: thisProto.UpdateMessageContentRequest,
+      responseClass: thisProto.UpdateMessageContentResponse
+    });
+  }
 }

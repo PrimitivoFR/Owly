@@ -50,7 +50,7 @@
 }
 
 .mt-custom {
-    margin-top: 5vh;
+    margin-top: 4vh;
 }
 
 .max-h-custom-2 {
@@ -105,4 +105,13 @@
     to {
         opacity: 0;
     }
+}
+
+.popup {
+    display: none;
+    bottom: 110%;
+}
+
+.tooltip:hover + .popup {
+    display: flex;
 }
