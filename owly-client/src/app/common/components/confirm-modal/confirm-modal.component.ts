@@ -24,14 +24,14 @@ export class ConfirmModalComponent implements OnInit {
     this.confirmModalService.currentMessage.subscribe((message) => this.message = message);
   }
 
-  private openModal() {
+  openModal() {
     let modalEl = document.getElementById('confirmModal');
     modalEl.classList.remove('fadeOut');
     modalEl.classList.add('fadeIn');
     modalEl.style.display = "flex";
   }
 
-  private closeModal() {
+  closeModal() {
     let modalEl = document.getElementById('confirmModal');
     modalEl.classList.remove('fadeIn');
     modalEl.classList.add('fadeOut');
@@ -40,11 +40,11 @@ export class ConfirmModalComponent implements OnInit {
     }, 500);
   }
 
-  private accept() {
+  accept() {
     this.confirmModalService.accept();
   }
 
-  private decline() {
+  decline() {
     this.confirmModalService.decline();
   }
 
