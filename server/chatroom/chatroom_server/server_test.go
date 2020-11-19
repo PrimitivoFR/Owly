@@ -13,7 +13,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
@@ -164,15 +163,6 @@ func init() {
 
 }
 
-func assertOld(t *testing.T, expected interface{}, test interface{}) {
-	if reflect.DeepEqual(expected, test) {
-		t.Errorf(
-			"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
-			expected, reflect.TypeOf(expected), test, reflect.TypeOf(test),
-		)
-	}
-}
-
 func TestCreateChatroom(t *testing.T) {
 	s := server{}
 
@@ -193,10 +183,15 @@ func TestCreateChatroom(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		resp, err := s.CreateChatroom(appliNHCtxInc, &tt.req)
-		assert.Nil(t, err, "CreateChatroom got unexpected error")
+		res, err := s.CreateChatroom(appliNHCtxInc, &tt.req)
+		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
+			// We're expecting an error
+		} else {
+			if o := assert.Nil(t, err, "CreateChatroom got unexpected error"); o {
+				common_testing.CmpAssertEqual(t, tt.want, *res, cmpopts.IgnoreUnexported(*res), cmpopts.IgnoreFields(*res, "ID"))
+			}
+		}
 
-		assert.Equal(t, tt.want.Success, resp.Success, "CreateChatroom got unexpected response")
 	}
 }
 
@@ -217,11 +212,17 @@ func TestGetChatroomsByUser(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		resp, err := s.GetChatroomsByUser(appliNHCtxInc, &tt.req)
+		res, err := s.GetChatroomsByUser(appliNHCtxInc, &tt.req)
 
-		assert.Nil(t, err, "GetChatroomsByUser got unexpected error")
-		assert.Equal(t, tt.want.Success, resp.Success, "GetChatroomsByUser got unexpected response")
-		assert.Equal(t, tt.want.Count, resp.Count, "GetChatroomsByUser got unexpected response")
+		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
+			// We're expecting an error
+
+		} else {
+			if o := assert.Nil(t, err, "GetChatroomsByUser got unexpected error"); o {
+				common_testing.CmpAssertEqual(t, tt.want, *res, cmpopts.IgnoreUnexported(*res), cmpopts.IgnoreFields(*res, "Chatrooms"))
+			}
+		}
+
 	}
 }
 
@@ -256,27 +257,11 @@ func TestTransferOwnership(t *testing.T) {
 		res, err := s.TransferOwnership(appliNHCtxInc, &tt.req)
 		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
 			// We're expecting an error
-
-			if o := cmp.Equal(tt.want, err, cmpopts.EquateErrors()); o == false {
-				t.Errorf(
-					"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
-					tt.want, reflect.TypeOf(tt.want), err, reflect.TypeOf(err),
-				)
-			}
-
-			//assertOld(t, tt.want, err)
-
-		} else if err != nil {
-			common_testing.CheckErr(err, "TransferOwnership got unexpected error")
+			common_testing.CmpAssertEqual(t, tt.want, err, cmpopts.EquateErrors())
 		} else {
-
-			if o := cmp.Equal(tt.want, *res, cmpopts.IgnoreUnexported(*res)); o == false {
-				t.Errorf(
-					"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
-					tt.want, reflect.TypeOf(tt.want), res, reflect.TypeOf(res),
-				)
+			if o := assert.Nil(t, err, "TransferOwnership got unexpected error"); o {
+				common_testing.CmpAssertEqual(t, tt.want, *res, cmpopts.IgnoreUnexported(*res))
 			}
-
 		}
 
 	}
@@ -312,22 +297,11 @@ func TestLeaveChatroom(t *testing.T) {
 		res, err := s.LeaveChatroom(appliNHCtxInc, &tt.req)
 		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
 			// We're expecting an error
+			common_testing.CmpAssertEqual(t, tt.want, err, cmpopts.EquateErrors())
 
-			if o := cmp.Equal(tt.want, err, cmpopts.EquateErrors()); o == false {
-				t.Errorf(
-					"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
-					tt.want, reflect.TypeOf(tt.want), err, reflect.TypeOf(err),
-				)
-			}
-
-		} else if err != nil {
-			common_testing.CheckErr(err, "LeaveChatroom got unexpected error")
 		} else {
-			if o := cmp.Equal(tt.want, *res, cmpopts.IgnoreUnexported(*res)); o == false {
-				t.Errorf(
-					"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
-					tt.want, reflect.TypeOf(tt.want), res, reflect.TypeOf(res),
-				)
+			if o := assert.Nil(t, err, "LeaveChatroom got unexpected error"); o {
+				common_testing.CmpAssertEqual(t, tt.want, *res, cmpopts.IgnoreUnexported(*res))
 			}
 		}
 
@@ -359,28 +333,18 @@ func TestDeleteChatroom(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+
 		res, err := s.DeleteChatroom(appliNHCtxInc, &tt.req)
+
 		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
 			// We're expecting an error
 
-			if o := cmp.Equal(tt.want, err, cmpopts.EquateErrors()); o == false {
-				t.Errorf(
-					"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
-					tt.want, reflect.TypeOf(tt.want), err, reflect.TypeOf(err),
-				)
-			}
+			common_testing.CmpAssertEqual(t, tt.want, err, cmpopts.EquateErrors())
 
-		} else if err != nil {
-			common_testing.CheckErr(err, "DeleteChatroom got unexpected error")
 		} else {
-
-			if o := cmp.Equal(tt.want, *res, cmpopts.IgnoreUnexported(*res)); o == false {
-				t.Errorf(
-					"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
-					tt.want, reflect.TypeOf(tt.want), res, reflect.TypeOf(res),
-				)
+			if o := assert.Nil(t, err, "DeleteChatroom got unexpected error"); o {
+				common_testing.CmpAssertEqual(t, tt.want, *res, cmpopts.IgnoreUnexported(*res))
 			}
-
 		}
 
 	}
