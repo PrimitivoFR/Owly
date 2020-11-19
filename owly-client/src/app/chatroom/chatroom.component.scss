@@ -50,7 +50,7 @@
 }
 
 .mt-custom {
-    margin-top: 5vh;
+    margin-top: 4vh;
 }
 
 .max-h-custom-2 {
@@ -63,4 +63,55 @@
 
 ::-webkit-scrollbar {
     display: none;
+}
+
+.animated {
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+}
+
+.animated.faster {
+    -webkit-animation-duration: 500ms;
+    animation-duration: 500ms;
+}
+
+.fadeIn {
+    -webkit-animation-name: fadeIn;
+    animation-name: fadeIn;
+}
+
+.fadeOut {
+    -webkit-animation-name: fadeOut;
+    animation-name: fadeOut;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+.popup {
+    display: none;
+    bottom: 110%;
+}
+
+.tooltip:hover + .popup {
+    display: flex;
 }

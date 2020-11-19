@@ -12,6 +12,11 @@ message Attachments {
     string bucket = 2;
 }
 
+message messageHistory {
+    int64 timestamp = 1;
+    string content = 2;
+}
+
 message Message {
     string authorUUID = 1;
     string chatroomID = 2;
@@ -23,6 +28,7 @@ message Message {
     bool isAnswer = 8;
     string answersTo = 9;
     string id = 10;
+    repeated messageHistory history = 11;
 }
 
 message StreamMessagesByChatroomRequest {
@@ -59,9 +65,21 @@ message DeleteMessageResponse {
     bool success = 1;
 }
 
+message UpdateMessageContentRequest {
+    string messageId = 1;
+    string chatroomId = 2;
+    string newContent = 3;
+}
+
+message UpdateMessageContentResponse {
+    bool success = 1;
+    Message message = 2; 
+}
+
 service MessageService {
     rpc StreamMessagesByChatroom(StreamMessagesByChatroomRequest) returns (stream StreamMessagesByChatroomResponse) {}
     rpc SendMessage(SendMessageRequest) returns (SendMessageResponse) {}
     rpc GetMessagesByChatroom(GetMessagesByChatroomRequest) returns (GetMessagesByChatroomResponse) {}
     rpc DeleteMessage(DeleteMessageRequest) returns (DeleteMessageResponse) {}
+    rpc UpdateMessageContent(UpdateMessageContentRequest) returns (UpdateMessageContentResponse) {}
 }

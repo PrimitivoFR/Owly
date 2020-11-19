@@ -60,9 +60,19 @@ export class NavigationService {
                 if(res.operation == "CREATE") {
                     currentStoreItem.messages.push(res.message)
                 }
-                if(res.operation == "DELETE") {
+                else if(res.operation == "DELETE") {
                     currentStoreItem.messages = currentStoreItem.messages.filter((mess: Message) => mess.id != res.message.id) // Deletes the message: return every 
                 }
+                else if (res.operation == "INDEX") {
+                    currentStoreItem.messages = currentStoreItem.messages.map((mess: Message) => {
+                        if (mess.id == res.message.id) {
+                            mess.content = res.message.content
+                            mess.history = res.message.history
+                        }
+                        return mess
+                    });
+                }
+                
                 
             });
         }
