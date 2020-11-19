@@ -66,7 +66,7 @@ func (*server) GetUserInfos(ctx context.Context, req *userpb.GetUserInfosRequest
 
 	userInfos, err := adminGuy.GetUserByUUID(req.Id);
 	if err != nil {
-		return nil, status.Error(codes.Internal, fmt.Sprintf("Error: %v", err))
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("Error: %v", err))
 	}
 
 	return &userpb.GetUserInfosResponse{
