@@ -1300,3 +1300,254 @@ export module LeaveChatroomResponse {
     success?: boolean;
   }
 }
+
+/**
+ * Message implementation for chatroom.TranferOwnershipRequest
+ */
+export class TranferOwnershipRequest implements GrpcMessage {
+  /**
+   * Deserialize binary data to message
+   * @param instance message instance
+   */
+  static deserializeBinary(bytes: ByteSource) {
+    const instance = new TranferOwnershipRequest();
+    TranferOwnershipRequest.deserializeBinaryFromReader(
+      instance,
+      new BinaryReader(bytes)
+    );
+    return instance;
+  }
+
+  /**
+   * Check all the properties and set default protobuf values if necessary
+   * @param _instance message instance
+   */
+  static refineValues(_instance: TranferOwnershipRequest) {
+    _instance.chatroomId = _instance.chatroomId || '';
+    _instance.newOwnerId = _instance.newOwnerId || '';
+  }
+
+  /**
+   * Deserializes / reads binary message into message instance using provided binary reader
+   * @param _instance message instance
+   * @param _reader binary reader instance
+   */
+  static deserializeBinaryFromReader(
+    _instance: TranferOwnershipRequest,
+    _reader: BinaryReader
+  ) {
+    while (_reader.nextField()) {
+      if (_reader.isEndGroup()) break;
+
+      switch (_reader.getFieldNumber()) {
+        case 1:
+          _instance.chatroomId = _reader.readString();
+          break;
+        case 2:
+          _instance.newOwnerId = _reader.readString();
+          break;
+        default:
+          _reader.skipField();
+      }
+    }
+
+    TranferOwnershipRequest.refineValues(_instance);
+  }
+
+  /**
+   * Serializes a message to binary format using provided binary reader
+   * @param _instance message instance
+   * @param _writer binary writer instance
+   */
+  static serializeBinaryToWriter(
+    _instance: TranferOwnershipRequest,
+    _writer: BinaryWriter
+  ) {
+    if (_instance.chatroomId) {
+      _writer.writeString(1, _instance.chatroomId);
+    }
+    if (_instance.newOwnerId) {
+      _writer.writeString(2, _instance.newOwnerId);
+    }
+  }
+
+  private _chatroomId?: string;
+  private _newOwnerId?: string;
+
+  /**
+   * Message constructor. Initializes the properties and applies default Protobuf values if necessary
+   * @param _value initial values object or instance of TranferOwnershipRequest to deeply clone from
+   */
+  constructor(_value?: RecursivePartial<TranferOwnershipRequest>) {
+    _value = _value || {};
+    this.chatroomId = _value.chatroomId;
+    this.newOwnerId = _value.newOwnerId;
+    TranferOwnershipRequest.refineValues(this);
+  }
+  get chatroomId(): string | undefined {
+    return this._chatroomId;
+  }
+  set chatroomId(value: string | undefined) {
+    this._chatroomId = value;
+  }
+  get newOwnerId(): string | undefined {
+    return this._newOwnerId;
+  }
+  set newOwnerId(value: string | undefined) {
+    this._newOwnerId = value;
+  }
+
+  /**
+   * Serialize message to binary data
+   * @param instance message instance
+   */
+  serializeBinary() {
+    const writer = new BinaryWriter();
+    TranferOwnershipRequest.serializeBinaryToWriter(this, writer);
+    return writer.getResultBuffer();
+  }
+
+  /**
+   * Cast message to standard JavaScript object (all non-primitive values are deeply cloned)
+   */
+  toObject(): TranferOwnershipRequest.AsObject {
+    return {
+      chatroomId: this.chatroomId,
+      newOwnerId: this.newOwnerId
+    };
+  }
+
+  /**
+   * JSON serializer
+   * Only intended to be used by `JSON.stringify` function. If you want to cast message to standard JavaScript object, use `toObject()` instead
+   */
+  toJSON() {
+    return this.toObject();
+  }
+}
+export module TranferOwnershipRequest {
+  /**
+   * Standard JavaScript object representation for TranferOwnershipRequest
+   */
+  export interface AsObject {
+    chatroomId?: string;
+    newOwnerId?: string;
+  }
+}
+
+/**
+ * Message implementation for chatroom.TranferOwnershipResponse
+ */
+export class TranferOwnershipResponse implements GrpcMessage {
+  /**
+   * Deserialize binary data to message
+   * @param instance message instance
+   */
+  static deserializeBinary(bytes: ByteSource) {
+    const instance = new TranferOwnershipResponse();
+    TranferOwnershipResponse.deserializeBinaryFromReader(
+      instance,
+      new BinaryReader(bytes)
+    );
+    return instance;
+  }
+
+  /**
+   * Check all the properties and set default protobuf values if necessary
+   * @param _instance message instance
+   */
+  static refineValues(_instance: TranferOwnershipResponse) {
+    _instance.success = _instance.success || false;
+  }
+
+  /**
+   * Deserializes / reads binary message into message instance using provided binary reader
+   * @param _instance message instance
+   * @param _reader binary reader instance
+   */
+  static deserializeBinaryFromReader(
+    _instance: TranferOwnershipResponse,
+    _reader: BinaryReader
+  ) {
+    while (_reader.nextField()) {
+      if (_reader.isEndGroup()) break;
+
+      switch (_reader.getFieldNumber()) {
+        case 1:
+          _instance.success = _reader.readBool();
+          break;
+        default:
+          _reader.skipField();
+      }
+    }
+
+    TranferOwnershipResponse.refineValues(_instance);
+  }
+
+  /**
+   * Serializes a message to binary format using provided binary reader
+   * @param _instance message instance
+   * @param _writer binary writer instance
+   */
+  static serializeBinaryToWriter(
+    _instance: TranferOwnershipResponse,
+    _writer: BinaryWriter
+  ) {
+    if (_instance.success) {
+      _writer.writeBool(1, _instance.success);
+    }
+  }
+
+  private _success?: boolean;
+
+  /**
+   * Message constructor. Initializes the properties and applies default Protobuf values if necessary
+   * @param _value initial values object or instance of TranferOwnershipResponse to deeply clone from
+   */
+  constructor(_value?: RecursivePartial<TranferOwnershipResponse>) {
+    _value = _value || {};
+    this.success = _value.success;
+    TranferOwnershipResponse.refineValues(this);
+  }
+  get success(): boolean | undefined {
+    return this._success;
+  }
+  set success(value: boolean | undefined) {
+    this._success = value;
+  }
+
+  /**
+   * Serialize message to binary data
+   * @param instance message instance
+   */
+  serializeBinary() {
+    const writer = new BinaryWriter();
+    TranferOwnershipResponse.serializeBinaryToWriter(this, writer);
+    return writer.getResultBuffer();
+  }
+
+  /**
+   * Cast message to standard JavaScript object (all non-primitive values are deeply cloned)
+   */
+  toObject(): TranferOwnershipResponse.AsObject {
+    return {
+      success: this.success
+    };
+  }
+
+  /**
+   * JSON serializer
+   * Only intended to be used by `JSON.stringify` function. If you want to cast message to standard JavaScript object, use `toObject()` instead
+   */
+  toJSON() {
+    return this.toObject();
+  }
+}
+export module TranferOwnershipResponse {
+  /**
+   * Standard JavaScript object representation for TranferOwnershipResponse
+   */
+  export interface AsObject {
+    success?: boolean;
+  }
+}

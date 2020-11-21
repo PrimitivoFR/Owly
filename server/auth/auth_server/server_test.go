@@ -6,27 +6,14 @@ import (
 	"log"
 	"os"
 	"primitivofr/owly/server/auth/authpb"
+	common_testing "primitivofr/owly/server/common/testing"
 	"reflect"
 	"testing"
 
-	kvdb "primitivofr/owly/server/common/kvdb"
-
-	"github.com/boltdb/bolt"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
-
-var db *bolt.DB
-
-func init() {
-	var err error
-	db, err = kvdb.InitDB("testingdb", "common")
-	if err != nil {
-		panic(err)
-	}
-
-}
 
 func TestCreateNewUser(t *testing.T) {
 
@@ -61,11 +48,7 @@ func TestCreateNewUser(t *testing.T) {
 			if err != nil {
 				panic(err)
 			}
-
-			err = kvdb.WriteData(db, "users", tests[0].req.Username, string(b))
-			if err != nil {
-				panic(err)
-			}
+			common_testing.SaveToKvdb("users", tests[0].req.Username, string(b))
 		}
 	}
 
@@ -110,11 +93,7 @@ func TestLoginUser(t *testing.T) {
 		}
 
 		if resp != nil {
-
-			err := kvdb.WriteData(db, "tokens", "applinh", resp.Result.AccessToken)
-			if err != nil {
-				panic(err)
-			}
+			common_testing.SaveToKvdb("tokens", "applinh", resp.Result.AccessToken)
 
 			// This needs to be removed
 			f, err := os.Create("../../token.txt")

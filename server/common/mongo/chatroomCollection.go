@@ -43,6 +43,43 @@ func IsChatroomOwner(userID string, chatroomID string) (bool, error) {
 	return userIsChatroomOwner, nil
 }
 
+func ChangeChatroomOwner(newOwnerId string, chatroomId string) (error) {
+	if ChatroomCollection == nil {
+		errSetup := SetupMongoDB()
+		if errSetup != nil {
+			return errSetup
+		}
+	}
+
+	chatroomOID, errOID := primitive.ObjectIDFromHex(chatroomId)
+	if errOID != nil {
+		return errOID
+	}
+
+	// find chatroom by OID
+	var chatroomResult models.Chatroom
+	findErr := ChatroomCollection.FindOne(
+		context.Background(),
+		bson.M{"_id": chatroomOID},
+	).Decode(&chatroomResult)
+
+	if findErr != nil {
+		return findErr
+	}
+
+	// update chatroom in DB with new chatroom owner
+	_, updateChatroomErr := ChatroomCollection.UpdateOne(
+		context.Background(),
+		bson.M{"_id": chatroomOID},
+		bson.M{"$set": bson.M{"owner": newOwnerId}},
+	)
+	if updateChatroomErr != nil {
+		return updateChatroomErr
+	}
+
+	return nil // no error, everything went well
+}
+
 func PopUserInChatroomCollection(userID string, chatroomID string) error {
 
 	if ChatroomCollection == nil {
