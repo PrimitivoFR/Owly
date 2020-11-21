@@ -186,6 +186,8 @@ func TestCreateChatroom(t *testing.T) {
 		res, err := s.CreateChatroom(appliNHCtxInc, &tt.req)
 		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
 			// We're expecting an error
+			common_testing.CmpAssertEqual(t, tt.want, err, cmpopts.EquateErrors())
+
 		} else {
 			if o := assert.Nil(t, err, "CreateChatroom got unexpected error"); o {
 				common_testing.CmpAssertEqual(t, tt.want, *res, cmpopts.IgnoreUnexported(*res), cmpopts.IgnoreFields(*res, "ID"))
@@ -216,7 +218,7 @@ func TestGetChatroomsByUser(t *testing.T) {
 
 		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
 			// We're expecting an error
-
+			common_testing.CmpAssertEqual(t, tt.want, err, cmpopts.EquateErrors())
 		} else {
 			if o := assert.Nil(t, err, "GetChatroomsByUser got unexpected error"); o {
 				common_testing.CmpAssertEqual(t, tt.want, *res, cmpopts.IgnoreUnexported(*res), cmpopts.IgnoreFields(*res, "Chatrooms"))
@@ -338,7 +340,6 @@ func TestDeleteChatroom(t *testing.T) {
 
 		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
 			// We're expecting an error
-
 			common_testing.CmpAssertEqual(t, tt.want, err, cmpopts.EquateErrors())
 
 		} else {
