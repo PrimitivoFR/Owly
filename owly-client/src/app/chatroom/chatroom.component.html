@@ -40,8 +40,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="font-bold text-base hover:underline cursor-pointer" (click)="getUserInfo(message.authorUUID)">
-                        {{message.authorNAME}}
+                    <div class="font-bold text-base" >
+                        <span class="hover:underline cursor-pointer" (click)="getUserInfo(message.authorUUID)">{{message.authorNAME}}</span>
                     </div>
                     <div class="w-full text-sm">
                         {{message.content}}
