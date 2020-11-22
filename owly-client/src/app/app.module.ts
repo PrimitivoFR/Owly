@@ -18,6 +18,7 @@ import { SignInFormComponent } from './sign-in-form/sign-in-form.component';
 import { TopBarComponent } from './common/components/top-bar/top-bar.component';
 import { HomeComponent } from './home/home.component';
 import { ChatroomComponent } from './chatroom/chatroom.component';
+import { UserInfoComponent } from './chatroom/modals/user-info-modal.component';
 import { TransferOwnerModalComponent } from './chatroom/modals/transferOwnerModal.component'
 import { MessageHistoryComponent } from './chatroom/modals/message-history-modal.component';
 
@@ -44,6 +45,7 @@ import { ConfirmModalComponent } from './common/components/confirm-modal/confirm
     HomeComponent,
     ChatroomComponent,
     ChatroomListComponent,
+    UserInfoComponent,
     TransferOwnerModalComponent,
     ConfirmModalComponent,
     MessageHistoryComponent,

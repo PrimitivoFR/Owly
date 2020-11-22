@@ -19,6 +19,8 @@ import { StoreService } from 'src/_services/store.service';
 import {v4 as uuidv4} from 'uuid';
 import { SnackAlertService } from '../common/components/snack-alert/snack-alert.service';
 import { Router } from '@angular/router';
+import { GetUserInfosRequest, GetUserInfosResponse } from 'src/proto/user.pb';
+import { UserService } from 'src/_services/user.service';
 import { ConfirmModalService } from '../common/components/confirm-modal/confirm-modal.service';
 
 @Component({
@@ -44,6 +46,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   public answersTo: string = "";
   public messageToReply: Message;
   public panelOpened: boolean = false;
+  public userInfo: GetUserInfosResponse;
   public eligibleOwnerUser: ChatroomUser[] = [];
   public wantToLeave: boolean = false;
   public isEditing: boolean = false;
@@ -59,6 +62,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private messageService: MessageService,
+    private userService: UserService,
     private storeService: StoreService,
     private snackAlertService: SnackAlertService,
     private chatroomService: ChatroomService,
@@ -286,6 +290,23 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   }
 
 
+  async getUserInfo(userID: string) {
+    const req = new GetUserInfosRequest({
+      id: userID
+    });
+
+    this.userInfo = await this.userService.getUserInfo(req);
+    this.openModalUserInfos('userInfoModal');
+  }
+
+  openModalUserInfos(modal: string) {
+    let modalEl = document.getElementById(modal);
+    modalEl.classList.remove('fadeOut');
+    modalEl.classList.add('fadeIn');
+    modalEl.style.display = "flex";
+  }
+    
+
   async transferOwnership(idUserChosen: string) {
     if(await this.confirmModalService.confirm("Are you sure you want to continue ?")) {
       if(!idUserChosen || idUserChosen == "") {
@@ -344,6 +365,18 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     modalEl.style.display = "flex";
   }
 
+    
+
+  closeModalUserInfos(modal: string) {
+    let modalEl = document.getElementById(modal);
+    modalEl.classList.remove('fadeIn');
+    modalEl.classList.add('fadeOut');
+    setTimeout(() => {
+      modalEl.style.display = 'none';
+      this.userInfo = null;
+    }, 500);
+  }
+
   closeModalHistory(modal: string) {
     let modalEl = document.getElementById(modal);
     modalEl.classList.remove('fadeIn');
@@ -351,7 +384,6 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       modalEl.style.display = 'none';
       this.currentMessageHistory = [];
-
     }, 500);
   }
 

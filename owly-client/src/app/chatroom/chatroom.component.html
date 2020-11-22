@@ -44,8 +44,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="font-bold text-base">
-                        {{message.authorNAME}}
+                    <div class="font-bold text-base" >
+                        <span class="hover:underline cursor-pointer" (click)="getUserInfo(message.authorUUID)">{{message.authorNAME}}</span>
                     </div>
                     <div *ngIf="!isEditing || (isEditing && currentIndex != i)" class="w-full text-sm">
                         {{message.content}}
@@ -91,7 +91,7 @@
                 </div>
                 <span class="flex font-medium text-sm text-gray-300 px-4 my-4 uppercase">List of users</span>
                 <div class="divide-y divide-gray-300">
-                    <div *ngFor="let user of currentStoreItem.chatroom.users" [ngClass]="{'text-gray-300': user.uuid != currentStoreItem.chatroom.owner, 'text-red-300': user.uuid == currentStoreItem.chatroom.owner}" class="flex mx-4 my-2 text-xl">
+                    <div *ngFor="let user of currentStoreItem.chatroom.users" [ngClass]="{'text-gray-800': user.uuid != currentStoreItem.chatroom.owner, 'text-red-500': user.uuid == currentStoreItem.chatroom.owner}" class="flex mx-4 my-2 rounded border border-gray-300 text-xl bg-gray-300 cursor-pointer py-2 px-4 hover:border-gray-500" (click)="getUserInfo(user.uuid)">
                         <entypo name="user" [ngClass]="{'mr-4': user.uuid != currentStoreItem.chatroom.owner}"></entypo>
                         <span *ngIf="user.uuid == currentStoreItem.chatroom.owner" class="mr-4 inline-block align-baseline text-xs">[admin]</span>
                         {{user.username}}
@@ -140,6 +140,12 @@
 </div>
 
 <div 
+    id="userInfoModal" 
+    class="main-modal fixed w-full h-100 inset-0 z-50 overflow-hidden hidden justify-center items-center animated fadeIn faster"
+    style="background: rgba(0,0,0,.7);">
+    <app-user-info-modal [userInfo]="userInfo" (closeModal)="closeModalUserInfos('userInfoModal')"></app-user-info-modal>
+</div>
+<div
     id="transfermodal" 
     class="main-modal fixed w-full h-100 inset-0 z-50 overflow-hidden hidden justify-center items-center animated fadeIn faster" 
     style="background: rgba(0,0,0,.7);">
