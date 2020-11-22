@@ -2,72 +2,47 @@ package chatroom_server
 
 import (
 	"context"
-	"io/ioutil"
-	"log"
-	"os"
+	"encoding/json"
 	authserver "primitivofr/owly/server/auth/auth_server"
 	"primitivofr/owly/server/auth/authpb"
 	"primitivofr/owly/server/chatroom/chatroompb"
 	common_jwt "primitivofr/owly/server/common/jwt"
-	common_mongo "primitivofr/owly/server/common/mongo"
+	common_testing "primitivofr/owly/server/common/testing"
+
 	"reflect"
 	"testing"
 	"time"
 
-	"google.golang.org/grpc"
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
-func check(e error, desc string) {
-	if e != nil {
-		log.Println(desc)
-		panic(e)
-	}
-}
+// Contexts
+var appliNHCtxInc context.Context
+var totoCtxInc context.Context
 
-func prepareTestingCtx() (ctx context.Context) {
-	f, open_err := os.Open("/go/src/owly-server/token.txt")
-	check(open_err, "Could not open token file")
+var appliNHCtxOut context.Context
+var totoCtxOut context.Context
 
-	accessToken, readall_err := ioutil.ReadAll(f)
-	check(readall_err, "Error while reading token file")
-
-	md := metadata.Pairs("authorization", string(accessToken))
-	ctx = metadata.NewIncomingContext(context.Background(), md)
-	return
-}
-
-func setubDb() {
-	err := common_mongo.SetupMongoDB()
-	check(err, "Error while setting up mongodb")
-}
-
-func assert(t *testing.T, expected interface{}, test interface{}) {
-	if reflect.DeepEqual(expected, test) {
-		t.Errorf(
-			"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
-			expected, reflect.TypeOf(expected), test, reflect.TypeOf(test),
-		)
-	}
-}
-
+// Misc
 var chatroomIdByToto string
 var chatroomIdByAppliNH string
+var chatroomIdByAppliNHBIS string
 
-func prepareLeaveAndDeleteChatroomTestCtx() {
-	log.Println("prepareLeaveAndDeleteChatroomTestCtx")
+var uuidAppliNH string
+var uuidToto string
+
+func init() {
+
+	appliNHCtxInc, appliNHCtxOut = common_testing.PrepareCtxWithToken("applinh")
+
 	//---- CREATE ANOTHER USER
-
 	// Starting auth MS
 	go authserver.StartServer()
-	time.Sleep(2 * time.Second)
 
-	// Init client
-	conn, err := grpc.Dial("server:50054", grpc.WithInsecure())
-	check(err, "Error while trying to dial auth MS")
-	c := authpb.NewAuthServiceClient(conn)
+	time.Sleep(1 * time.Second)
 
 	reqCreateUser := &authpb.CreateNewUserRequest{
 		Email:     "toto",
@@ -77,78 +52,119 @@ func prepareLeaveAndDeleteChatroomTestCtx() {
 		Password:  "toto",
 	}
 
-	_, err = c.CreateNewUser(context.Background(), reqCreateUser)
-	check(err, "Error while creating user toto")
+	resCreateUser := &authpb.CreateNewUserResponse{}
+
+	_, err := common_testing.ContextGenerator(
+		context.Background(),
+		"auth.AuthService",
+		"CreateNewUser",
+		"50054",
+		reqCreateUser,
+		resCreateUser)
+
+	common_testing.CheckErr(err, "")
+
+	b, err := json.Marshal(reqCreateUser)
+	common_testing.CheckErr(err, "")
+
+	common_testing.SaveToKvdb("users", reqCreateUser.Username, string(b))
 
 	// Login
 	reqLogin := &authpb.LoginUserRequest{
 		Username: "toto",
 		Password: "toto",
 	}
-	resLogin, err := c.LoginUser(context.Background(), reqLogin)
-	check(err, "Error while logging in with user toto")
+	resLogin := &authpb.LoginUserResponse{}
 
-	totoAccessToken := resLogin.Result.AccessToken
+	_, err = common_testing.ContextGenerator(
+		context.Background(),
+		"auth.AuthService",
+		"LoginUser",
+		"50054",
+		reqLogin,
+		resLogin)
 
-	mdToto := metadata.Pairs("authorization", string(totoAccessToken))
-	ctxToto := metadata.NewOutgoingContext(context.Background(), mdToto)
+	common_testing.CheckErr(err, "")
 
-	f, openErr := os.Open("/go/src/owly-server/token.txt")
-	check(openErr, "Could not open token file")
+	common_testing.SaveToKvdb("tokens", reqLogin.Username, resLogin.Result.AccessToken)
 
-	accessTokenAppliNH, readAllErr := ioutil.ReadAll(f)
-	check(readAllErr, "Error while reading token file")
+	totoCtxInc, totoCtxOut = common_testing.PrepareCtxWithToken(reqLogin.Username)
 
-	mdAppliNH := metadata.Pairs("authorization", string(accessTokenAppliNH))
-	ctxAppliNH := metadata.NewOutgoingContext(context.Background(), mdAppliNH)
-
-	//---- CREATE NEW CHATROOM
+	//---- CREATE NEW CHATROOMS
 
 	// Starting chatroom MS
 	go StartServer()
-	time.Sleep(2 * time.Second)
+	time.Sleep(1 * time.Second)
 
-	// Init client
-	conn2, err := grpc.Dial("server:50052", grpc.WithInsecure())
-	check(err, "Error whil trying to dial chatroom MS")
-	cChatroom := chatroompb.NewChatroomServiceClient(conn2)
+	// Retrieving AppliNH uuid
+	uuidAppliNH, err = common_jwt.ReadUUIDFromContext(appliNHCtxInc)
+	common_testing.CheckErr(err, "Err while reading uuid from applinh token")
 
-	// ___ TOTO ___
-
-	// Create Chatroom with Toto
-	uuidAppliNH, err := common_jwt.ExtractUUIDfromJWT(string(accessTokenAppliNH))
-	check(err, "Err while reading uuid from applinh token")
-
+	// Create Chatroom with Toto, and AppliNH inside
 	reqCreateChatroom := &chatroompb.CreateChatroomRequest{
 		Name:  "ChatroomByToto",
 		Users: []string{uuidAppliNH},
 	}
-	resCreateChatroom, err := cChatroom.CreateChatroom(ctxToto, reqCreateChatroom)
-	check(err, "Err while creating chatroom for owner toto")
+	resCreateChatroom := &chatroompb.CreateChatroomResponse{}
+
+	_, err = common_testing.ContextGenerator(
+		totoCtxOut,
+		"chatroom.ChatroomService",
+		"CreateChatroom",
+		"50052",
+		reqCreateChatroom,
+		resCreateChatroom)
+
+	common_testing.CheckErr(err, "")
 
 	chatroomIdByToto = resCreateChatroom.ID
 
-	// ___ AppliNH ___
+	// Retrieving toto uuid
+	uuidToto, err = common_jwt.ReadUUIDFromContext(totoCtxInc)
+	common_testing.CheckErr(err, "Err while reading uuid from toto token")
 
-	// Create Chatroom with AppliNH
-	uuidToto, err := common_jwt.ExtractUUIDfromJWT(string(totoAccessToken))
-	check(err, "Err while reading uuid from toto token")
-
+	// Create Chatroom with AppliNH, and toto inside
 	reqCreateChatroom2 := &chatroompb.CreateChatroomRequest{
 		Name:  "ChatroomByAppliNH",
 		Users: []string{uuidToto},
 	}
+	resCreateChatroom2 := &chatroompb.CreateChatroomResponse{}
 
-	resCreateChatroom2, err := cChatroom.CreateChatroom(ctxAppliNH, reqCreateChatroom2)
-	check(err, "Err while creating chatroom for owner AppliNH")
+	_, err = common_testing.ContextGenerator(
+		appliNHCtxOut,
+		"chatroom.ChatroomService",
+		"CreateChatroom",
+		"50052",
+		reqCreateChatroom2,
+		resCreateChatroom2)
+
+	common_testing.CheckErr(err, "")
 
 	chatroomIdByAppliNH = resCreateChatroom2.ID
+
+	// Create second Chatroom with AppliNH, and toto inside
+	reqCreateChatroom3 := &chatroompb.CreateChatroomRequest{
+		Name:  "ChatroomByAppliNH_BIS",
+		Users: []string{uuidToto},
+	}
+	resCreateChatroom3 := &chatroompb.CreateChatroomResponse{}
+
+	_, err = common_testing.ContextGenerator(
+		appliNHCtxOut,
+		"chatroom.ChatroomService",
+		"CreateChatroom",
+		"50052",
+		reqCreateChatroom3,
+		resCreateChatroom3)
+
+	common_testing.CheckErr(err, "")
+
+	chatroomIdByAppliNHBIS = resCreateChatroom3.ID
 
 }
 
 func TestCreateChatroom(t *testing.T) {
 	s := server{}
-	ctx := prepareTestingCtx()
 
 	tests := []struct {
 		req  chatroompb.CreateChatroomRequest
@@ -167,16 +183,22 @@ func TestCreateChatroom(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		resp, err := s.CreateChatroom(ctx, &tt.req)
-		check(err, "CreateChatroom got unexpected error")
+		res, err := s.CreateChatroom(appliNHCtxInc, &tt.req)
+		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
+			// We're expecting an error
+			common_testing.CmpAssertEqual(t, tt.want, err, cmpopts.EquateErrors())
 
-		assert(t, tt.want.Success, &resp.Success)
+		} else {
+			if o := assert.Nil(t, err, "CreateChatroom got unexpected error"); o {
+				common_testing.CmpAssertEqual(t, tt.want, *res, cmpopts.IgnoreUnexported(*res), cmpopts.IgnoreFields(*res, "ID"))
+			}
+		}
+
 	}
 }
 
 func TestGetChatroomsByUser(t *testing.T) {
 	s := server{}
-	ctx := prepareTestingCtx()
 
 	tests := []struct {
 		req  chatroompb.GetChatroomsByUserRequest
@@ -186,25 +208,71 @@ func TestGetChatroomsByUser(t *testing.T) {
 			req: chatroompb.GetChatroomsByUserRequest{},
 			want: chatroompb.GetChatroomsByUserResponse{
 				Success: true,
-				Count:   1,
+				Count:   4,
 			},
 		},
 	}
 
 	for _, tt := range tests {
-		resp, err := s.GetChatroomsByUser(ctx, &tt.req)
-		check(err, "GetChatroomsByUser got unexpected error")
+		res, err := s.GetChatroomsByUser(appliNHCtxInc, &tt.req)
 
-		assert(t, tt.want.Success, &resp.Success)
-		assert(t, tt.want.Count, &resp.Count)
+		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
+			// We're expecting an error
+			common_testing.CmpAssertEqual(t, tt.want, err, cmpopts.EquateErrors())
+		} else {
+			if o := assert.Nil(t, err, "GetChatroomsByUser got unexpected error"); o {
+				common_testing.CmpAssertEqual(t, tt.want, *res, cmpopts.IgnoreUnexported(*res), cmpopts.IgnoreFields(*res, "Chatrooms"))
+			}
+		}
+
 	}
 }
-func TestLeaveChatroom(t *testing.T) {
-	prepareLeaveAndDeleteChatroomTestCtx()
+
+func TestTransferOwnership(t *testing.T) {
 
 	s := server{}
 
-	ctx := prepareTestingCtx()
+	tests := []struct {
+		req  chatroompb.TranferOwnershipRequest
+		want interface{}
+	}{
+		{
+			req: chatroompb.TranferOwnershipRequest{
+				ChatroomId: chatroomIdByAppliNH,
+				NewOwnerId: uuidToto,
+			},
+			want: chatroompb.TranferOwnershipResponse{
+				Success: true,
+			},
+		},
+
+		{
+			req: chatroompb.TranferOwnershipRequest{
+				ChatroomId: chatroomIdByToto,
+				NewOwnerId: uuidAppliNH,
+			},
+			want: status.Error(codes.PermissionDenied, "Current user is not the rightful owner of this chatroom, and thus cannot transfer its ownership."),
+		},
+	}
+
+	for _, tt := range tests {
+		res, err := s.TransferOwnership(appliNHCtxInc, &tt.req)
+		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
+			// We're expecting an error
+			common_testing.CmpAssertEqual(t, tt.want, err, cmpopts.EquateErrors())
+		} else {
+			if o := assert.Nil(t, err, "TransferOwnership got unexpected error"); o {
+				common_testing.CmpAssertEqual(t, tt.want, *res, cmpopts.IgnoreUnexported(*res))
+			}
+		}
+
+	}
+
+}
+
+func TestLeaveChatroom(t *testing.T) {
+
+	s := server{}
 
 	tests := []struct {
 		req  chatroompb.LeaveChatroomRequest
@@ -212,9 +280,9 @@ func TestLeaveChatroom(t *testing.T) {
 	}{
 		{
 			req: chatroompb.LeaveChatroomRequest{
-				ChatroomId: chatroomIdByAppliNH,
+				ChatroomId: chatroomIdByAppliNHBIS,
 			},
-			want: status.Error(codes.PermissionDenied, ""),
+			want: status.Error(codes.PermissionDenied, "Current user is the rightful owner of this chatroom, and thus cannot leave it."),
 		},
 
 		{
@@ -228,19 +296,15 @@ func TestLeaveChatroom(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		resp, err := s.LeaveChatroom(ctx, &tt.req)
+		res, err := s.LeaveChatroom(appliNHCtxInc, &tt.req)
 		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
 			// We're expecting an error
+			common_testing.CmpAssertEqual(t, tt.want, err, cmpopts.EquateErrors())
 
-			// wantedErr, _ := status.FromError(tt.want.(error))
-			// actualErr, _ := status.FromError(err)
-
-			assert(t, tt.want, err)
-
-		} else if err != nil {
-			check(err, "LeaveChatroom got unexpected error")
 		} else {
-			assert(t, tt.want, &resp)
+			if o := assert.Nil(t, err, "LeaveChatroom got unexpected error"); o {
+				common_testing.CmpAssertEqual(t, tt.want, *res, cmpopts.IgnoreUnexported(*res))
+			}
 		}
 
 	}
@@ -250,8 +314,6 @@ func TestDeleteChatroom(t *testing.T) {
 
 	s := server{}
 
-	ctx := prepareTestingCtx()
-
 	tests := []struct {
 		req  chatroompb.DeleteChatroomRequest
 		want interface{}
@@ -260,11 +322,11 @@ func TestDeleteChatroom(t *testing.T) {
 			req: chatroompb.DeleteChatroomRequest{
 				ChatroomId: chatroomIdByToto,
 			},
-			want: status.Error(codes.PermissionDenied, ""),
+			want: status.Error(codes.PermissionDenied, "Current user is not the rightful owner of this chatroom, and thus cannot delete it."),
 		},
 		{
 			req: chatroompb.DeleteChatroomRequest{
-				ChatroomId: chatroomIdByAppliNH,
+				ChatroomId: chatroomIdByAppliNHBIS,
 			},
 			want: chatroompb.DeleteChatroomResponse{
 				Success: true,
@@ -273,19 +335,17 @@ func TestDeleteChatroom(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		resp, err := s.DeleteChatroom(ctx, &tt.req)
+
+		res, err := s.DeleteChatroom(appliNHCtxInc, &tt.req)
+
 		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
 			// We're expecting an error
+			common_testing.CmpAssertEqual(t, tt.want, err, cmpopts.EquateErrors())
 
-			// wantedErr, _ := status.FromError(tt.want.(error))
-			// actualErr, _ := status.FromError(err)
-
-			assert(t, tt.want, err)
-
-		} else if err != nil {
-			check(err, "DeleteChatroom got unexpected error")
 		} else {
-			assert(t, tt.want, &resp)
+			if o := assert.Nil(t, err, "DeleteChatroom got unexpected error"); o {
+				common_testing.CmpAssertEqual(t, tt.want, *res, cmpopts.IgnoreUnexported(*res))
+			}
 		}
 
 	}

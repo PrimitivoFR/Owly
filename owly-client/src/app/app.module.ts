@@ -19,6 +19,8 @@ import { TopBarComponent } from './common/components/top-bar/top-bar.component';
 import { HomeComponent } from './home/home.component';
 import { ChatroomComponent } from './chatroom/chatroom.component';
 import { UserInfoComponent } from './chatroom/modals/user-info-modal.component';
+import { TransferOwnerModalComponent } from './chatroom/modals/transferOwnerModal.component'
+import { MessageHistoryComponent } from './chatroom/modals/message-history-modal.component';
 
 import { JwtModule } from '@auth0/angular-jwt';
 import { CookieModule } from 'ngx-cookie';
@@ -27,6 +29,8 @@ import { GRPC_MESSAGE_SERVICE_CLIENT_SETTINGS } from 'src/proto/message.pbconf';
 import { ChatroomListComponent } from './navigation/chatroom-list/chatroom-list.component';
 import { GRPC_AUTH_SERVICE_CLIENT_SETTINGS } from 'src/proto/auth.pbconf';
 import { environment } from './../environments/environment';
+import { ConfirmModalComponent } from './common/components/confirm-modal/confirm-modal.component';
+
 
 @NgModule({
   declarations: [
@@ -42,6 +46,9 @@ import { environment } from './../environments/environment';
     ChatroomComponent,
     ChatroomListComponent,
     UserInfoComponent,
+    TransferOwnerModalComponent,
+    ConfirmModalComponent,
+    MessageHistoryComponent,
   ],
   imports: [
     BrowserModule,

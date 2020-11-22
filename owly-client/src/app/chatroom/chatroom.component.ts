@@ -1,7 +1,9 @@
 import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Chatroom, DeleteChatroomRequest, LeaveChatroomRequest } from 'src/proto/chatroom.pb';
-import { DeleteMessageRequest, GetMessagesByChatroomRequest, Message, SendMessageRequest } from 'src/proto/message.pb';
+
+import { Chatroom, ChatroomUser, DeleteChatroomRequest, LeaveChatroomRequest, TranferOwnershipRequest } from 'src/proto/chatroom.pb';
+import { DeleteMessageRequest, GetMessagesByChatroomRequest, Message, messageHistory, SendMessageRequest, UpdateMessageContentRequest } from 'src/proto/message.pb';
+
 import { LocalChatroom } from 'src/_models/localChatroom';
 import { LocalMessages } from 'src/_models/localMessages';
 import { LocalRoomsAndMessagesStore } from 'src/_models/localRoomsAndMessagesStore';
@@ -19,6 +21,7 @@ import { SnackAlertService } from '../common/components/snack-alert/snack-alert.
 import { Router } from '@angular/router';
 import { GetUserInfosRequest, GetUserInfosResponse } from 'src/proto/user.pb';
 import { UserService } from 'src/_services/user.service';
+import { ConfirmModalService } from '../common/components/confirm-modal/confirm-modal.service';
 
 @Component({
   selector: 'app-chatroom',
@@ -44,6 +47,12 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   public messageToReply: Message;
   public panelOpened: boolean = false;
   public userInfo: GetUserInfosResponse;
+  public eligibleOwnerUser: ChatroomUser[] = [];
+  public wantToLeave: boolean = false;
+  public isEditing: boolean = false;
+  private messageEdited: Message;
+  private updatedMessageContent: string = null;
+  public currentMessageHistory: messageHistory[] = [];
 
   @ViewChild('scrollframe', {static: true}) scrollFrame: ElementRef;
   @ViewChildren('item') itemElements: QueryList<any>;
@@ -58,6 +67,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     private snackAlertService: SnackAlertService,
     private chatroomService: ChatroomService,
     private router: Router,
+    private confirmModalService: ConfirmModalService,
   ) { }
 
   ngOnInit() {
@@ -88,19 +98,42 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   get f() { return this.sendMsgForm.controls; }
 
   async onSubmit() {
-    // stop here if form is invalid
-    if (this.sendMsgForm.invalid) {
-      return;
-    }
 
-    const res = await this.sendMessage();
+    if(this.isEditing) {
+      if(!this.updatedMessageContent || this.updatedMessageContent == "") {
+        return;
+      }
 
-    if (res) {
-      this.sendMsgForm.reset();
+      const req = new UpdateMessageContentRequest({
+        messageId: this.messageEdited.id,
+        chatroomId: this.currentStoreItem.chatroom.id,
+        newContent: this.updatedMessageContent
+      });
+      const res = await this.messageService.updateMessageContent(req);
+      
+      if (res.success) {
+        this.cancelEditing();
+      }
+      else {
+        console.log("something went wrong");
+        console.error(this.sendMsgForm.errors)
+      }
     }
     else {
-      console.log("something went wrong");
-      console.error(this.sendMsgForm.errors)
+      // stop here if form is invalid
+      if (this.sendMsgForm.invalid) {
+        return;
+      }
+
+      const res = await this.sendMessage();
+
+      if (res) {
+        this.sendMsgForm.reset();
+      }
+      else {
+        console.log("something went wrong");
+        console.error(this.sendMsgForm.errors)
+      }
     }
   }
 
@@ -154,7 +187,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   }
 
   async deleteMessage(messageID) {
-    if(confirm("Are you sure you want to continue ?")) {
+    if(await this.confirmModalService.confirm("Are you sure you want to continue ?")) {
       this.dropdownOpen = false;
       const req = new DeleteMessageRequest({
         chatroomID: this.currentStoreItem.chatroom.id,
@@ -206,29 +239,37 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     
   }
 
+
   async leaveChatroom() {
-    if(confirm("Are you sure you want to continue ?")) {
-      const req = new LeaveChatroomRequest({
-        chatroomId: this.currentStoreItem.chatroom.id
-      })
-      const chatroomName = this.currentStoreItem.chatroom.name;
-      const res = await this.chatroomService.leaveChatroom(req);
-  
-      if(res.success) {
-        this.snackAlertService.showSnack("You have left the chatroom : " + chatroomName);
-        if(!this.navService.updateNavStore("0")) {
-          this.router.navigate(['home']);
+    if(this.isChatroomOwner()) {
+      this.wantToLeave = true;
+      this.openModal();
+    }
+    else {
+      if(await this.confirmModalService.confirm("Are you sure you want to leave the chatroom ?")) {
+        const req = new LeaveChatroomRequest({
+          chatroomId: this.currentStoreItem.chatroom.id
+        })
+        const chatroomName = this.currentStoreItem.chatroom.name;
+        
+        const res = await this.chatroomService.leaveChatroom(req);
+    
+        if(res.success) {
+          this.snackAlertService.showSnack("You have left the chatroom : " + chatroomName);
+          if(!this.navService.updateNavStore("0")) {
+            this.router.navigate(['home']);
+          }
+          this.panelOpened = false;
         }
-        this.panelOpened = false;
-      }
-      else {
-        this.snackAlertService.showSnack("You can't leave the chatroom when you are the owner");
+        else {
+          this.snackAlertService.showSnack("You can't leave the chatroom when you are the owner");
+        }
       }
     }
   }
 
   async deleteChatroom() {
-    if(confirm("Are you sure you want to continue ?")) {
+    if(await this.confirmModalService.confirm("Are you sure you want to continue ?")) {
       const req = new DeleteChatroomRequest({
         chatroomId: this.currentStoreItem.chatroom.id
       })
@@ -248,30 +289,101 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     }
   }
 
+
   async getUserInfo(userID: string) {
     const req = new GetUserInfosRequest({
       id: userID
     });
 
     this.userInfo = await this.userService.getUserInfo(req);
-    this.openModal('userInfoModal');
+    this.openModalUserInfos('userInfoModal');
   }
 
-  openModal(modal: string) {
+  openModalUserInfos(modal: string) {
+    let modalEl = document.getElementById(modal);
+    modalEl.classList.remove('fadeOut');
+    modalEl.classList.add('fadeIn');
+    modalEl.style.display = "flex";
+  }
     
+
+  async transferOwnership(idUserChosen: string) {
+    if(await this.confirmModalService.confirm("Are you sure you want to continue ?")) {
+      if(!idUserChosen || idUserChosen == "") {
+        return;
+      }
+      
+      const req = new TranferOwnershipRequest({
+        chatroomId: this.currentStoreItem.chatroom.id,
+        newOwnerId: idUserChosen
+      })
+
+      const res = await this.chatroomService.transfertOwnershipChatroom(req);
+
+      if(res.success) {
+        await this.chatroomService.getChatrooms();
+        await this.messageService.getMessagesForAllChatrooms();
+        if(this.wantToLeave) {
+          this.leaveChatroom();
+        }
+        this.closeModal();
+      }
+      else {
+        this.closeModal();
+        this.snackAlertService.showSnack("Something went wrong.");
+      }
+    }
+  }
+
+  
+  openModal() {
+    this.eligibleOwnerUser = this.currentStoreItem.chatroom.users.slice()
+    this.eligibleOwnerUser.splice(this.eligibleOwnerUser.findIndex(user => user.uuid == this.currentStoreItem.chatroom.owner),1);
+
+    let modal = document.getElementById('transfermodal');
+    modal.classList.remove('fadeOut');
+    modal.classList.add('fadeIn');
+    modal.style.display = "flex";
+  }
+
+  closeModal() {
+    this.wantToLeave = false;
+    let modal = document.getElementById('transfermodal');
+    modal.classList.remove('fadeIn');
+    modal.classList.add('fadeOut');
+    setTimeout(() => {
+      modal.style.display = 'none';
+      this.eligibleOwnerUser = [];
+    }, 500);
+  }
+
+  openModalHistory(modal: string, messageHistory?: messageHistory[]) {
+    this.currentMessageHistory = messageHistory;
     let modalEl = document.getElementById(modal);
     modalEl.classList.remove('fadeOut');
     modalEl.classList.add('fadeIn');
     modalEl.style.display = "flex";
   }
 
-  closeModal(modal: string) {
+    
+
+  closeModalUserInfos(modal: string) {
     let modalEl = document.getElementById(modal);
     modalEl.classList.remove('fadeIn');
     modalEl.classList.add('fadeOut');
     setTimeout(() => {
       modalEl.style.display = 'none';
       this.userInfo = null;
+    }, 500);
+  }
+
+  closeModalHistory(modal: string) {
+    let modalEl = document.getElementById(modal);
+    modalEl.classList.remove('fadeIn');
+    modalEl.classList.add('fadeOut');
+    setTimeout(() => {
+      modalEl.style.display = 'none';
+      this.currentMessageHistory = [];
     }, 500);
   }
 
@@ -298,6 +410,19 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     return false;
   }
 
+  startEditing(message: Message) {
+    this.updatedMessageContent = message.content;
+    this.isEditing = true;
+    this.dropdownOpen = false;
+    this.messageEdited = message;
+  }
+
+  cancelEditing() {
+    this.updatedMessageContent = null;
+    this.isEditing = false;
+    this.messageEdited = null;
+  }
+
   private onItemElementsChanged(): void {
     if (this.isNearBottom) {
       this.scrollToBottom();
@@ -305,7 +430,6 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   }
 
   private scrollToBottom(): void {
-    console.log(this.scrollContainer);
     this.scrollContainer.scroll({
       top: this.scrollContainer.scrollHeight,
       behavior: 'smooth'
@@ -313,7 +437,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   }
 
   private isUserNearBottom(): boolean {
-    const threshold = 150;
+    const threshold = 50;
     const position = this.scrollContainer.scrollTop + this.scrollContainer.offsetHeight;
     const height = this.scrollContainer.scrollHeight;
     return position > height - threshold;
@@ -321,6 +445,18 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
 
   scrolled(event: any): void {
     this.isNearBottom = this.isUserNearBottom();
+  }
+
+  lastUpdate(history: messageHistory[]): string {
+    let lastMessage: string = "0";
+
+    history.forEach(hist => {
+      if(parseInt(lastMessage) < parseInt(hist.timestamp)) {
+        lastMessage = hist.timestamp
+      }
+    });
+
+    return this.timestampToReadableDate(lastMessage);
   }
 
 }
