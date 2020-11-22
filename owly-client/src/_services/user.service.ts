@@ -9,7 +9,7 @@ import { LoggedUser } from 'src/_models/loggedUser';
 import { BehaviorSubject } from 'rxjs';
 import { CookieService } from 'ngx-cookie';
 import { AuthService } from './auth.service';
-import { SearchUserByUsernameRequest, User } from 'src/proto/user.pb';
+import { GetUserInfosRequest, GetUserInfosResponse, SearchUserByUsernameRequest, User } from 'src/proto/user.pb';
 import { AuthServiceClient } from 'src/proto/auth.pbsc';
 
 
@@ -34,6 +34,10 @@ export class UserService {
 
         const res = await this.userClient.searchUserByUsername(req, {"authorization": token}).toPromise();
         return res.results;
+    }
+
+    async getUserInfo(req: GetUserInfosRequest): Promise<GetUserInfosResponse> {
+        return await this.userClient.getUserInfos(req, {"authorization": this.currentUser.accessToken}).toPromise();
     }
 
 }
