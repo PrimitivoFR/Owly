@@ -144,6 +144,7 @@ func (*server) SendMessage(ctx context.Context, req *messagepb.SendMessageReques
 			fmt.Sprintf("Inserting index failed: %v", err),
 		)
 	}
+
 	defer res.Body.Close()
 
 	if res.IsError() {
@@ -160,8 +161,12 @@ func (*server) SendMessage(ctx context.Context, req *messagepb.SendMessageReques
 			fmt.Sprintf("Error parsing the response body: %v", err),
 		)
 	}
+
+	msgID := docMap["_id"]
+
 	response := messagepb.SendMessageResponse{
 		Success: true,
+		Id:      msgID.(string),
 	}
 	return &response, nil
 }

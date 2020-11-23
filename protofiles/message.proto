@@ -46,6 +46,7 @@ message SendMessageRequest {
 
 message SendMessageResponse {
     bool success = 1;
+    string id = 2;
 }
 
 message GetMessagesByChatroomRequest {
