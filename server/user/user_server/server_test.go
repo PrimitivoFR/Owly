@@ -2,25 +2,29 @@ package user_server
 
 import (
 	"context"
-	"io/ioutil"
-	"log"
-	"os"
+	// "io/ioutil"
+	// "log"
+	// "os"
 	"primitivofr/owly/server/user/userpb"
 	"reflect"
 	"testing"
+	//common_jwt "primitivofr/owly/server/common/jwt"
+	common_testing "primitivofr/owly/server/common/testing"
 
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
+	// "google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/stretchr/testify/assert"
 )
 
-func check(e error, desc string) {
-	if e != nil {
-		log.Println(desc)
-		panic(e)
-	}
+// Contexts
+var appliNHCtxInc context.Context
+
+// Misc
+func init() {
+	appliNHCtxInc, _ = common_testing.PrepareCtxWithToken("applinh")
 }
 
 func TestSearchUserByUsername(t *testing.T) {
@@ -54,28 +58,16 @@ func TestSearchUserByUsername(t *testing.T) {
 		},
 	}
 
-	f, open_err := os.Open("/go/src/owly-server/token.txt")
-	check(open_err, "Could not open token file")
-
-	accessToken, readall_err := ioutil.ReadAll(f)
-	check(readall_err, "Error while reading token file")
-
-	md := metadata.Pairs("authorization", string(accessToken))
-	ctx := metadata.NewIncomingContext(context.Background(), md)
-
 	for _, tt := range tests {
-		resp, err := s.SearchUserByUsername(ctx, &tt.req)
+		res, err := s.SearchUserByUsername(appliNHCtxInc, &tt.req)
 
-		if err != nil {
-			t.Errorf("SearchUserByUsername got unexpected error %v", err)
-		} else if resp != nil && (reflect.TypeOf(resp) != reflect.TypeOf(&tt.want) ||
-			resp.Count != tt.want.Count) {
-			t.Errorf(
-				"SearchUserByUsername(%v)=\n%v \nwanted %v",
-				&tt.req, resp, &tt.want,
-			)
+		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
+			// We're expecting an error
+			common_testing.CmpAssertEqual(t, tt.want, err, cmpopts.EquateErrors())
 		} else {
-			log.Println("[Successfully passed TestSearchUserByUsername]")
+			if o := assert.Nil(t, err, "SearchUserByUsername got unexpected error"); o {
+				assert.Equal(t, tt.want.Count, res.Count)
+			}
 		}
 	}
 }
@@ -83,17 +75,8 @@ func TestSearchUserByUsername(t *testing.T) {
 func TestGetUserInfos(t *testing.T) {
 	s := server{}
 
-	f, openErr := os.Open("/go/src/owly-server/token.txt")
-	check(openErr, "Could not open token file")
-
-	accessToken, readallErr := ioutil.ReadAll(f)
-	check(readallErr, "Error while reading token file")
-
-	md := metadata.Pairs("authorization", string(accessToken))
-	ctx := metadata.NewIncomingContext(context.Background(), md)
-
 	searchUserResp, searchUserErr := s.SearchUserByUsername(
-		ctx,
+		appliNHCtxInc,
 		&userpb.SearchUserByUsernameRequest{Username: "user"},
 	)
 	
@@ -127,17 +110,15 @@ func TestGetUserInfos(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		resp, err := s.GetUserInfos(ctx, &tt.req)
+		res, err := s.GetUserInfos(appliNHCtxInc, &tt.req)
 
-		if reflect.TypeOf(tt.want) == reflect.TypeOf(err){
-			assert.Equal(t, tt.want, err)
-		} else if err != nil {
-			t.Errorf("GetUserInfos got unexpected error %v", err)
+		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
+			// We're expecting an error
+			common_testing.CmpAssertEqual(t, tt.want, err, cmpopts.EquateErrors())
 		} else {
-			assert.Equal(t, tt.want.(userpb.GetUserInfosResponse).Username, resp.Username)
-			assert.Equal(t, tt.want.(userpb.GetUserInfosResponse).Firstname, resp.Firstname)
-			assert.Equal(t, tt.want.(userpb.GetUserInfosResponse).Lastname, resp.Lastname)
-			assert.Equal(t, tt.want.(userpb.GetUserInfosResponse).Email, resp.Email)
+			if o := assert.Nil(t, err, "SearchUserByUsername got unexpected error"); o {
+				common_testing.CmpAssertEqual(t, tt.want, *res, cmpopts.IgnoreUnexported(*res))
+			}
 		}
 	}
 }
