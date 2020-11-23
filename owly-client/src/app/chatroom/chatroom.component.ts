@@ -243,7 +243,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
   async leaveChatroom() {
     if(this.isChatroomOwner()) {
       this.wantToLeave = true;
-      this.openModal();
+      this.startingTransferOwner();
     }
     else {
       if(await this.confirmModalService.confirm("Are you sure you want to leave the chatroom ?")) {
@@ -296,17 +296,20 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
     });
 
     this.userInfo = await this.userService.getUserInfo(req);
-    this.openModalUserInfos('userInfoModal');
+    this.openModal('userInfoModal');
   }
 
-  openModalUserInfos(modal: string) {
-    let modalEl = document.getElementById(modal);
-    modalEl.classList.remove('fadeOut');
-    modalEl.classList.add('fadeIn');
-    modalEl.style.display = "flex";
+  startingTransferOwner() {
+    this.eligibleOwnerUser = this.currentStoreItem.chatroom.users.slice();
+    this.eligibleOwnerUser.splice(this.eligibleOwnerUser.findIndex(user => user.uuid == this.currentStoreItem.chatroom.owner),1);
+    this.openModal('transfermodal');
+  }
+
+  getHistory(messageHistory: messageHistory[]) {
+    this.currentMessageHistory = messageHistory;
+    this.openModal('messageHistoryModal');
   }
     
-
   async transferOwnership(idUserChosen: string) {
     if(await this.confirmModalService.confirm("Are you sure you want to continue ?")) {
       if(!idUserChosen || idUserChosen == "") {
@@ -326,64 +329,28 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
         if(this.wantToLeave) {
           this.leaveChatroom();
         }
-        this.closeModal();
+        this.closeModal('transfermodal');
       }
       else {
-        this.closeModal();
+        this.closeModal('transfermodal');
         this.snackAlertService.showSnack("Something went wrong.");
       }
     }
   }
 
-  
-  openModal() {
-    this.eligibleOwnerUser = this.currentStoreItem.chatroom.users.slice()
-    this.eligibleOwnerUser.splice(this.eligibleOwnerUser.findIndex(user => user.uuid == this.currentStoreItem.chatroom.owner),1);
-
-    let modal = document.getElementById('transfermodal');
-    modal.classList.remove('fadeOut');
-    modal.classList.add('fadeIn');
-    modal.style.display = "flex";
-  }
-
-  closeModal() {
-    this.wantToLeave = false;
-    let modal = document.getElementById('transfermodal');
-    modal.classList.remove('fadeIn');
-    modal.classList.add('fadeOut');
-    setTimeout(() => {
-      modal.style.display = 'none';
-      this.eligibleOwnerUser = [];
-    }, 500);
-  }
-
-  openModalHistory(modal: string, messageHistory?: messageHistory[]) {
-    this.currentMessageHistory = messageHistory;
+  openModal(modal: string) {
     let modalEl = document.getElementById(modal);
     modalEl.classList.remove('fadeOut');
     modalEl.classList.add('fadeIn');
     modalEl.style.display = "flex";
   }
 
-    
-
-  closeModalUserInfos(modal: string) {
+  closeModal(modal: string) {
     let modalEl = document.getElementById(modal);
     modalEl.classList.remove('fadeIn');
     modalEl.classList.add('fadeOut');
     setTimeout(() => {
       modalEl.style.display = 'none';
-      this.userInfo = null;
-    }, 500);
-  }
-
-  closeModalHistory(modal: string) {
-    let modalEl = document.getElementById(modal);
-    modalEl.classList.remove('fadeIn');
-    modalEl.classList.add('fadeOut');
-    setTimeout(() => {
-      modalEl.style.display = 'none';
-      this.currentMessageHistory = [];
     }, 500);
   }
 

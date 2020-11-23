@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { fromEvent, Observable } from 'rxjs';
 import { ChatroomUser } from 'src/proto/chatroom.pb';
 
 @Component({
@@ -42,17 +43,23 @@ export class TransferOwnerModalComponent implements OnInit {
 
   @Input() listUsers: ChatroomUser[];
   @Output() idUserChosen = new EventEmitter<string>();
-  @Output() cancelAction = new EventEmitter<boolean>();
+  @Output() cancelAction = new EventEmitter();
+  clickObservable: Observable<Event> = fromEvent(document,'click');
 
   constructor(
   ) { }
 
   ngOnInit(): void {
-
+    this.clickObservable.subscribe(event => {
+        let modalEl = document.getElementById('transfermodal');
+        if(event.target == modalEl) {
+          this.cancelTransfer();
+        }
+      })
   }
 
   cancelTransfer() {
-    this.cancelAction.emit(true);
+    this.cancelAction.emit();
   }
 
   confirmTransferOwner(idNewOwner: string) {
