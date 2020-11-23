@@ -66,7 +66,7 @@
                         </div>
                     </div>
                     <div class="relative float-right mr-4 mt-2 text-xs">
-                        <span *ngIf="message.history && message.history.length != 0" class="mr-2 cursor-pointer tooltip" (click)="openModalHistory('messageHistoryModal', message.history)">(Updated)</span>
+                        <span *ngIf="message.history && message.history.length != 0" class="mr-2 cursor-pointer tooltip" (click)="getHistory(message.history)">(Updated)</span>
                         <div class="absolute popup py-2 px-2 bg-white rounded-md shadow-xl z-20 text-gray-700">
                             <span>Last update : {{lastUpdate(message.history)}}</span>
                         </div>
@@ -83,7 +83,7 @@
                 <div id="leaveChatroom" class="mx-4 my-2 px-2 py-2 rounded-md text-center text-gray-800 bg-gray-300 cursor-pointer hover:text-gray-500" (click)="leaveChatroom()">
                     Leave the chatroom
                 </div>
-                <div *ngIf="isChatroomOwner()" id="tranfertOwnershipChatroom" class="mx-4 my-2 px-2 py-2 rounded-md text-center text-gray-800 bg-gray-300 cursor-pointer hover:text-gray-500" (click)="openModal()">
+                <div *ngIf="isChatroomOwner()" id="tranfertOwnershipChatroom" class="mx-4 my-2 px-2 py-2 rounded-md text-center text-gray-800 bg-gray-300 cursor-pointer hover:text-gray-500" (click)="startingTransferOwner()">
                     Transfer ownership
                 </div>
                 <div *ngIf="isChatroomOwner()" id="deleteChatroom" class="mx-4 my-2 px-2 py-2 rounded-md text-center text-gray-800 bg-gray-300 cursor-pointer hover:text-gray-500" (click)="deleteChatroom()">
@@ -143,20 +143,18 @@
     id="userInfoModal" 
     class="main-modal fixed w-full h-100 inset-0 z-50 overflow-hidden hidden justify-center items-center animated fadeIn faster"
     style="background: rgba(0,0,0,.7);">
-    <app-user-info-modal [userInfo]="userInfo" (closeModal)="closeModalUserInfos('userInfoModal')"></app-user-info-modal>
+    <app-user-info-modal [userInfo]="userInfo" (closeModal)="closeModal('userInfoModal')"></app-user-info-modal>
 </div>
 <div
     id="transfermodal" 
     class="main-modal fixed w-full h-100 inset-0 z-50 overflow-hidden hidden justify-center items-center animated fadeIn faster" 
     style="background: rgba(0,0,0,.7);">
-    <app-transfer-owner-modal [listUsers]="eligibleOwnerUser" (idUserChosen)="transferOwnership($event)" (cancelAction)="closeModal()" ></app-transfer-owner-modal>
+    <app-transfer-owner-modal [listUsers]="eligibleOwnerUser" (idUserChosen)="transferOwnership($event)" (cancelAction)="closeModal('transfermodal')" ></app-transfer-owner-modal>
 </div>
-
-
-<app-confirm-modal></app-confirm-modal>
 <div
     id="messageHistoryModal" 
     class="main-modal fixed w-full h-100 inset-0 z-50 overflow-hidden hidden justify-center items-center animated fadeIn faster">
-    <app-message-history-modal [messageHistory]="currentMessageHistory" (closeModal)="closeModalHistory('messageHistoryModal')"></app-message-history-modal>
+    <app-message-history-modal [messageHistory]="currentMessageHistory" (closeModal)="closeModal('messageHistoryModal')"></app-message-history-modal>
 </div>
+<app-confirm-modal></app-confirm-modal>
 
