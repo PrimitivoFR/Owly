@@ -1,1 +1,0 @@
-docker-compose -f docker-compose.yml -f docker-compose.devandtest.yml -f docker-compose.test.yml up
