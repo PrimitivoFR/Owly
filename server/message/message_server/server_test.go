@@ -2,31 +2,33 @@ package message_server
 
 import (
 	"context"
-	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
 	authserver "primitivofr/owly/server/auth/auth_server"
-	"primitivofr/owly/server/auth/authpb"
 	"sort"
 
 	"primitivofr/owly/server/chatroom/chatroom_server"
 	"primitivofr/owly/server/chatroom/chatroompb"
 	common_jwt "primitivofr/owly/server/common/jwt"
+	common_testing "primitivofr/owly/server/common/testing"
 	"primitivofr/owly/server/message/messagepb"
 	"reflect"
 	"testing"
 
 	"time"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"google.golang.org/grpc"
+	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
 )
+
+// Contexts
+var appliNHCtxInc context.Context
+var totoCtxInc context.Context
+
+var appliNHCtxOut context.Context
+var totoCtxOut context.Context
 
 const bufSize = 1024 * 1024
 
@@ -34,61 +36,20 @@ var lis *bufconn.Listener
 
 var currentContext context.Context
 
-var currentChatroomId string
 var currentMessageId string
+var appliNHMessageId string
 var totoMessageId string
 
 var uuidAppliNH string
+var uuidToto string
 
-var cMessage messagepb.MessageServiceClient
-
-func assert(t *testing.T, expected interface{}, test interface{}) {
-	fmt.Println(expected, test)
-	// v is the interface{}
-	// v := reflect.ValueOf(&test).Elem()
-
-	// // Allocate a temporary variable with type of the struct.
-	// //    v.Elem() is the vale contained in the interface.
-	// tmp := reflect.New(v.Elem().Type()).Elem()
-
-	// // Copy the struct value contained in interface to
-	// // the temporary variable.
-	// tmp.Set(v.Elem())
-
-	// // Set the field.
-	// state := tmp.FieldByName("state")
-	// ptrToY := unsafe.Pointer(state.UnsafeAddr())
-
-	// realPtrToY := (*interface{})(ptrToY)
-	// *realPtrToY = nil
-	// // Set the interface to the modified struct value.
-	// v.Set(tmp)
-
-	if !(reflect.DeepEqual(expected, test)) {
-		t.Errorf(
-			"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
-			expected, reflect.TypeOf(expected), test, reflect.TypeOf(test),
-		)
-	}
-}
+var totoChatroomId string
 
 func check(e error, desc string) {
 	if e != nil {
 		log.Println(desc)
 		panic(e)
 	}
-}
-
-func prepareTestingCtx() (ctx context.Context) {
-	f, open_err := os.Open("/go/src/owly-server/token.txt")
-	check(open_err, "Could not open token file")
-
-	accessToken, readall_err := ioutil.ReadAll(f)
-	check(readall_err, "Error while reading token file")
-	log.Println("accessToken: ", string(accessToken))
-	md := metadata.Pairs("authorization", string(accessToken))
-	currentContext = metadata.NewOutgoingContext(context.Background(), md)
-	return
 }
 
 func init() {
@@ -104,65 +65,63 @@ func init() {
 	go authserver.StartServer()
 	time.Sleep(2 * time.Second)
 
-	time.Sleep(2 * time.Second)
-	prepareTestingCtx()
-	time.Sleep(1 * time.Second)
+	var err error
+	appliNHCtxInc, appliNHCtxOut = common_testing.PrepareCtxWithToken("applinh")
+	totoCtxInc, totoCtxOut = common_testing.PrepareCtxWithToken("toto")
 
-	// Connections
-	connAuth, err := grpc.Dial("server:50054", grpc.WithInsecure())
-	check(err, "Error whil trying to dial auth MS")
+	uuidAppliNH, err = common_jwt.ReadUUIDFromContext(appliNHCtxInc)
+	common_testing.CheckErr(err, "Error reading uuid for applinh")
 
-	connMessage, err := grpc.Dial("server:50053", grpc.WithInsecure())
-	check(err, "Error whil trying to dial message MS")
-
-	connChatroom, err := grpc.Dial("server:50052", grpc.WithInsecure())
-	check(err, "Error whil trying to dial chatroom MS")
-
-	// Contexts and token
-	f, openErr := os.Open("/go/src/owly-server/token.txt")
-	check(openErr, "Could not open token file")
-	accessToken, err := ioutil.ReadAll(f)
-	check(err, "Error while reading token file")
-	uuidAppliNH, err = common_jwt.ExtractUUIDfromJWT(string(accessToken))
-	check(err, "Err while reading uuid from applinh token")
-
-	// Login toto
-	reqLogin := &authpb.LoginUserRequest{
-		Username: "toto",
-		Password: "toto",
-	}
-
-	cAuth := authpb.NewAuthServiceClient(connAuth)
-	resLoginToto, err := cAuth.LoginUser(context.Background(), reqLogin)
-	check(err, "Error while logging in with user toto")
-
-	mdToto := metadata.Pairs("authorization", string(resLoginToto.Result.AccessToken))
-	ctxToto := metadata.NewOutgoingContext(context.Background(), mdToto)
+	uuidToto, err = common_jwt.ReadUUIDFromContext(totoCtxInc)
+	common_testing.CheckErr(err, "Error reading uuid for toto")
 
 	// Create chatroom by toto
-	reqChatroom := &chatroompb.CreateChatroomRequest{
+	reqCreateChatroom := &chatroompb.CreateChatroomRequest{
 		Name:  "ChatroomYEH",
 		Users: []string{uuidAppliNH},
 	}
-	cChatroom := chatroompb.NewChatroomServiceClient(connChatroom)
-	res, err := cChatroom.CreateChatroom(ctxToto, reqChatroom)
-	currentChatroomId = res.ID
+
+	resCreateChatroom := &chatroompb.CreateChatroomResponse{}
+
+	_, err = common_testing.ContextGenerator(
+		totoCtxOut,
+		"chatroom.ChatroomService",
+		"CreateChatroom",
+		"50052",
+		reqCreateChatroom,
+		resCreateChatroom)
+
+	common_testing.CheckErr(err, "Error dialing with CreateChatroom")
+
+	totoChatroomId = resCreateChatroom.ID
 
 	// Send a message by toto
-	reqMessage := &messagepb.SendMessageRequest{
+	reqSendMessage := &messagepb.SendMessageRequest{
 		Message: &messagepb.Message{
 			Content:    "boi",
-			ChatroomID: currentChatroomId,
+			ChatroomID: totoChatroomId,
 			AuthorNAME: "toto",
 		},
 	}
-	cMessage = messagepb.NewMessageServiceClient(connMessage)
-	_, err = cMessage.SendMessage(ctxToto, reqMessage)
-	check(err, "Error while sending message with user toto")
+
+	resSendMessage := &messagepb.SendMessageResponse{}
+
+	_, err = common_testing.ContextGenerator(
+		totoCtxOut,
+		"message.MessageService",
+		"SendMessage",
+		"50053",
+		reqSendMessage,
+		resSendMessage)
+
+	common_testing.CheckErr(err, "Error dialing with SendMessage")
+	totoMessageId = resSendMessage.Id
 
 }
 
 func TestSendMessage(t *testing.T) {
+
+	s := server{}
 
 	tests := []struct {
 		req  messagepb.SendMessageRequest
@@ -171,7 +130,7 @@ func TestSendMessage(t *testing.T) {
 		{
 			req: messagepb.SendMessageRequest{
 				Message: &messagepb.Message{
-					ChatroomID: currentChatroomId,
+					ChatroomID: totoChatroomId,
 					Content:    "test",
 					AuthorNAME: "AppliNH",
 				},
@@ -183,29 +142,24 @@ func TestSendMessage(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		res, err := cMessage.SendMessage(currentContext, &tt.req)
+		res, err := s.SendMessage(appliNHCtxInc, &tt.req)
 		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
 			// We're expecting an error
 
-			assert(t, tt.want, err)
+			common_testing.CmpAssertEqual(t, tt.want, err, cmpopts.EquateErrors())
 
 		} else {
-			if o := cmp.Equal(tt.want, *res, cmpopts.IgnoreUnexported(*res)); o == false {
-				t.Errorf(
-					"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
-					tt.want, reflect.TypeOf(tt.want), res, reflect.TypeOf(res),
-				)
+			if o := assert.Nil(t, err, "SendMessage got unexpected error"); o {
+				common_testing.CmpAssertEqual(t, tt.want, *res, cmpopts.IgnoreUnexported(*res), cmpopts.IgnoreFields(*res, "Id"))
 			}
-
-			//assert(t, tt.want, res)
 		}
 
 	}
-	time.Sleep(2 * time.Second)
 
 }
 
 func TestGetMessagesByChatroom(t *testing.T) {
+	s := server{}
 
 	tests := []struct {
 		req  messagepb.GetMessagesByChatroomRequest
@@ -213,7 +167,7 @@ func TestGetMessagesByChatroom(t *testing.T) {
 	}{
 		{
 			req: messagepb.GetMessagesByChatroomRequest{
-				ChatroomID: currentChatroomId,
+				ChatroomID: totoChatroomId,
 			},
 			want: messagepb.GetMessagesByChatroomResponse{
 				Messages: []*messagepb.Message{
@@ -227,47 +181,52 @@ func TestGetMessagesByChatroom(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		res, err := cMessage.GetMessagesByChatroom(currentContext, &tt.req)
-
-		fmt.Println(res.Messages[0])
-		fmt.Println(res.Messages[1])
+		res, err := s.GetMessagesByChatroom(appliNHCtxInc, &tt.req)
 
 		// Sorting messages list from old to new
 		sort.SliceStable(res.Messages, func(i, j int) bool {
 			return res.Messages[i].Timestamp < res.Messages[j].Timestamp
 		})
 
-		check(err, "Error while trying to get messages by chatroom")
+		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
+			// We're expecting an error
 
-		assert(t, tt.want.Messages[0].Content, res.Messages[1].Content)
-		assert(t, tt.want.Messages[0].AuthorNAME, res.Messages[1].AuthorNAME)
+			common_testing.CmpAssertEqual(t, tt.want, err, cmpopts.EquateErrors())
 
-		currentMessageId = res.Messages[1].Id
-		totoMessageId = res.Messages[0].Id
+		} else {
+			if o := assert.Nil(t, err, "GetMessagesByChatroom got unexpected error"); o {
+				common_testing.CmpAssertEqual(t, tt.want.Messages[0].Content, res.Messages[1].Content)
+				common_testing.CmpAssertEqual(t, tt.want.Messages[0].AuthorNAME, res.Messages[1].AuthorNAME)
+			}
+		}
+		appliNHMessageId = res.Messages[1].Id
 	}
 }
 
 func TestUpdateMessageContent(t *testing.T) {
+
+	s := server{}
+
 	tests := []struct {
 		req  messagepb.UpdateMessageContentRequest
 		want interface{}
 	}{
 		{
 			req: messagepb.UpdateMessageContentRequest{
-				MessageId:  currentMessageId,
-				ChatroomId: currentChatroomId,
+				MessageId:  appliNHMessageId,
+				ChatroomId: totoChatroomId,
 				NewContent: "Slt test",
 			},
 			want: messagepb.UpdateMessageContentResponse{
 				Success: true,
 				Message: &messagepb.Message{
-					Id: currentMessageId,
+					Id: appliNHMessageId,
 				},
 			},
 		},
 		{
 			req: messagepb.UpdateMessageContentRequest{
-				ChatroomId: currentChatroomId,
+				ChatroomId: totoChatroomId,
 				MessageId:  totoMessageId,
 				NewContent: "ah ben nn enfait",
 			},
@@ -276,21 +235,16 @@ func TestUpdateMessageContent(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		res, err := cMessage.UpdateMessageContent(currentContext, &tt.req)
+		res, err := s.UpdateMessageContent(appliNHCtxInc, &tt.req)
 		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
 			// We're expecting an error
 
-			assert(t, tt.want, err)
+			common_testing.CmpAssertEqual(t, tt.want, err, cmpopts.EquateErrors())
 
 		} else {
 
-			// assert(t, tt.want, res)
-
-			if o := cmp.Equal(tt.want, *res, cmpopts.IgnoreUnexported(*res, *res.Message)); o == false {
-				t.Errorf(
-					"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
-					tt.want, reflect.TypeOf(tt.want), res, reflect.TypeOf(res),
-				)
+			if o := assert.Nil(t, err, "UpdateMessageContent got unexpected error"); o {
+				common_testing.CmpAssertEqual(t, tt.want, *res, cmpopts.IgnoreUnexported(*res, *res.Message))
 			}
 
 		}
@@ -300,14 +254,16 @@ func TestUpdateMessageContent(t *testing.T) {
 
 func TestDeleteMessage(t *testing.T) {
 
+	s := server{}
+
 	tests := []struct {
 		req  messagepb.DeleteMessageRequest
 		want messagepb.DeleteMessageResponse
 	}{
 		{
 			req: messagepb.DeleteMessageRequest{
-				ChatroomID: currentChatroomId,
-				MessageID:  currentMessageId,
+				ChatroomID: totoChatroomId,
+				MessageID:  appliNHMessageId,
 			},
 			want: messagepb.DeleteMessageResponse{
 				Success: true,
@@ -316,19 +272,15 @@ func TestDeleteMessage(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		res, err := cMessage.DeleteMessage(currentContext, &tt.req)
+		res, err := s.DeleteMessage(appliNHCtxInc, &tt.req)
 		if reflect.TypeOf(tt.want) == reflect.TypeOf(err) {
 			// We're expecting an error
 
-			assert(t, tt.want, err)
-
+			common_testing.CmpAssertEqual(t, tt.want, err, cmpopts.EquateErrors())
 		} else {
-			//assert(t, tt.want, res)
-			if o := cmp.Equal(tt.want, *res, cmpopts.IgnoreUnexported(*res)); o == false {
-				t.Errorf(
-					"Assertion failed:\n expected\t %v of (%v)\n got\t\t %v (%v)",
-					tt.want, reflect.TypeOf(tt.want), res, reflect.TypeOf(res),
-				)
+
+			if o := assert.Nil(t, err, "DeleteMessage got unexpected error"); o {
+				common_testing.CmpAssertEqual(t, tt.want, *res, cmpopts.IgnoreUnexported(*res))
 			}
 		}
 	}

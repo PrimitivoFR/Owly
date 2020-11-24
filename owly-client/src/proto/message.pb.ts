@@ -979,6 +979,7 @@ export class SendMessageResponse implements GrpcMessage {
    */
   static refineValues(_instance: SendMessageResponse) {
     _instance.success = _instance.success || false;
+    _instance.id = _instance.id || '';
   }
 
   /**
@@ -996,6 +997,9 @@ export class SendMessageResponse implements GrpcMessage {
       switch (_reader.getFieldNumber()) {
         case 1:
           _instance.success = _reader.readBool();
+          break;
+        case 2:
+          _instance.id = _reader.readString();
           break;
         default:
           _reader.skipField();
@@ -1017,9 +1021,13 @@ export class SendMessageResponse implements GrpcMessage {
     if (_instance.success) {
       _writer.writeBool(1, _instance.success);
     }
+    if (_instance.id) {
+      _writer.writeString(2, _instance.id);
+    }
   }
 
   private _success?: boolean;
+  private _id?: string;
 
   /**
    * Message constructor. Initializes the properties and applies default Protobuf values if necessary
@@ -1028,6 +1036,7 @@ export class SendMessageResponse implements GrpcMessage {
   constructor(_value?: RecursivePartial<SendMessageResponse>) {
     _value = _value || {};
     this.success = _value.success;
+    this.id = _value.id;
     SendMessageResponse.refineValues(this);
   }
   get success(): boolean | undefined {
@@ -1035,6 +1044,12 @@ export class SendMessageResponse implements GrpcMessage {
   }
   set success(value: boolean | undefined) {
     this._success = value;
+  }
+  get id(): string | undefined {
+    return this._id;
+  }
+  set id(value: string | undefined) {
+    this._id = value;
   }
 
   /**
@@ -1052,7 +1067,8 @@ export class SendMessageResponse implements GrpcMessage {
    */
   toObject(): SendMessageResponse.AsObject {
     return {
-      success: this.success
+      success: this.success,
+      id: this.id
     };
   }
 
@@ -1070,6 +1086,7 @@ export module SendMessageResponse {
    */
   export interface AsObject {
     success?: boolean;
+    id?: string;
   }
 }
 
