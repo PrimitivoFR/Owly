@@ -204,12 +204,12 @@ export class ChatroomServiceClient {
    *
    * @param requestMessage Request message
    * @param requestMetadata Request metadata
-   * @returns Observable<thisProto.TranferOwnershipResponse>
+   * @returns Observable<thisProto.TransferOwnershipResponse>
    */
   transferOwnership(
-    requestData: thisProto.TranferOwnershipRequest,
+    requestData: thisProto.TransferOwnershipRequest,
     requestMetadata: Metadata = {}
-  ): Observable<thisProto.TranferOwnershipResponse> {
+  ): Observable<thisProto.TransferOwnershipResponse> {
     return this.transferOwnership$eventStream(
       requestData,
       requestMetadata
@@ -221,20 +221,20 @@ export class ChatroomServiceClient {
    *
    * @param requestMessage Request message
    * @param requestMetadata Request metadata
-   * @returns Observable<GrpcEvent<thisProto.TranferOwnershipResponse>>
+   * @returns Observable<GrpcEvent<thisProto.TransferOwnershipResponse>>
    */
   transferOwnership$eventStream(
-    requestData: thisProto.TranferOwnershipRequest,
+    requestData: thisProto.TransferOwnershipRequest,
     requestMetadata: Metadata = {}
-  ): Observable<GrpcEvent<thisProto.TranferOwnershipResponse>> {
+  ): Observable<GrpcEvent<thisProto.TransferOwnershipResponse>> {
     return this.handler.handle({
       type: GrpcCallType.unary,
       client: this.client,
       path: '/chatroom.ChatroomService/TransferOwnership',
       requestData,
       requestMetadata,
-      requestClass: thisProto.TranferOwnershipRequest,
-      responseClass: thisProto.TranferOwnershipResponse
+      requestClass: thisProto.TransferOwnershipRequest,
+      responseClass: thisProto.TransferOwnershipResponse
     });
   }
 }

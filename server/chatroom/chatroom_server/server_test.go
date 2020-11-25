@@ -233,21 +233,21 @@ func TestTransferOwnership(t *testing.T) {
 	s := server{}
 
 	tests := []struct {
-		req  chatroompb.TranferOwnershipRequest
+		req  chatroompb.TransferOwnershipRequest
 		want interface{}
 	}{
 		{
-			req: chatroompb.TranferOwnershipRequest{
+			req: chatroompb.TransferOwnershipRequest{
 				ChatroomId: chatroomIdByAppliNH,
 				NewOwnerId: uuidToto,
 			},
-			want: chatroompb.TranferOwnershipResponse{
+			want: chatroompb.TransferOwnershipResponse{
 				Success: true,
 			},
 		},
 
 		{
-			req: chatroompb.TranferOwnershipRequest{
+			req: chatroompb.TransferOwnershipRequest{
 				ChatroomId: chatroomIdByToto,
 				NewOwnerId: uuidAppliNH,
 			},

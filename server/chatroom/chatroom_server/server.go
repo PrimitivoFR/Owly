@@ -264,7 +264,7 @@ func (*server) LeaveChatroom(ctx context.Context, req *chatroompb.LeaveChatroomR
 	return &chatroompb.LeaveChatroomResponse{Success: true}, nil
 }
 
-func (*server) TransferOwnership(ctx context.Context, req *chatroompb.TranferOwnershipRequest) (*chatroompb.TranferOwnershipResponse, error) {
+func (*server) TransferOwnership(ctx context.Context, req *chatroompb.TransferOwnershipRequest) (*chatroompb.TransferOwnershipResponse, error) {
 
 	userId, err := common_jwt.ReadUUIDFromContext(ctx)
 	if err != nil {
@@ -319,7 +319,7 @@ func (*server) TransferOwnership(ctx context.Context, req *chatroompb.TranferOwn
 		return nil, changeOwnerErr
 	}
 
-	return &chatroompb.TranferOwnershipResponse{Success: true}, nil
+	return &chatroompb.TransferOwnershipResponse{Success: true}, nil
 }
 
 //

@@ -1302,16 +1302,16 @@ export module LeaveChatroomResponse {
 }
 
 /**
- * Message implementation for chatroom.TranferOwnershipRequest
+ * Message implementation for chatroom.TransferOwnershipRequest
  */
-export class TranferOwnershipRequest implements GrpcMessage {
+export class TransferOwnershipRequest implements GrpcMessage {
   /**
    * Deserialize binary data to message
    * @param instance message instance
    */
   static deserializeBinary(bytes: ByteSource) {
-    const instance = new TranferOwnershipRequest();
-    TranferOwnershipRequest.deserializeBinaryFromReader(
+    const instance = new TransferOwnershipRequest();
+    TransferOwnershipRequest.deserializeBinaryFromReader(
       instance,
       new BinaryReader(bytes)
     );
@@ -1322,7 +1322,7 @@ export class TranferOwnershipRequest implements GrpcMessage {
    * Check all the properties and set default protobuf values if necessary
    * @param _instance message instance
    */
-  static refineValues(_instance: TranferOwnershipRequest) {
+  static refineValues(_instance: TransferOwnershipRequest) {
     _instance.chatroomId = _instance.chatroomId || '';
     _instance.newOwnerId = _instance.newOwnerId || '';
   }
@@ -1333,7 +1333,7 @@ export class TranferOwnershipRequest implements GrpcMessage {
    * @param _reader binary reader instance
    */
   static deserializeBinaryFromReader(
-    _instance: TranferOwnershipRequest,
+    _instance: TransferOwnershipRequest,
     _reader: BinaryReader
   ) {
     while (_reader.nextField()) {
@@ -1351,7 +1351,7 @@ export class TranferOwnershipRequest implements GrpcMessage {
       }
     }
 
-    TranferOwnershipRequest.refineValues(_instance);
+    TransferOwnershipRequest.refineValues(_instance);
   }
 
   /**
@@ -1360,7 +1360,7 @@ export class TranferOwnershipRequest implements GrpcMessage {
    * @param _writer binary writer instance
    */
   static serializeBinaryToWriter(
-    _instance: TranferOwnershipRequest,
+    _instance: TransferOwnershipRequest,
     _writer: BinaryWriter
   ) {
     if (_instance.chatroomId) {
@@ -1376,13 +1376,13 @@ export class TranferOwnershipRequest implements GrpcMessage {
 
   /**
    * Message constructor. Initializes the properties and applies default Protobuf values if necessary
-   * @param _value initial values object or instance of TranferOwnershipRequest to deeply clone from
+   * @param _value initial values object or instance of TransferOwnershipRequest to deeply clone from
    */
-  constructor(_value?: RecursivePartial<TranferOwnershipRequest>) {
+  constructor(_value?: RecursivePartial<TransferOwnershipRequest>) {
     _value = _value || {};
     this.chatroomId = _value.chatroomId;
     this.newOwnerId = _value.newOwnerId;
-    TranferOwnershipRequest.refineValues(this);
+    TransferOwnershipRequest.refineValues(this);
   }
   get chatroomId(): string | undefined {
     return this._chatroomId;
@@ -1403,14 +1403,14 @@ export class TranferOwnershipRequest implements GrpcMessage {
    */
   serializeBinary() {
     const writer = new BinaryWriter();
-    TranferOwnershipRequest.serializeBinaryToWriter(this, writer);
+    TransferOwnershipRequest.serializeBinaryToWriter(this, writer);
     return writer.getResultBuffer();
   }
 
   /**
    * Cast message to standard JavaScript object (all non-primitive values are deeply cloned)
    */
-  toObject(): TranferOwnershipRequest.AsObject {
+  toObject(): TransferOwnershipRequest.AsObject {
     return {
       chatroomId: this.chatroomId,
       newOwnerId: this.newOwnerId
@@ -1425,9 +1425,9 @@ export class TranferOwnershipRequest implements GrpcMessage {
     return this.toObject();
   }
 }
-export module TranferOwnershipRequest {
+export module TransferOwnershipRequest {
   /**
-   * Standard JavaScript object representation for TranferOwnershipRequest
+   * Standard JavaScript object representation for TransferOwnershipRequest
    */
   export interface AsObject {
     chatroomId?: string;
@@ -1436,16 +1436,16 @@ export module TranferOwnershipRequest {
 }
 
 /**
- * Message implementation for chatroom.TranferOwnershipResponse
+ * Message implementation for chatroom.TransferOwnershipResponse
  */
-export class TranferOwnershipResponse implements GrpcMessage {
+export class TransferOwnershipResponse implements GrpcMessage {
   /**
    * Deserialize binary data to message
    * @param instance message instance
    */
   static deserializeBinary(bytes: ByteSource) {
-    const instance = new TranferOwnershipResponse();
-    TranferOwnershipResponse.deserializeBinaryFromReader(
+    const instance = new TransferOwnershipResponse();
+    TransferOwnershipResponse.deserializeBinaryFromReader(
       instance,
       new BinaryReader(bytes)
     );
@@ -1456,7 +1456,7 @@ export class TranferOwnershipResponse implements GrpcMessage {
    * Check all the properties and set default protobuf values if necessary
    * @param _instance message instance
    */
-  static refineValues(_instance: TranferOwnershipResponse) {
+  static refineValues(_instance: TransferOwnershipResponse) {
     _instance.success = _instance.success || false;
   }
 
@@ -1466,7 +1466,7 @@ export class TranferOwnershipResponse implements GrpcMessage {
    * @param _reader binary reader instance
    */
   static deserializeBinaryFromReader(
-    _instance: TranferOwnershipResponse,
+    _instance: TransferOwnershipResponse,
     _reader: BinaryReader
   ) {
     while (_reader.nextField()) {
@@ -1481,7 +1481,7 @@ export class TranferOwnershipResponse implements GrpcMessage {
       }
     }
 
-    TranferOwnershipResponse.refineValues(_instance);
+    TransferOwnershipResponse.refineValues(_instance);
   }
 
   /**
@@ -1490,7 +1490,7 @@ export class TranferOwnershipResponse implements GrpcMessage {
    * @param _writer binary writer instance
    */
   static serializeBinaryToWriter(
-    _instance: TranferOwnershipResponse,
+    _instance: TransferOwnershipResponse,
     _writer: BinaryWriter
   ) {
     if (_instance.success) {
@@ -1502,12 +1502,12 @@ export class TranferOwnershipResponse implements GrpcMessage {
 
   /**
    * Message constructor. Initializes the properties and applies default Protobuf values if necessary
-   * @param _value initial values object or instance of TranferOwnershipResponse to deeply clone from
+   * @param _value initial values object or instance of TransferOwnershipResponse to deeply clone from
    */
-  constructor(_value?: RecursivePartial<TranferOwnershipResponse>) {
+  constructor(_value?: RecursivePartial<TransferOwnershipResponse>) {
     _value = _value || {};
     this.success = _value.success;
-    TranferOwnershipResponse.refineValues(this);
+    TransferOwnershipResponse.refineValues(this);
   }
   get success(): boolean | undefined {
     return this._success;
@@ -1522,14 +1522,14 @@ export class TranferOwnershipResponse implements GrpcMessage {
    */
   serializeBinary() {
     const writer = new BinaryWriter();
-    TranferOwnershipResponse.serializeBinaryToWriter(this, writer);
+    TransferOwnershipResponse.serializeBinaryToWriter(this, writer);
     return writer.getResultBuffer();
   }
 
   /**
    * Cast message to standard JavaScript object (all non-primitive values are deeply cloned)
    */
-  toObject(): TranferOwnershipResponse.AsObject {
+  toObject(): TransferOwnershipResponse.AsObject {
     return {
       success: this.success
     };
@@ -1543,9 +1543,9 @@ export class TranferOwnershipResponse implements GrpcMessage {
     return this.toObject();
   }
 }
-export module TranferOwnershipResponse {
+export module TransferOwnershipResponse {
   /**
-   * Standard JavaScript object representation for TranferOwnershipResponse
+   * Standard JavaScript object representation for TransferOwnershipResponse
    */
   export interface AsObject {
     success?: boolean;

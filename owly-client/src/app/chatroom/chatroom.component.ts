@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import { Chatroom, ChatroomUser, DeleteChatroomRequest, LeaveChatroomRequest, TranferOwnershipRequest } from 'src/proto/chatroom.pb';
+import { Chatroom, ChatroomUser, DeleteChatroomRequest, LeaveChatroomRequest, TransferOwnershipRequest } from 'src/proto/chatroom.pb';
 import { DeleteMessageRequest, GetMessagesByChatroomRequest, Message, messageHistory, SendMessageRequest, UpdateMessageContentRequest } from 'src/proto/message.pb';
 
 import { LocalChatroom } from 'src/_models/localChatroom';
@@ -316,7 +316,7 @@ export class ChatroomComponent implements OnInit, AfterViewInit {
         return;
       }
       
-      const req = new TranferOwnershipRequest({
+      const req = new TransferOwnershipRequest({
         chatroomId: this.currentStoreItem.chatroom.id,
         newOwnerId: idUserChosen
       })
