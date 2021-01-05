@@ -1,0 +1,59 @@
+apiVersion: skaffold/v2beta10
+kind: Config
+
+deploy:
+  kubectl:
+    manifests:
+      - ./infra/k8s/*
+
+build:
+  local:
+    push: false # Don't try to push the image to a registry, once built
+  artifacts:
+    - image: init_server_image
+      context: ./server
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '/**/**/*.go'
+            dest: .
+    - image: primitivofr/owly/auth-server
+      context: ./server/auth
+      requires:
+      - image: init_server_image
+        alias: init_server_image
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual: 
+          - src: '/**/*.go'
+            dest: . # where to sync the files to inside the running container
+    - image: primitivofr/owly/user-server
+      context: ./server/user
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual: 
+          - src: '/**/*.go'
+            dest: . 
+    - image: primitivofr/owly/message-server
+      context: ./server/message
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual: 
+          - src: '/**/*.go'
+            dest: .
+    - image: primitivofr/owly/chatroom-server
+      context: ./server/message
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual: 
+          - src: '/**/*.go'
+            dest: .
+    - image: primitivofr/owly/elasticsearch
+      context: ./elasticsearch
+      docker:
+        dockerfile: Dockerfile

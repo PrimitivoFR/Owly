@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatroom-server-depl
+spec:
+  selector:
+    matchLabels:
+      app: chatroom-server
+  template:
+    metadata:
+      labels:
+        app: chatroom-server
+    spec:
+      containers:
+      - name: chatroom-server
+        image: primitivofr/owly/chatroom-server
+        env:
+        - name: MONGO_HOSTNAME
+          value: mongo-srv
+        - name: KEYCLOAK_USER
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-creds
+              key: KEYCLOAK_USER
+        - name: KEYCLOAK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-creds
+              key: KEYCLOAK_PASSWORD
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: chatroom-server-srv
+spec:
+  selector:
+    app: chatroom-server
+  ports:
+  - name: chatroom-server
+    protocol: TCP
+    port: 50052
+    targetPort: 50052
+

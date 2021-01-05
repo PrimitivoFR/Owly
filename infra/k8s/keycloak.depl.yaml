@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak-depl
+spec:
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+      - name: keycloak
+        image: quay.io/keycloak/keycloak:11.0.1
+        env:
+        - name: KEYCLOAK_IMPORT
+          value: /tmp/owly-realm.json
+        - name: KEYCLOAK_USER
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-creds
+              key: KEYCLOAK_USER
+        - name: KEYCLOAK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-creds
+              key: KEYCLOAK_PASSWORD
+
+        volumeMounts:
+          - mountPath:  /tmp
+            name: tmp-keycloak
+      volumes:
+        - name:  tmp-keycloak
+          hostPath:
+            path:  /owly/keycloak/
+            type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-srv
+spec:
+  selector:
+    app: keycloak
+  ports:
+  - name: keycloak
+    protocol: TCP
+    port: 8080
+    targetPort: 8080

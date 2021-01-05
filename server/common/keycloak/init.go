@@ -21,7 +21,7 @@ func loadEnvVars() {
 
 func checkConnection() {
 	for {
-		res, err := http.Get("http://keycloak:8080/auth/")
+		res, err := http.Get("http://keycloak-srv:8080/auth/")
 		if err == nil && res != nil {
 			if res.StatusCode == 200 {
 				log.Println("Keycloak instance up, ready and reachable !")
@@ -29,7 +29,8 @@ func checkConnection() {
 			}
 		}
 		time.Sleep(2 * time.Second)
-		log.Println("Waiting for keycloak instance...")
+
+		log.Println("Waiting for keycloak instance @ keycloak-srv...")
 		log.Println(err)
 	}
 }
@@ -37,7 +38,7 @@ func checkConnection() {
 func InitAdmin() (*AdminGuy, error) {
 
 	checkConnection()
-	client := gocloak.NewClient("http://keycloak:8080/")
+	client := gocloak.NewClient("http://keycloak-srv:8080/")
 	if client == nil {
 		log.Fatal()
 		return nil, errors.Errorf("Couldn't connect to Keycloak instance")
