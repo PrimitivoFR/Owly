@@ -1,0 +1,7 @@
+# ---- AUTH ----
+ARG INIT_SERVER_IMAGE
+# ----  ----
+FROM $INIT_SERVER_IMAGE AS base
+
+EXPOSE 50051
+CMD [ "go", "run", "./user/main.go" ]

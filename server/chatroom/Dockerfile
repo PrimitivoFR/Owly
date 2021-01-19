@@ -1,7 +1,7 @@
 # ---- CHATROOM ----
-
+ARG INIT_SERVER_IMAGE
 # ---- BUILD ----
-FROM init_server_image AS build
+FROM $INIT_SERVER_IMAGE AS build
 RUN  go build -o ./build/chatroom_server ./chatroom
 
 

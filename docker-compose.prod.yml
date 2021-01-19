@@ -6,7 +6,7 @@ services:
       env_file: ./keycloak/.keycloak-env
 
     elasticsearch:
-      image: docker.pkg.github.com/primitivofr/owly/owly-elasticsearch:latest
+      image: docker.pkg.primitivofr/owly/owly-elasticsearch:latest
     
     envoy:
       volumes:
@@ -20,7 +20,7 @@ services:
     auth_server:
       hostname: auth_server
       env_file: ./keycloak/.keycloak-env
-      image: docker.pkg.github.com/primitivofr/owly/owly-server-auth:latest
+      image: docker.pkg.primitivofr/owly/owly-server-auth:latest
       environment:
         MONGO_HOSTNAME: mongo
       networks: 
@@ -33,7 +33,7 @@ services:
     user_server:
       hostname: user_server
       env_file: ./keycloak/.keycloak-env
-      image: docker.pkg.github.com/primitivofr/owly/owly-server-user:latest
+      image: docker.pkg.primitivofr/owly/owly-server-user:latest
       environment:
         MONGO_HOSTNAME: mongo
       networks: 
@@ -46,7 +46,7 @@ services:
     chatroom_server:
       hostname: chatroom_server
       env_file: ./keycloak/.keycloak-env
-      image: docker.pkg.github.com/primitivofr/owly/owly-server-chatrom:latest
+      image: docker.pkg.primitivofr/owly/owly-server-chatrom:latest
       environment:
         MONGO_HOSTNAME: mongo
       networks: 
@@ -59,7 +59,7 @@ services:
     message_server:
       hostname: message_server
       env_file: ./keycloak/.keycloak-env
-      image: docker.pkg.github.com/primitivofr/owly/owly-server-message:latest
+      image: docker.pkg.primitivofr/owly/owly-server-message:latest
       environment:
         MONGO_HOSTNAME: mongo
       networks: 
@@ -70,7 +70,7 @@ services:
         - mongo
   
     client: 
-      image: docker.pkg.github.com/primitivofr/owly/owly-client:latest
+      image: docker.pkg.primitivofr/owly/owly-client:latest
       ports:
           - 80:80
       networks:

@@ -22,33 +22,42 @@ build:
       context: ./server/auth
       requires:
       - image: init_server_image
-        alias: init_server_image
+        alias: INIT_SERVER_IMAGE
       docker:
-        dockerfile: Dockerfile
+        dockerfile: Dockerfile.dev
       sync:
         manual: 
           - src: '/**/*.go'
             dest: . # where to sync the files to inside the running container
     - image: primitivofr/owly/user-server
       context: ./server/user
+      requires:
+      - image: init_server_image
+        alias: INIT_SERVER_IMAGE
       docker:
-        dockerfile: Dockerfile
+        dockerfile: Dockerfile.dev
       sync:
         manual: 
           - src: '/**/*.go'
             dest: . 
     - image: primitivofr/owly/message-server
       context: ./server/message
+      requires:
+      - image: init_server_image
+        alias: INIT_SERVER_IMAGE
       docker:
-        dockerfile: Dockerfile
+        dockerfile: Dockerfile.dev
       sync:
         manual: 
           - src: '/**/*.go'
             dest: .
     - image: primitivofr/owly/chatroom-server
-      context: ./server/message
+      context: ./server/chatroom
+      requires:
+      - image: init_server_image
+        alias: INIT_SERVER_IMAGE
       docker:
-        dockerfile: Dockerfile
+        dockerfile: Dockerfile.dev
       sync:
         manual: 
           - src: '/**/*.go'

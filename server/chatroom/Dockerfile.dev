@@ -1,0 +1,8 @@
+# ---- AUTH ----
+ARG INIT_SERVER_IMAGE
+# ----  ----
+FROM $INIT_SERVER_IMAGE AS base
+
+EXPOSE 50052
+
+CMD [ "go", "run" ,"./chatroom/main.go" ]
