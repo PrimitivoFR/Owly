@@ -1,7 +1,8 @@
-# ---- AUTH ----
-ARG INIT_SERVER_IMAGE
+ARG SERVER_COMMON
 # ----  ----
-FROM $INIT_SERVER_IMAGE AS base
+FROM $SERVER_COMMON AS base
+WORKDIR /server/message
+COPY . . 
 
 EXPOSE 50053
-CMD [ "go" ,"run", "./message/main.go" ]
+CMD [ "go" ,"run", "main.go" ]

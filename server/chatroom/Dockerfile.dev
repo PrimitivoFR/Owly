@@ -1,8 +1,9 @@
-# ---- AUTH ----
-ARG INIT_SERVER_IMAGE
+ARG SERVER_COMMON
 # ----  ----
-FROM $INIT_SERVER_IMAGE AS base
+FROM $SERVER_COMMON AS base
+WORKDIR /server/chatroom
+COPY . . 
 
 EXPOSE 50052
 
-CMD [ "go", "run" ,"./chatroom/main.go" ]
+CMD [ "go", "run" ,"main.go" ]

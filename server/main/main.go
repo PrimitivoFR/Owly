@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 	authserver "primitivofr/owly/server/auth/auth_server"
-	"primitivofr/owly/server/chatroom/chatroom_server"
-	"primitivofr/owly/server/message/message_server"
+	"primitivofr/owly/server-chatroom/chatroom_server"
+	"primitivofr/owly/server-message/message_server"
 	"primitivofr/owly/server/user/user_server"
 )
 

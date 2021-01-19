@@ -6,11 +6,11 @@ import (
 	authserver "primitivofr/owly/server/auth/auth_server"
 	"sort"
 
-	"primitivofr/owly/server/chatroom/chatroom_server"
-	"primitivofr/owly/server/chatroom/chatroompb"
-	common_jwt "primitivofr/owly/server/common/jwt"
-	common_testing "primitivofr/owly/server/common/testing"
-	"primitivofr/owly/server/message/messagepb"
+	"primitivofr/owly/server-chatroom/chatroom_server"
+	"primitivofr/owly/server-chatroom/chatroompb"
+	common_jwt "primitivofr/owly/server-common/jwt"
+	common_testing "primitivofr/owly/server-common/testing"
+	"primitivofr/owly/server-message/messagepb"
 	"reflect"
 	"testing"
 

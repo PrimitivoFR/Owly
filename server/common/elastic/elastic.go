@@ -16,7 +16,7 @@ func Init() (*elasticsearch.Client, error) {
 	// Declare an Elasticsearch configuration
 	cfg := elasticsearch.Config{
 		Addresses: []string{
-			"http://elasticsearch:9200",
+			"http://elasticsearch-srv:9200",
 		},
 	}
 
@@ -38,7 +38,7 @@ func InitOlivereES() (*elastic.Client, error) {
 
 	client, err := elastic.NewClient(
 		elastic.SetSniff(true),
-		elastic.SetURL("http://elasticsearch:9200"),
+		elastic.SetURL("http://elasticsearch-srv:9200"),
 		elastic.SetHealthcheckInterval(5*time.Second),
 	)
 

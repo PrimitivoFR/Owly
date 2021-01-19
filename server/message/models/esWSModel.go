@@ -1,6 +1,6 @@
 package models
 
-import "primitivofr/owly/server/message/messagepb"
+import "primitivofr/owly/server-message/messagepb"
 
 // ESWebSocketResp is a structure that matches the webSocket messages sent by the ES plugin
 // Every time something happens, we get notified.

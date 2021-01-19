@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	authserver "primitivofr/owly/server/auth/auth_server"
 	"primitivofr/owly/server/auth/authpb"
-	"primitivofr/owly/server/chatroom/chatroompb"
-	common_jwt "primitivofr/owly/server/common/jwt"
-	common_testing "primitivofr/owly/server/common/testing"
+	"primitivofr/owly/server-chatroom/chatroompb"
+	common_jwt "primitivofr/owly/server-common/jwt"
+	common_testing "primitivofr/owly/server-common/testing"
 
 	"reflect"
 	"testing"

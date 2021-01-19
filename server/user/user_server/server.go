@@ -6,12 +6,12 @@ import (
 	"log"
 	"net"
 
-	"primitivofr/owly/server/common/interceptors"
-	common_keycloak "primitivofr/owly/server/common/keycloak"
+	"primitivofr/owly/server-common/interceptors"
+	common_keycloak "primitivofr/owly/server-common/keycloak"
 
-	"primitivofr/owly/server/user/userpb"
+	"primitivofr/owly/server-user/userpb"
 
-	common_jwt "primitivofr/owly/server/common/jwt"
+	common_jwt "primitivofr/owly/server-common/jwt"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -64,19 +64,18 @@ func (*server) GetUserInfos(ctx context.Context, req *userpb.GetUserInfosRequest
 		return nil, status.Error(codes.Internal, fmt.Sprintf("Error: %v", err))
 	}
 
-	userInfos, err := adminGuy.GetUserByUUID(req.Id);
+	userInfos, err := adminGuy.GetUserByUUID(req.Id)
 	if err != nil {
 		return nil, status.Error(codes.NotFound, fmt.Sprintf("Error: %v", err))
 	}
 
 	return &userpb.GetUserInfosResponse{
-		Username: *userInfos.Username,
+		Username:  *userInfos.Username,
 		Firstname: *userInfos.FirstName,
-		Lastname: *userInfos.LastName,
-		Email: *userInfos.Email,
+		Lastname:  *userInfos.LastName,
+		Email:     *userInfos.Email,
 	}, nil
 }
-
 
 //
 func StartServer() {

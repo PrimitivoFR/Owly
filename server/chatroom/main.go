@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-	"primitivofr/owly/server/chatroom/chatroom_server"
+	"primitivofr/owly/server-chatroom/chatroom_server"
 )
 
 func main() {

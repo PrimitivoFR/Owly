@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"log"
 	"os"
-	"primitivofr/owly/server/auth/authpb"
-	common_testing "primitivofr/owly/server/common/testing"
+	"primitivofr/owly/server-auth/authpb"
+	common_testing "primitivofr/owly/server-common-testing"
 	"reflect"
 	"testing"
 
