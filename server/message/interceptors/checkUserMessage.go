@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"primitivofr/owly/server-message/messagepb"
+	"github.com/primitivofr/owly/server/message/messagepb"
 
 	"github.com/olivere/elastic"
 	"google.golang.org/grpc/codes"

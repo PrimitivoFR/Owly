@@ -1,4 +1,4 @@
-module primitivofr/owly/server-user
+module github.com/primitivofr/owly/server/user
 
 go 1.15
 
@@ -10,7 +10,7 @@ require (
 	github.com/stretchr/testify v1.6.1
 	google.golang.org/grpc v1.35.0
 	google.golang.org/protobuf v1.25.0
-	primitivofr/owly/server-common v0.0.0
+	github.com/primitivofr/owly/server/common v0.0.0
 )
 
-replace primitivofr/owly/server-common => ../common
+replace github.com/primitivofr/owly/server/common => ../common

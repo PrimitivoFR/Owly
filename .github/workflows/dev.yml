@@ -31,12 +31,12 @@ jobs:
       - uses: actions/checkout@v2
       
       - name: CleanDockerCache
-        run: docker volume prune -f && docker system prune -f && docker container prune -f
+        run: make clean-docker-cache
 
       - name: BuildCompose
-        run: docker-compose -f docker-compose.yml -f docker-compose.devandtest.yml -f docker-compose.test.yml build
+        run: make test-build
         
       - name: TestCompose
-        run: docker-compose -f docker-compose.yml -f docker-compose.devandtest.yml -f docker-compose.test.yml up --exit-code-from server
+        run: make test
         
       

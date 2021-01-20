@@ -2,7 +2,7 @@ package interceptors
 
 import (
 	"log"
-	common_keycloak "primitivofr/owly/server-common/keycloak"
+	common_keycloak "github.com/primitivofr/owly/server/common/keycloak"
 )
 
 func checkTokenInterceptor(token string) (bool, error) {

@@ -3,11 +3,11 @@ package chatroom_server
 import (
 	"context"
 	"encoding/json"
-	authserver "primitivofr/owly/server/auth/auth_server"
-	"primitivofr/owly/server/auth/authpb"
-	"primitivofr/owly/server-chatroom/chatroompb"
-	common_jwt "primitivofr/owly/server-common/jwt"
-	common_testing "primitivofr/owly/server-common/testing"
+
+	"github.com/primitivofr/owly/server/auth/authpb"
+	"github.com/primitivofr/owly/server/chatroom/chatroompb"
+	common_jwt "github.com/primitivofr/owly/server/common/jwt"
+	common_testing "github.com/primitivofr/owly/server/common/testing"
 
 	"reflect"
 	"testing"
@@ -40,7 +40,7 @@ func init() {
 
 	//---- CREATE ANOTHER USER
 	// Starting auth MS
-	go authserver.StartServer()
+	//go authserver.StartServer()
 
 	time.Sleep(1 * time.Second)
 
@@ -93,7 +93,7 @@ func init() {
 	//---- CREATE NEW CHATROOMS
 
 	// Starting chatroom MS
-	go StartServer()
+	//go StartServer()
 	time.Sleep(1 * time.Second)
 
 	// Retrieving AppliNH uuid

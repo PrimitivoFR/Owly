@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-	"primitivofr/owly/server-user/user_server"
+	"github.com/primitivofr/owly/server/user/user_server"
 )
 
 func main() {

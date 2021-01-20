@@ -5,12 +5,12 @@ import (
 	// "io/ioutil"
 	// "log"
 	// "os"
-	"primitivofr/owly/server-user/userpb"
+	"github.com/primitivofr/owly/server/user/userpb"
 	"reflect"
 	"testing"
 
-	//common_jwt "primitivofr/owly/server-common/jwt"
-	common_testing "primitivofr/owly/server-common/testing"
+	//common_jwt "github.com/primitivofr/owly/server/common/jwt"
+	common_testing "github.com/primitivofr/owly/server/common/testing"
 
 	"google.golang.org/grpc/codes"
 	// "google.golang.org/grpc/metadata"

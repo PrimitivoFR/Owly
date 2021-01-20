@@ -14,3 +14,12 @@ port-fwd-all:
 	kubectl port-forward service/chatroom-server-srv 50056:50052 &
 	kubectl port-forward service/message-server-srv 50053:50053 &
 	kubectl port-forward service/auth-server-srv 50054:50054
+
+test-build:
+	docker-compose -f docker-compose.yml -f docker-compose.devandtest.yml -f docker-compose.test.yml build
+
+test:
+	docker-compose -f docker-compose.yml -f docker-compose.devandtest.yml -f docker-compose.test.yml up --exit-code-from server
+
+clean-docker-cache:
+	docker volume prune -f && docker system prune -f && docker container prune -f

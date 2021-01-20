@@ -6,12 +6,12 @@ import (
 	"log"
 	"net"
 
-	"primitivofr/owly/server-common/interceptors"
-	common_keycloak "primitivofr/owly/server-common/keycloak"
+	"github.com/primitivofr/owly/server/common/interceptors"
+	common_keycloak "github.com/primitivofr/owly/server/common/keycloak"
 
-	"primitivofr/owly/server-user/userpb"
+	"github.com/primitivofr/owly/server/user/userpb"
 
-	common_jwt "primitivofr/owly/server-common/jwt"
+	common_jwt "github.com/primitivofr/owly/server/common/jwt"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

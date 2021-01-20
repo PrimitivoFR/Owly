@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"log"
 	"os"
-	"primitivofr/owly/server-auth/authpb"
-	common_testing "primitivofr/owly/server-common-testing"
 	"reflect"
 	"testing"
+
+	"github.com/primitivofr/owly/server/auth/authpb"
+	common_testing "github.com/primitivofr/owly/server/common/testing"
 
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"

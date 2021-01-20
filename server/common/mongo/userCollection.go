@@ -1,7 +1,7 @@
 package common_mongo
 
 import (
-	"primitivofr/owly/server-common/models"
+	"github.com/primitivofr/owly/server/common/models"
 
 	"context"
 

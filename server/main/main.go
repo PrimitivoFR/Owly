@@ -2,10 +2,12 @@ package main
 
 import (
 	"log"
-	authserver "primitivofr/owly/server/auth/auth_server"
-	"primitivofr/owly/server-chatroom/chatroom_server"
-	"primitivofr/owly/server-message/message_server"
-	"primitivofr/owly/server/user/user_server"
+
+	"github.com/primitivofr/owly/server/user/user_server"
+
+	auth_server "github.com/primitivofr/owly/server/auth/auth_server"
+	"github.com/primitivofr/owly/server/chatroom/chatroom_server"
+	"github.com/primitivofr/owly/server/message/message_server"
 )
 
 func main() {
@@ -17,6 +19,6 @@ func main() {
 
 	go chatroom_server.StartServer()
 	go message_server.StartServer()
-	go authserver.StartServer()
+	go auth_server.StartServer()
 	user_server.StartServer()
 }
