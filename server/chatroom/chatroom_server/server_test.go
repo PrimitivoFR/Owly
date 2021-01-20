@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/primitivofr/owly/server/auth/authpb"
 	"github.com/primitivofr/owly/server/chatroom/chatroompb"
 	common_jwt "github.com/primitivofr/owly/server/common/jwt"
+	"github.com/primitivofr/owly/server/common/pb/auth/authpb"
 	common_testing "github.com/primitivofr/owly/server/common/testing"
 
 	"reflect"

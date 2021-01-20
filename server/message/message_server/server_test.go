@@ -8,8 +8,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/primitivofr/owly/server/chatroom/chatroompb"
 	common_jwt "github.com/primitivofr/owly/server/common/jwt"
+	"github.com/primitivofr/owly/server/common/pb/chatroom/chatroompb"
 	common_testing "github.com/primitivofr/owly/server/common/testing"
 	"github.com/primitivofr/owly/server/message/messagepb"
 

@@ -1,10 +1,11 @@
-all: minikube-start minikube-mount k-secrets
+all: minikube-start k-secrets minikube-mount 
 
 minikube-start:
-	minikube stop && minikube start --cpus 4 --memory 8192
+	minikube stop
+	minikube start --cpus 4 --memory 8192
 
 minikube-mount:
-	minikube mount $PWD:/owly
+	minikube mount ${PWD}:/owly
 
 k-secrets:
 	kubectl create secret generic keycloak-creds --from-env-file=keycloak/.keycloak-env
@@ -23,3 +24,22 @@ test:
 
 clean-docker-cache:
 	docker volume prune -f && docker system prune -f && docker container prune -f
+
+dep-proto-grpc:
+	export GO111MODULE=auto
+	go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
+	go get -u google.golang.org/grpc
+
+gen-proto-server:
+	protoc protofiles/user.proto --go_out=plugins=grpc:./server/
+	protoc protofiles/user.proto --go_out=plugins=grpc:./server/common/pb/
+
+	protoc protofiles/chatroom.proto --go_out=plugins=grpc:./server/
+	protoc protofiles/chatroom.proto --go_out=plugins=grpc:./server/common/pb/
+
+	protoc protofiles/message.proto --go_out=plugins=grpc:./server/
+	protoc protofiles/message.proto --go_out=plugins=grpc:./server/common/pb/
+
+	protoc protofiles/auth.proto --go_out=plugins=grpc:./server/
+	protoc protofiles/auth.proto --go_out=plugins=grpc:./server/common/pb/
+	

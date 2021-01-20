@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+
 	"github.com/primitivofr/owly/server/auth/authpb"
 	common_keycloak "github.com/primitivofr/owly/server/common/keycloak"
 	"github.com/primitivofr/owly/server/common/models"

@@ -11,10 +11,7 @@ require (
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/olivere/elastic v6.2.35+incompatible
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/primitivofr/owly/server/auth v0.0.0
-	github.com/primitivofr/owly/server/chatroom v0.0.0-00010101000000-000000000000
 	github.com/primitivofr/owly/server/common v0.0.0
-	github.com/primitivofr/owly/server/user v0.0.0
 	github.com/rgamba/evtwebsocket v0.0.0-20181029234908-48b8cd9f8616
 	github.com/stretchr/testify v1.7.0
 	google.golang.org/grpc v1.35.0
@@ -22,10 +19,6 @@ require (
 )
 
 replace (
-	github.com/primitivofr/owly/server/auth => ../auth
-	github.com/primitivofr/owly/server/chatroom => ../chatroom
 	github.com/primitivofr/owly/server/common => ../common
-	github.com/primitivofr/owly/server/message => ../message
-	github.com/primitivofr/owly/server/user => ../user
 
 )
