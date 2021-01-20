@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+
 	"github.com/primitivofr/owly/server/chatroom/chatroompb"
 	"github.com/primitivofr/owly/server/common/interceptors"
 	common_jwt "github.com/primitivofr/owly/server/common/jwt"
@@ -25,8 +26,6 @@ type server struct{}
 //
 func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroomRequest) (*chatroompb.CreateChatroomResponse, error) {
 	currentUserID, err := common_jwt.ReadUUIDFromContext(ctx)
-
-	log.Println(currentUserID)
 
 	if err != nil {
 		return nil, err
