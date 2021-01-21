@@ -4,8 +4,6 @@ services:
 
     keycloak:
       env_file: ./keycloak/.keycloak-env
-      environment:
-        KEYCLOAK_HOSTNAME: keycloak
       ports:
         - 8080:8080
 
@@ -31,6 +29,7 @@ services:
       hostname: server
       environment:
         MONGO_HOSTNAME: mongo
+        KEYCLOAK_HOSTNAME: keycloak
       networks: 
         - back-end
       depends_on:

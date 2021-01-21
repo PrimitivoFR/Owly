@@ -36,6 +36,8 @@ spec:
         env:
           - name: MONGO_HOSTNAME
             value: mongo-srv
+          - name: KEYCLOAK_HOSTNAME
+            value: keycloak-srv
           - name: KEYCLOAK_USER
             valueFrom:
               secretKeyRef:
