@@ -22,7 +22,7 @@ minikube-mount:
 k-secrets:
 	kubectl create secret generic keycloak-creds --from-env-file=keycloak/.keycloak-env
 
-port-fwd-all:
+port-fwd-server:
 	kubectl port-forward service/user-server-srv 50051:50051 &
 	kubectl port-forward service/chatroom-server-srv 50052:50052 &
 	kubectl port-forward service/message-server-srv 50053:50053 &
