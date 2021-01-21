@@ -17,6 +17,8 @@ spec:
         env:
         - name: MONGO_HOSTNAME
           value: mongo-srv
+        - name: ELASTIC_HOST
+          value: elasticsearch-srv
         - name: KEYCLOAK_HOSTNAME
           value: keycloak-srv
         - name: KEYCLOAK_USER

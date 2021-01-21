@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"strings"
 	"time"
 
@@ -85,8 +86,9 @@ func (*server) StreamMessagesByChatroom(req *messagepb.StreamMessagesByChatroomR
 			log.Printf("Error while listening to WS %v", err)
 		},
 	}
+	elasticHost := os.Getenv("ELASTIC_HOST")
 	// Connect
-	c.Dial("ws://elasticsearch-srv:9400/ws/_changes", "")
+	c.Dial("ws://"+elasticHost+":9400/ws/_changes", "")
 
 	for c.IsConnected() {
 		time.Sleep(3 * time.Second)

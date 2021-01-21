@@ -3,7 +3,6 @@ version: "3.8"
 services:
 
   elasticsearch:
-    hostname: elasticsearch-srv
     environment:
       - "discovery.type=single-node"
       - "bootstrap.memory_lock=true"

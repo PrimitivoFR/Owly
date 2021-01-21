@@ -30,6 +30,7 @@ services:
       environment:
         MONGO_HOSTNAME: mongo
         KEYCLOAK_HOSTNAME: keycloak
+        ELASTIC_HOST: elasticsearch
       networks: 
         - back-end
       depends_on:
