@@ -1,4 +1,4 @@
-all: minikube-clean minikube-start k-secrets minikube-mount 
+dev: gen-proto-server minikube-clean minikube-start k-secrets minikube-mount 
 
 doggo-install:
 	cd .devtools/doggo ; go install doggo

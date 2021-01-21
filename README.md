@@ -11,7 +11,7 @@ Take care to run the **test mode** and check that everything runs fine with your
 You'll need `minikube` and `kubectl`
 
 Run everything:
-- `make all`
+- `make dev`
 - open another terminal tab and run `skaffold dev`
 
 Port-forwarding for dev: 
