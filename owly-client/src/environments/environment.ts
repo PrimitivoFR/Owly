@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  backendUrl:"https://weconcert.dev/api"
+  backendUrl:"https://owly.dev/api"
 };
 
 /*

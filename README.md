@@ -12,7 +12,10 @@ You'll need `minikube` and `kubectl`
 
 Run everything:
 - `make dev`
+- open another terminal tab, and type `minikube ip`. Match this ip with domain `owly.dev` in your /etc/hosts (eg: `192.168.49.2         owly.dev`)
 - open another terminal tab and run `skaffold dev`
+- the head up to https://owly.dev
+- **NOTE:** if your browser doesn't let u pass, just type `thisisunsafe` on your keyboard.
 
 Port-forwarding for dev: 
 - `make port-fwd-all`

@@ -1,21 +1,3 @@
-# apiVersion: networking.k8s.io/v1beta1
-# kind: Ingress
-# metadata:
-#   name: auth-grpc
-#   annotations:
-#     nginx.ingress.kubernetes.io/backend-protocol: GRPC
-#     nginx.ingress.kubernetes.io/grpc-backend: "true"
-# spec:
-#   rules:
-#   - host: weconcert.dev
-#     http:
-#       paths:
-#       - path: /api/?(.*)
-#         backend:
-#           serviceName: auth-server-srv
-#           servicePort: 50054
-# ---
-
 
 apiVersion: apps/v1
 kind: Deployment

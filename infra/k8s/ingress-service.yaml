@@ -13,7 +13,7 @@ metadata:
 
 spec:
   rules:
-    - host: weconcert.dev
+    - host: owly.dev
       http:
         paths:
           - path: /

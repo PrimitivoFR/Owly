@@ -8,7 +8,7 @@ metadata:
     nginx.ingress.kubernetes.io/grpc-backend: "true"
 spec:
   rules:
-  - host: weconcert.dev
+  - host: owly.dev
     http:
       paths:
       - path: /api
