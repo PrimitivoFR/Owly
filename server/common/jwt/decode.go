@@ -1,7 +1,7 @@
 package common_jwt
 
 import (
-	common_keycloak "primitivofr/owly/server/common/keycloak"
+	common_keycloak "github.com/primitivofr/owly/server/common/keycloak"
 )
 
 func ExtractUUIDfromJWT(token string) (string, error) {

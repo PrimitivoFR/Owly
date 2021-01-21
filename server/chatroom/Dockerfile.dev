@@ -1,0 +1,9 @@
+ARG SERVER_COMMON
+# ----  ----
+FROM $SERVER_COMMON AS base
+WORKDIR /server/chatroom
+COPY . . 
+
+EXPOSE 50052
+
+CMD [ "go", "run" ,"main.go" ]

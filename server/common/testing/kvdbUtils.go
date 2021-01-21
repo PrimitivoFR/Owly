@@ -1,6 +1,6 @@
 package common_testing
 
-import common_kvdb "primitivofr/owly/server/common/kvdb"
+import common_kvdb "github.com/primitivofr/owly/server/common/kvdb"
 
 //SaveToKvdb allows to save to the testing kvdb in one line of code
 func SaveToKvdb(bucketName string, key string, value string) {

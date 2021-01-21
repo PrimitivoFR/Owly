@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+
+metadata:
+  name: ingress-service
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+    # nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+
+
+
+spec:
+  rules:
+    - host: owly.dev
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: client-srv
+              servicePort: 80 

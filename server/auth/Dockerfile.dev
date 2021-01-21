@@ -1,0 +1,7 @@
+ARG SERVER_COMMON
+# ----  ----
+FROM $SERVER_COMMON AS base
+WORKDIR /server/auth
+COPY . . 
+EXPOSE 50054
+CMD [ "go" ,"run", "main.go" ]

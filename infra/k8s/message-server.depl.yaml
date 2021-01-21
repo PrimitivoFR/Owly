@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: message-server-depl
+spec:
+  selector:
+    matchLabels:
+      app: message-server
+  template:
+    metadata:
+      labels:
+        app: message-server
+    spec:
+      containers:
+      - name: message-server
+        image: primitivofr/owly/message-server
+        env:
+        - name: MONGO_HOSTNAME
+          value: mongo-srv
+        - name: ELASTIC_HOST
+          value: elasticsearch-srv
+        - name: KEYCLOAK_HOSTNAME
+          value: keycloak-srv
+        - name: KEYCLOAK_USER
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-creds
+              key: KEYCLOAK_USER
+        - name: KEYCLOAK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-creds
+              key: KEYCLOAK_PASSWORD
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: message-server-srv
+spec:
+  selector:
+    app: message-server
+  ports:
+  - name: message-server
+    protocol: TCP
+    port: 50053
+    targetPort: 50053
+

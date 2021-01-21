@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"os"
-	"primitivofr/owly/server/auth/authpb"
-	common_testing "primitivofr/owly/server/common/testing"
 	"reflect"
 	"testing"
+
+	"github.com/primitivofr/owly/server/auth/authpb"
+	common_testing "github.com/primitivofr/owly/server/common/testing"
 
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
@@ -94,14 +94,6 @@ func TestLoginUser(t *testing.T) {
 
 		if resp != nil {
 			common_testing.SaveToKvdb("tokens", "applinh", resp.Result.AccessToken)
-
-			// This needs to be removed
-			f, err := os.Create("../../token.txt")
-			if err != nil {
-				panic(err)
-			}
-			f.WriteString(resp.Result.GetAccessToken())
-
 		}
 	}
 }

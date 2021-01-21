@@ -3,6 +3,7 @@ package common_elastic
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/elastic/go-elasticsearch/v8"
@@ -13,10 +14,12 @@ import (
 
 // Init inits an elasticsearch client with official elasticsearch package
 func Init() (*elasticsearch.Client, error) {
+
+	elasticHost := os.Getenv("ELASTIC_HOST")
 	// Declare an Elasticsearch configuration
 	cfg := elasticsearch.Config{
 		Addresses: []string{
-			"http://elasticsearch:9200",
+			"http://" + elasticHost + ":9200",
 		},
 	}
 
@@ -35,10 +38,10 @@ func Init() (*elasticsearch.Client, error) {
 
 // InitOlivereES init an elasticearch client with Olivere elasticsearch package
 func InitOlivereES() (*elastic.Client, error) {
-
+	elasticHost := os.Getenv("ELASTIC_HOST")
 	client, err := elastic.NewClient(
 		elastic.SetSniff(true),
-		elastic.SetURL("http://elasticsearch:9200"),
+		elastic.SetURL("http://"+elasticHost+":9200"),
 		elastic.SetHealthcheckInterval(5*time.Second),
 	)
 

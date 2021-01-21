@@ -1,14 +1,19 @@
-# ---- AUTH ----
+ARG SERVER_COMMON
 
-# ---- BUILD ----
-FROM init_server_image AS build
-RUN  go build -o ./build/auth_server ./auth
+FROM ${SERVER_COMMON} as builder
 
+ENV GO111MODULE=on
+WORKDIR /server/auth
+COPY ./go.mod .
+RUN go mod download
 
-# ---- RELEASE ---- (replace golang with alpine or anything lighter please)
+COPY . . 
+
+RUN  go build -o ./build/auth_server .
+
 FROM golang as release 
 
-COPY --from=build /server/build .
+COPY --from=builder /server/auth/build .
 
 RUN chmod 700 ./auth_server
 EXPOSE 50054

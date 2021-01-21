@@ -10,6 +10,8 @@ services:
     volumes:
       - ./server:/go/src/owly-server
     working_dir: /go/src/owly-server
+    environment:
+      GO111MODULE: 'on'
     command: bash -c "./runTests.sh"
     ports:
       - 50051:50051

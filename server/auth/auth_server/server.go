@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"primitivofr/owly/server/auth/authpb"
-	common_keycloak "primitivofr/owly/server/common/keycloak"
-	"primitivofr/owly/server/common/models"
-	common_mongo "primitivofr/owly/server/common/mongo"
+
+	"github.com/primitivofr/owly/server/auth/authpb"
+	common_keycloak "github.com/primitivofr/owly/server/common/keycloak"
+	"github.com/primitivofr/owly/server/common/models"
+	common_mongo "github.com/primitivofr/owly/server/common/mongo"
 
 	"github.com/Nerzal/gocloak/v7"
 	"google.golang.org/grpc"
@@ -128,7 +129,7 @@ func (*server) LoginUser(ctx context.Context, req *authpb.LoginUserRequest) (*au
 //
 func StartServer() {
 
-	lis, err := net.Listen("tcp", "0.0.0.0:50054")
+	lis, err := net.Listen("tcp", ":50054")
 
 	if err != nil {
 		log.Fatalf("Failed to listen %v \n", err)

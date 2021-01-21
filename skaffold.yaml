@@ -1,0 +1,72 @@
+apiVersion: skaffold/v2beta10
+kind: Config
+
+deploy:
+  kubectl:
+    manifests:
+      - ./infra/k8s/*
+
+build:
+  local:
+    push: false # Don't try to push the image to a registry, once built
+  artifacts:
+    - image: primitivofr/owly/client
+      context: ./owly-client
+      docker:
+        dockerfile: Dockerfile
+    - image: server-common
+      context: ./server/common
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '/**/*.go'
+            dest: .
+    - image: primitivofr/owly/auth-server
+      context: ./server/auth
+      requires:
+      - image: server-common
+        alias: SERVER_COMMON
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        manual: 
+          - src: '/**/*.go'
+            dest: .
+    - image: primitivofr/owly/user-server
+      context: ./server/user
+      requires:
+      - image: server-common
+        alias: SERVER_COMMON
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        manual: 
+          - src: '/**/*.go'
+            dest: . 
+    - image: primitivofr/owly/message-server
+      context: ./server/message
+      requires:
+      - image: server-common
+        alias: SERVER_COMMON
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        manual: 
+          - src: '/**/*.go'
+            dest: .
+    - image: primitivofr/owly/chatroom-server
+      context: ./server/chatroom
+      requires:
+      - image: server-common
+        alias: SERVER_COMMON
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        manual: 
+          - src: '/**/*.go'
+            dest: .
+    - image: primitivofr/owly/elasticsearch
+      context: ./elasticsearch
+      docker:
+        dockerfile: Dockerfile

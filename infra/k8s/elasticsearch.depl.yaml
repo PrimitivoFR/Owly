@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elasticsearch-depl
+spec:
+  selector:
+    matchLabels:
+      app: elasticsearch
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+    spec:
+      containers:
+      - name: elasticsearch
+        image: primitivofr/owly/elasticsearch
+        env:
+          - name: discovery.type
+            value: single-node
+          - name: bootstrap.memory_lock
+            value: 'true'
+          - name: ES_JAVA_OPTS
+            value: -Xms512m -Xmx512m
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-srv
+spec:
+  selector:
+    app: elasticsearch
+  ports:
+    - name: elasticsearch
+      port: 9200
+      targetPort: 9200
+    - name: elasticsearch-ws
+      port: 9400
+      targetPort: 9400

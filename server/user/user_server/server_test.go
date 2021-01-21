@@ -5,11 +5,12 @@ import (
 	// "io/ioutil"
 	// "log"
 	// "os"
-	"primitivofr/owly/server/user/userpb"
+	"github.com/primitivofr/owly/server/user/userpb"
 	"reflect"
 	"testing"
-	//common_jwt "primitivofr/owly/server/common/jwt"
-	common_testing "primitivofr/owly/server/common/testing"
+
+	//common_jwt "github.com/primitivofr/owly/server/common/jwt"
+	common_testing "github.com/primitivofr/owly/server/common/testing"
 
 	"google.golang.org/grpc/codes"
 	// "google.golang.org/grpc/metadata"
@@ -79,7 +80,7 @@ func TestGetUserInfos(t *testing.T) {
 		appliNHCtxInc,
 		&userpb.SearchUserByUsernameRequest{Username: "user"},
 	)
-	
+
 	if searchUserErr != nil {
 		t.Errorf("SearchUserByUsername got unexpected error %v", searchUserErr)
 	}
@@ -95,10 +96,10 @@ func TestGetUserInfos(t *testing.T) {
 				Id: userID,
 			},
 			want: userpb.GetUserInfosResponse{
-				Username: "user",
+				Username:  "user",
 				Firstname: "Sample",
-				Lastname: "User",
-				Email: "sample-user@example",
+				Lastname:  "User",
+				Email:     "sample-user@example",
 			},
 		},
 		{

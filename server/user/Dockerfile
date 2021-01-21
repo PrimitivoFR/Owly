@@ -1,14 +1,19 @@
-# ---- USER ----
+ARG SERVER_COMMON
 
-# ---- BUILD ----
-FROM init_server_image AS build
-RUN  go build -o ./build/user_server ./user
+FROM ${SERVER_COMMON} as builder
 
+ENV GO111MODULE=on
+WORKDIR /server/user
+COPY ./go.mod .
+RUN go mod download
 
-# ---- RELEASE ---- (replace golang with alpine or anything lighter please)
+COPY . . 
+
+RUN  go build -o ./build/user_server .
+
 FROM golang as release 
 
-COPY --from=build /server/build .
+COPY --from=builder /server/user/build .
 
 RUN chmod 700 ./user_server
 EXPOSE 50051

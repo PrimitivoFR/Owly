@@ -3,6 +3,7 @@ package common_mongo
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -20,12 +21,13 @@ var UserCollection *mongo.Collection
 func SetupMongoDB() error {
 	var err error
 	fmt.Println("Connecting to MongoDB...")
-	MONGO_HOSTNAME := "localhost"
-	MONGO_HOSTNAME = os.Getenv("MONGO_HOSTNAME")
+	// MONGO_HOSTNAME := "localhost"
+	MONGO_HOSTNAME := os.Getenv("MONGO_HOSTNAME")
 	client, err = mongo.NewClient(options.Client().ApplyURI("mongodb://" + MONGO_HOSTNAME + ":27017"))
 	if err != nil {
 		return err
 	}
+	log.Println("Connected to mongo !")
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 	err = client.Connect(ctx)

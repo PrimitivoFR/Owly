@@ -3,7 +3,6 @@ version: "3.8"
 services:
 
   elasticsearch:
-    hostname: elasticsearch
     environment:
       - "discovery.type=single-node"
       - "bootstrap.memory_lock=true"
@@ -24,7 +23,6 @@ services:
       - back-end
 
   keycloak:
-    hostname: keycloak
     image: quay.io/keycloak/keycloak:11.0.1
     environment:
       KEYCLOAK_IMPORT: /tmp/owly-realm.json 

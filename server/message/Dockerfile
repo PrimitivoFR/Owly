@@ -1,14 +1,19 @@
-# ---- MESSAGE ----
+ARG SERVER_COMMON
 
-# ---- BUILD ----
-FROM init_server_image AS build
-RUN  go build -o ./build/message_server ./message
+FROM ${SERVER_COMMON} as builder
 
+ENV GO111MODULE=on
+WORKDIR /server/message
+COPY ./go.mod .
+RUN go mod download
 
-# ---- RELEASE ---- (replace golang with alpine or anything lighter please)
+COPY . . 
+
+RUN  go build -o ./build/message_server .
+
 FROM golang as release 
 
-COPY --from=build /server/build .
+COPY --from=builder /server/message/build .
 
 RUN chmod 700 ./message_server
 EXPOSE 50053

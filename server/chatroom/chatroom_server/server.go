@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"primitivofr/owly/server/chatroom/chatroompb"
-	"primitivofr/owly/server/common/interceptors"
-	common_jwt "primitivofr/owly/server/common/jwt"
-	common_keycloak "primitivofr/owly/server/common/keycloak"
-	"primitivofr/owly/server/common/models"
-	common_mongo "primitivofr/owly/server/common/mongo"
+
+	"github.com/primitivofr/owly/server/chatroom/chatroompb"
+	"github.com/primitivofr/owly/server/common/interceptors"
+	common_jwt "github.com/primitivofr/owly/server/common/jwt"
+	common_keycloak "github.com/primitivofr/owly/server/common/keycloak"
+	"github.com/primitivofr/owly/server/common/models"
+	common_mongo "github.com/primitivofr/owly/server/common/mongo"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -25,8 +26,6 @@ type server struct{}
 //
 func (*server) CreateChatroom(ctx context.Context, req *chatroompb.CreateChatroomRequest) (*chatroompb.CreateChatroomResponse, error) {
 	currentUserID, err := common_jwt.ReadUUIDFromContext(ctx)
-
-	log.Println(currentUserID)
 
 	if err != nil {
 		return nil, err

@@ -1,9 +1,8 @@
-# ---- Base ----
-FROM golang
+FROM golang as builder
 
 ENV GO111MODULE=on
-WORKDIR /server
+WORKDIR /server/common
 COPY ./go.mod .
 RUN go mod download
 
-COPY . . 
+COPY . .

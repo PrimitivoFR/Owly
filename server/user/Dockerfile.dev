@@ -1,0 +1,8 @@
+ARG SERVER_COMMON
+# ----  ----
+FROM $SERVER_COMMON AS base
+WORKDIR /server/user
+COPY . . 
+
+EXPOSE 50051
+CMD [ "go", "run", "main.go" ]

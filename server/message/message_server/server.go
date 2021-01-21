@@ -6,13 +6,16 @@ import (
 	"fmt"
 	"log"
 	"net"
-	common_elastic "primitivofr/owly/server/common/elastic"
-	"primitivofr/owly/server/common/interceptors"
-	common_jwt "primitivofr/owly/server/common/jwt"
-	message_models "primitivofr/owly/server/message/message_server/models"
-	"primitivofr/owly/server/message/messagepb"
+	"os"
 	"strings"
 	"time"
+
+	common_elastic "github.com/primitivofr/owly/server/common/elastic"
+	common_interceptors "github.com/primitivofr/owly/server/common/interceptors"
+	common_jwt "github.com/primitivofr/owly/server/common/jwt"
+	"github.com/primitivofr/owly/server/message/interceptors"
+	"github.com/primitivofr/owly/server/message/messagepb"
+	message_models "github.com/primitivofr/owly/server/message/models"
 
 	"google.golang.org/grpc/codes"
 
@@ -36,7 +39,7 @@ func (*server) StreamMessagesByChatroom(req *messagepb.StreamMessagesByChatroomR
 		return err
 	}
 
-	err = interceptors.IsUserInChatroom(chatroomID, userID)
+	err = common_interceptors.IsUserInChatroom(chatroomID, userID)
 	if err != nil {
 		return err
 	}
@@ -83,8 +86,9 @@ func (*server) StreamMessagesByChatroom(req *messagepb.StreamMessagesByChatroomR
 			log.Printf("Error while listening to WS %v", err)
 		},
 	}
+	elasticHost := os.Getenv("ELASTIC_HOST")
 	// Connect
-	c.Dial("ws://elasticsearch:9400/ws/_changes", "")
+	c.Dial("ws://"+elasticHost+":9400/ws/_changes", "")
 
 	for c.IsConnected() {
 		time.Sleep(3 * time.Second)
@@ -103,7 +107,7 @@ func (*server) SendMessage(ctx context.Context, req *messagepb.SendMessageReques
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Message is too long. Req: %v", req))
 	}
 
-	err = interceptors.IsUserInChatroom(req.Message.ChatroomID, user_id)
+	err = common_interceptors.IsUserInChatroom(req.Message.ChatroomID, user_id)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +182,7 @@ func (*server) GetMessagesByChatroom(ctx context.Context, req *messagepb.GetMess
 		return nil, err
 	}
 
-	err = interceptors.IsUserInChatroom(req.ChatroomID, user_id)
+	err = common_interceptors.IsUserInChatroom(req.ChatroomID, user_id)
 	if err != nil {
 		return nil, err
 	}
@@ -204,8 +208,6 @@ func (*server) GetMessagesByChatroom(ctx context.Context, req *messagepb.GetMess
 	var messages []*messagepb.Message
 
 	var response map[string]interface{}
-
-	fmt.Println(response)
 
 	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
 		log.Printf("Error while parsing body: %v", err)
@@ -254,7 +256,7 @@ func (*server) DeleteMessage(ctx context.Context, req *messagepb.DeleteMessageRe
 		return nil, err
 	}
 
-	err = interceptors.IsUserInChatroom(req.ChatroomID, userId)
+	err = common_interceptors.IsUserInChatroom(req.ChatroomID, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -312,7 +314,7 @@ func (*server) UpdateMessageContent(ctx context.Context, req *messagepb.UpdateMe
 	}
 
 	// Check if user belongs to chatroom
-	err = interceptors.IsUserInChatroom(req.ChatroomId, userId)
+	err = common_interceptors.IsUserInChatroom(req.ChatroomId, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -398,7 +400,7 @@ func StartServer() {
 		log.Fatalf("Failed to listen %v \n", err)
 	}
 
-	s := grpc.NewServer(grpc.UnaryInterceptor(interceptors.UnaryInterceptor), grpc.StreamInterceptor(interceptors.StreamInterceptor))
+	s := grpc.NewServer(grpc.UnaryInterceptor(common_interceptors.UnaryInterceptor), grpc.StreamInterceptor(common_interceptors.StreamInterceptor))
 	messagepb.RegisterMessageServiceServer(s, &server{})
 	reflection.Register(s) // allows us to expose the gRPC server so the client can see what's available. You can use Evans CLI for that
 

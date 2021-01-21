@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-depl
+spec:
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: mongo
+      #   volumeMounts:
+      #     - mountPath: /data/db
+      #       name: mongodbdata
+      # volumes:
+      #   - name: 
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-srv
+spec:
+  selector:
+    app: mongo
+  ports:
+  - port: 27017
+    targetPort: 27017

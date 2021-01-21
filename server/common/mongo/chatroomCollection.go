@@ -1,7 +1,7 @@
 package common_mongo
 
 import (
-	"primitivofr/owly/server/common/models"
+	"github.com/primitivofr/owly/server/common/models"
 
 	"context"
 
@@ -43,7 +43,7 @@ func IsChatroomOwner(userID string, chatroomID string) (bool, error) {
 	return userIsChatroomOwner, nil
 }
 
-func ChangeChatroomOwner(newOwnerId string, chatroomId string) (error) {
+func ChangeChatroomOwner(newOwnerId string, chatroomId string) error {
 	if ChatroomCollection == nil {
 		errSetup := SetupMongoDB()
 		if errSetup != nil {

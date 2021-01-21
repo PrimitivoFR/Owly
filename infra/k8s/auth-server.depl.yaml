@@ -1,0 +1,48 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-server-depl
+spec:
+  selector:
+    matchLabels:
+      app: auth-server
+  template:
+    metadata:
+      labels:
+        app: auth-server
+    spec:
+      containers:
+      - name: auth-server
+        image: primitivofr/owly/auth-server
+        env:
+          - name: MONGO_HOSTNAME
+            value: mongo-srv
+          - name: KEYCLOAK_HOSTNAME
+            value: keycloak-srv
+          - name: KEYCLOAK_USER
+            valueFrom:
+              secretKeyRef:
+                name: keycloak-creds
+                key: KEYCLOAK_USER
+          - name: KEYCLOAK_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keycloak-creds
+                key: KEYCLOAK_PASSWORD
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-server-srv
+spec:
+  selector:
+    app: auth-server
+  ports:
+  - name: auth-server
+    protocol: TCP
+    port: 50054
+    targetPort: 50054
+

@@ -15,15 +15,15 @@ check-error()
 }
 
 
-go mod download
+cd main/ && go run main.go & # Start all servers, for context creator
+cd auth/ && go mod download && go test ./auth_server
+check-error
+cd ../user && go mod download && go test ./user_server
+check-error
+cd ../chatroom && go mod download && go test ./chatroom_server
+check-error
+cd ../message && go mod download && go test ./message_server
+check-error
 
-go test ./auth/auth_server
-check-error
-go test ./user/user_server 
-check-error
-go test ./chatroom/chatroom_server 
-check-error
-go test ./message/message_server
-check-error
 
 exit $error

@@ -3,7 +3,7 @@ package interceptors
 import (
 	"fmt"
 	"log"
-	common_mongo "primitivofr/owly/server/common/mongo"
+	common_mongo "github.com/primitivofr/owly/server/common/mongo"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

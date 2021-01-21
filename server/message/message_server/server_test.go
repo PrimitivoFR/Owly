@@ -3,16 +3,15 @@ package message_server
 import (
 	"context"
 	"log"
-	authserver "primitivofr/owly/server/auth/auth_server"
 	"sort"
 
-	"primitivofr/owly/server/chatroom/chatroom_server"
-	"primitivofr/owly/server/chatroom/chatroompb"
-	common_jwt "primitivofr/owly/server/common/jwt"
-	common_testing "primitivofr/owly/server/common/testing"
-	"primitivofr/owly/server/message/messagepb"
 	"reflect"
 	"testing"
+
+	common_jwt "github.com/primitivofr/owly/server/common/jwt"
+	"github.com/primitivofr/owly/server/common/pb/chatroom/chatroompb"
+	common_testing "github.com/primitivofr/owly/server/common/testing"
+	"github.com/primitivofr/owly/server/message/messagepb"
 
 	"time"
 
@@ -56,13 +55,13 @@ func init() {
 	// This function will automatically run first.
 
 	// Starting chatroom MS
-	go chatroom_server.StartServer()
+	// go chatroom_server.StartServer()
 
 	// Starting message MS
-	go StartServer()
+	// go StartServer()
 
 	// Starting auth MS
-	go authserver.StartServer()
+	// go authserver.StartServer()
 	time.Sleep(2 * time.Second)
 
 	var err error
