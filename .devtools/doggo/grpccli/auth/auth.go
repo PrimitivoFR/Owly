@@ -2,7 +2,8 @@ package auth
 
 import (
 	"context"
-	"primitivofr/owly/server/auth/authpb"
+
+	"github.com/primitivofr/owly/server/common/pb/auth/authpb"
 
 	"google.golang.org/grpc"
 )

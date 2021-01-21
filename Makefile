@@ -1,7 +1,17 @@
-all: minikube-start k-secrets minikube-mount 
+all: minikube-clean minikube-start k-secrets minikube-mount 
+
+doggo-install:
+	cd .devtools/doggo ; go install doggo
+
+compose-dev:
+	@echo WARNING THIS IS DEPRECATED AND NEEDS TO BE REWORKED
+	docker-compose -f docker-compose.yml -f docker-compose.devandtest.yml  -f docker-compose.dev.yml up
+
+minikube-clean:
+	-minikube stop
+	-minikube delete
 
 minikube-start:
-	# minikube stop
 	minikube start --cpus 4 --memory 8192
 	minikube addons enable ingress
 	kubectl expose deployment ingress-nginx-controller --target-port=80 --type=NodePort -n kube-system
@@ -14,7 +24,7 @@ k-secrets:
 
 port-fwd-all:
 	kubectl port-forward service/user-server-srv 50051:50051 &
-	kubectl port-forward service/chatroom-server-srv 50056:50052 &
+	kubectl port-forward service/chatroom-server-srv 50052:50052 &
 	kubectl port-forward service/message-server-srv 50053:50053 &
 	kubectl port-forward service/auth-server-srv 50054:50054
 
