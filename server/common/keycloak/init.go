@@ -15,7 +15,6 @@ var keycloak_admin_pass string
 var keycloak_hostname string
 
 func loadEnvVars() {
-	log.Println("Loading env vars")
 	keycloak_admin_user = os.Getenv("KEYCLOAK_USER")
 	keycloak_admin_pass = os.Getenv("KEYCLOAK_PASSWORD")
 	keycloak_hostname = os.Getenv("KEYCLOAK_HOSTNAME")

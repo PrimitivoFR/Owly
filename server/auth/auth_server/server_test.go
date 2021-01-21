@@ -15,9 +15,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func init() {
-	log.Println("Hello")
-}
 func TestCreateNewUser(t *testing.T) {
 
 	s := server{}
