@@ -4,6 +4,8 @@ services:
 
     keycloak:
       env_file: ./keycloak/.keycloak-env
+      environment:
+        KEYCLOAK_HOSTNAME: keycloak
       ports:
         - 8080:8080
 
