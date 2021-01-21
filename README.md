@@ -17,8 +17,8 @@ Run everything:
 - the head up to https://owly.dev
 - **NOTE:** if your browser doesn't let u pass, just type `thisisunsafe` on your keyboard.
 
-Port-forwarding for dev: 
-- `make port-fwd-all`
+Port-forwarding for dev (server): 
+- `make port-fwd-port-fwd-server`
 
 
 #### Dialing with EVANS CLI
