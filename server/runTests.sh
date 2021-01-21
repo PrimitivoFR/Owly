@@ -16,13 +16,13 @@ check-error()
 
 
 cd main/ && go run main.go & # Start all servers, for context creator
-cd auth/ && go mod download && go test ./...
+cd auth/ && go mod download && go test ./auth_server
 check-error
-cd ../user && go mod download && go test ./... 
+cd ../user && go mod download && go test ./user_server
 check-error
-cd ../chatroom && go mod download && go test ./...
+cd ../chatroom && go mod download && go test ./chatroom_server
 check-error
-cd ../message && go mod download && go test ./...
+cd ../message && go mod download && go test ./message_server
 check-error
 
 
