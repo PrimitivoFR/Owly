@@ -25,6 +25,6 @@ RUN rm -rf /usr/share/nginx/html/*
 # Copy from the Stage1
 COPY --from=builder /owly-client/dist /usr/share/nginx/html
 
-EXPOSE 4200 80
+EXPOSE 80
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]

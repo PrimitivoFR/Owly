@@ -15,7 +15,6 @@ import (
 func RunEvansWithToken(username string, password string, port string) {
 	res := grpcAuth.LoginUser(username, password)
 	token := res.Result.AccessToken
-	log.Println(token)
 
 	var whichOrWhere string
 	if runtime.GOOS == "windows" {

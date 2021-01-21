@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  backendUrl: "http://"+document.location.hostname+"/envoy"
+  backendUrl: "https://"+document.location.hostname+"/api"
 };

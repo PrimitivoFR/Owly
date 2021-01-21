@@ -1,0 +1,12 @@
+FROM node:10-alpine
+
+WORKDIR /owly-client
+
+COPY . .
+
+RUN npm i
+
+
+EXPOSE 4200
+
+CMD ["npm", "run", "ng", "serve"]

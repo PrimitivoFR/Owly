@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  backendUrl:"http://localhost:8085"
+  backendUrl:"https://weconcert.dev/api"
 };
 
 /*

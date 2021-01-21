@@ -1,8 +1,10 @@
 all: minikube-start k-secrets minikube-mount 
 
 minikube-start:
-	minikube stop
+	# minikube stop
 	minikube start --cpus 4 --memory 8192
+	minikube addons enable ingress
+	kubectl expose deployment ingress-nginx-controller --target-port=80 --type=NodePort -n kube-system
 
 minikube-mount:
 	minikube mount ${PWD}:/owly

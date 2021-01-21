@@ -6,14 +6,15 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
+	"time"
+
 	common_elastic "github.com/primitivofr/owly/server/common/elastic"
 	common_interceptors "github.com/primitivofr/owly/server/common/interceptors"
 	common_jwt "github.com/primitivofr/owly/server/common/jwt"
 	"github.com/primitivofr/owly/server/message/interceptors"
 	"github.com/primitivofr/owly/server/message/messagepb"
 	message_models "github.com/primitivofr/owly/server/message/models"
-	"strings"
-	"time"
 
 	"google.golang.org/grpc/codes"
 
@@ -205,8 +206,6 @@ func (*server) GetMessagesByChatroom(ctx context.Context, req *messagepb.GetMess
 	var messages []*messagepb.Message
 
 	var response map[string]interface{}
-
-	fmt.Println(response)
 
 	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
 		log.Printf("Error while parsing body: %v", err)

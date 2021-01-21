@@ -1,3 +1,8 @@
+admin:
+  access_log_path: /dev/stdout
+  address:
+    socket_address: { address: 0.0.0.0, port_value: 9901 }
+
 static_resources:
   listeners:
     - name: listener_0
@@ -15,22 +20,26 @@ static_resources:
                     - name: local_service
                       domains: ["*"]
                       routes:
-                        - match: { prefix: "/user" }
+                        - match: { prefix: "/api/user" }
                           route:
+                            prefix_rewrite: "/user"
                             cluster: user_service
-                            max_grpc_timeout: 0s
-                        - match: { prefix: "/chatroom" }
+                            max_grpc_timeout: 5s
+                        - match: { prefix: "/api/chatroom" }
                           route:
+                            prefix_rewrite: "/chatroom"
                             cluster: chatroom_service
-                            max_grpc_timeout: 0s
-                        - match: { prefix: "/message" }
+                            max_grpc_timeout: 5s
+                        - match: { prefix: "/api/message" }
                           route:
+                            prefix_rewrite: "/message"
                             cluster: message_service
-                            max_grpc_timeout: 0s
-                        - match: { prefix: "/auth" }
+                            max_grpc_timeout: 5s
+                        - match: { prefix: "/api/auth" }
                           route:
+                            prefix_rewrite: "/auth"
                             cluster: auth_service
-                            max_grpc_timeout: 0s
+                            max_grpc_timeout: 5s
                       cors:
                         allow_origin_string_match:
                           - prefix: "*"
@@ -48,22 +57,22 @@ static_resources:
       type: logical_dns
       http2_protocol_options: {}
       lb_policy: round_robin
-      hosts: [{ socket_address: { address: user_server, port_value: 50051 } }]
+      hosts: [{ socket_address: { address: user-server-srv, port_value: 50051 } }]
     - name: chatroom_service
       connect_timeout: 0.25s
       type: logical_dns
       http2_protocol_options: {}
       lb_policy: round_robin
-      hosts: [{ socket_address: { address: chatroom_server, port_value: 50052 } }]
+      hosts: [{ socket_address: { address: chatroom-server-srv, port_value: 50052 } }]
     - name: message_service
       connect_timeout: 0.25s
       type: logical_dns
       http2_protocol_options: {}
       lb_policy: round_robin
-      hosts: [{ socket_address: { address: message_server, port_value: 50053 } }]
+      hosts: [{ socket_address: { address: message-server-srv, port_value: 50053 } }]
     - name: auth_service
       connect_timeout: 0.25s
       type: logical_dns
       http2_protocol_options: {}
       lb_policy: round_robin
-      hosts: [{ socket_address: { address: auth_server, port_value: 50054 } }]
+      hosts: [{ socket_address: { address: auth-server-srv, port_value: 50054 } }]

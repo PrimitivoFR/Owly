@@ -1,0 +1,61 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: envoy-grpc
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/backend-protocol: GRPC
+    nginx.ingress.kubernetes.io/grpc-backend: "true"
+spec:
+  rules:
+  - host: weconcert.dev
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          serviceName: envoy-srv
+          servicePort: 8085
+---
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envoy-depl
+spec:
+  selector:
+    matchLabels:
+      app: envoy
+  template:
+    metadata:
+      labels:
+        app: envoy
+    spec:
+      containers:
+      - name: envoy
+        image: envoyproxy/envoy-alpine:v1.13.0
+        env:
+          - name: loglevel
+            value: debug
+        volumeMounts:
+          - mountPath:  /etc/envoy/envoy.yaml
+            name: envoy-configu
+      volumes:
+        - name:  envoy-configu
+          hostPath:
+            path:  /owly/envoy/envoy.k8s.yaml
+            type: File
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: envoy-srv
+spec:
+  selector:
+    app: envoy
+  ports:
+  - port: 8085
+    targetPort: 8085
